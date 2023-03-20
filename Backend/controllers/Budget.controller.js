@@ -74,27 +74,9 @@ export const DailyExpenseRecord = catchAsyncError(async (req, res, nex) => {
 
 
 export const AddDailyExpenseintoBudget = catchAsyncError(async (req, res, next) => {
-// var expense = req.body
 
 
-        // const { budget_id } = await db('budget').where({ BudgetMonth: month + "-" + year }).first('budget_id');
-        // const data = await db('budget_detail').select('categoryName	', 'Amount').where({budget_id});
-        // const data = await db('budget_detail').select('categoryName	', 'Amount').where({ categoryName: expense[0].categoryName });
 
-        // const result = expense.map((item,index)=>{
-        //     console.log(item.Amount)
-        //     return {
-        //         categoryName:item.categoryName,
-
-        //         Amount:data[index].Amount-item.Amount
-        //     }
-        // })
-        // const result = data[0].Amount - expense[0].Amount
-        ;
-    // const user = await db('budget_detail').update({
-    //     remainingAmount:result
-    // }).where({ categoryName: expense[0].categoryName })
-    // res.json({ data })
 })
 //get Expense Category Detail for Update
 export const getExpenseCategoryDetail = catchAsyncError(async (req, res, next) => {
