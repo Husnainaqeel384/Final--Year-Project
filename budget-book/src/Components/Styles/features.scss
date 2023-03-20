@@ -1,0 +1,166 @@
+// .feature {
+//     color: #15E3FF;
+
+// }
+
+.feature {
+    min-height: 228vh;
+}
+
+.featurefirstdiv {
+    >h1 {
+        // font-size: 2.441em;
+        -webkit-text-stroke: 1.5px black;
+        -webkit-text-stroke-width: 0.5px;
+        -webkit-text-stroke-color: #000000;
+        -webkit-text-fill-color: #ffffff;
+        font-weight: bolder;
+        // border: 1px solid;
+    }    
+
+    >h6 {
+        color: #0063AA; 
+        font-weight: bolder;
+    }
+
+    a {
+        width: 17em;
+        height: 3em;
+        background: #0063AA;
+        border-radius: 15px;
+    }
+}
+
+.featureseconddiv {
+   
+    >div {
+        position: relative;
+
+        .image1 {
+            position: absolute;
+            width: 6.4375em;
+            height: 5.625em;
+            left: -17px;
+            top: 16.59px;
+            // box-shadow: inset 0px 4px 4px 88px rgba(0, 0, 0, 0.25);
+            transform: rotate(-36.03deg);
+
+        }
+
+        .image2 {
+            position: relative;
+            width: 22em;
+            height: 22em;
+            margin-left: 0.3em;
+            margin-top: 4em;
+        }
+
+        .image3 {
+            position: absolute;
+            width: 6.4375em;
+            height: 5.625em;
+            left: 250px;
+            top: 403.59px;
+            // box-shadow: inset 0px 4px 4px 88px rgba(0, 0, 0, 0.25);
+            transform: rotate(-36.03deg);
+
+        }
+
+        .image4 {
+            position: absolute;
+            width: 300px;
+            height: 285px;
+            left: 37px;
+            top: 112px;
+        }
+    }
+
+    >div {
+        .image5 {
+            position: absolute;
+            // width: 512px;
+            // height: 412px;
+            left: 25px;
+            top: 100px;
+            filter: drop-shadow(9px 8px 4px rgba(0, 0, 0, 0.25));
+        }
+
+        >h3 {
+            position: absolute;
+            width: 350px;
+            height: 61px;
+            left: 9px;
+            top: 170px;
+
+            font-family: 'Comic Neue';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 1.9em;
+            line-height: 127.59%;
+            /* or 61px */
+            text-align: center;
+            color: #000000;
+            text-shadow: 0px 4px 4px rgba(21, 227, 255, 0.5);
+        }
+
+        >h4 {
+            position: absolute;
+            width: 350px;
+            height: 92px;
+            left: 7px;
+            top: 230px;
+
+            font-family: 'Quantico';
+            font-style: italic;
+            font-weight: 400;
+            font-size: 1.7em;
+            line-height: 127.59%;
+            /* or 46px */
+
+            text-align: center;
+
+            color: #000000;
+
+            text-shadow: 0px 4px 4px #FF8E8E;
+        }
+    }
+}
+.img3{
+    margin-top: -em;
+}
+.featurethirddiv{
+    margin-top: 22em;
+    >div{
+        
+        >h3 {
+            position: absolute;
+            width: 350px;
+            height: 61px;
+            left: 9px;
+            top: 35px;
+            font-family: 'Comic Neue';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 1.9em;
+            line-height: 127.59%;
+            text-align: center;
+            color: #000000;
+            text-shadow: 0px 4px 4px rgba(21, 227, 255, 0.5);
+        }
+        >h4 {
+            position: absolute;
+            width: 350px;
+            height: 92px;
+            left: 7px;
+            top: 150px;
+            font-family: 'Quantico';
+            font-style: italic;
+            font-weight: 400;
+            font-size: 1.7em;
+            line-height: 127.59%;
+            text-align: center;
+            color: #000000;
+            text-shadow: 0px 4px 4px #FF8E8E;
+        }
+    }
+}
