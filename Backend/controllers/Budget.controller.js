@@ -32,6 +32,7 @@ export const budgteinfo = catchAsyncError(async (req, res, next) => {
         })
     }
 })
+//add daily expense record
 export const DailyExpenseRecord = catchAsyncError(async (req, res, nex) => {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
@@ -46,7 +47,7 @@ export const DailyExpenseRecord = catchAsyncError(async (req, res, nex) => {
         await db('expense').update({ currentAmount, Totalamount: result }).where({ ExpensecategoryName })
     }
     else {
-        await db('expense').insert({ ExpensecategoryName, description, currentAmount, currentMonthYear: month + "-" + year })
+        await db('expense').insert({ ExpensecategoryName, description, currentAmount, currentMonthYear: month + "-" + year, Totalamount: currentAmount })
     }
     res.json({ checkcategory })
         // var expense = req.body
@@ -129,6 +130,30 @@ export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next
     }
 
 })
+
+//delete Expense Category
+export const deleteExpenseCategory = catchAsyncError(async (req, res, next) => {
+    const expenseId = req.params.id
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let date = new Date();
+    let month = months[date.getMonth()];
+    const year = date.getFullYear()
+    const categoryDetail = await db('expense').select('ExpensecategoryName', 'currentAmount').where({ expense_id: expenseId }).andWhere(function () {
+        this.where({ currentMonthYear: month + "-" + year })
+    })
+
+    if (categoryDetail.length > 0) {
+        const result = await db('expense').delete().where({ expense_id: expenseId })
+        if (result === 1) {
+            res.json({ message: "Successfull Delete" })
+        }
+    }
+})
+
+
+//get daily Expense Record History
+
 export const dailyExpenseRecordHistory = catchAsyncError(async (req, res, next) => {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
@@ -153,4 +178,26 @@ export const budgetdetail = catchAsyncError(async (req, res, next) => {
     res.json({
         message: "Successfully Create Monthly Expenses"
     })
+})
+
+//get Budget Detail
+export const getALLBudgets = catchAsyncError(async (req, res, next) => {
+
+    const user_id = req.user.id
+    const allBudgetDetail = await db('budget').select('*').where({ user_id }).orderBy('budget_id', 'desc')
+
+    res.json({ allBudgetDetail })
+
+})
+
+export const deleteBudget = catchAsyncError(async (req, res, next) => {
+
+    const user_id = req.user.id
+    const budgetId = req.params.id
+    const allBudgetDetail = await db('budget').delete().where({ budget_id: budgetId }).andWhere({ user_id })
+    if (allBudgetDetail === 1) {
+        const deleteBudgetDetail = await db('budget_detail').delete().where({ budget_id: budgetId })
+
+        res.json({ message: "All data is Successfull delete" })
+    }
 })

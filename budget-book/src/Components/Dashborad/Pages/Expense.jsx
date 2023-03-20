@@ -3,7 +3,8 @@ import { useStateContext } from '../../../context/ContextProvider'
 import { server } from '../../../store';
 import Addexpense from './Addexpense';
 import Axios from 'axios'
-import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+
 import UpdateDailyExpense from './UpdateDailyExpense';
 const Expense = () => {
     const [dailyexpense, setdailyExpense] = useState([])
@@ -16,6 +17,22 @@ const Expense = () => {
         setExpenseId(id)
         setcategoryname(name)
         setcategoryamount(amount)
+    }
+    const deletDailyExpense = async (id) => {
+        try {
+            let token = localStorage.getItem('token')
+            const { data } = await Axios.delete(`${server}/deleteDailyExpense/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-type': 'application/json',
+                    'authorization': `Bearer ${token}`
+                }
+            })
+       toast.success(data.message)
+            GetDailyRecordHistory()
+        } catch (error) {
+
+        }
     }
     const GetDailyRecordHistory = async () => {
         try {
@@ -77,7 +94,7 @@ const Expense = () => {
                                                 <td className="px-4 py-2 border">{data.Totalamount}</td>
                                                 <td className="px-4 py-2 border">
                                                     <button onClick={() => EditUpdateExpense(data.expense_id, data.ExpensecategoryName, data.currentAmount)} className="text-blue-500 hover:text-blue-600">Edit</button>
-                                                    <button className="text-red-500 hover:text-red-600 ml-2">Delete</button>
+                                                    <button onClick={()=> deletDailyExpense(data.expense_id)} className="text-red-500 hover:text-red-600 ml-2">Delete</button>
                                                 </td>
                                             </tr>
                                         )

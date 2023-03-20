@@ -1,37 +1,58 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 // import { AiOutlineSearch, AiOutlineDelete } from 'react-icons/ai'
 import { Link, useNavigate } from 'react-router-dom'
+import { server } from '../../../store';
+import Axios from 'axios'
+import { toast } from 'react-hot-toast';
+
 const ALLBudgtes = () => {
   const navigate = useNavigate()
+  const [values, setValues] = useState([])
+  const getAllBudget = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/getAllBudget`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      setValues(data.allBudgetDetail)
+      console.log(data)
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
+  useEffect(() => {
+    getAllBudget()
+  }, [])
+
+
   const updateExpense = () => {
     // to={'/Budget/Edit-Expense'}
     navigate('/Budget/Edit-Expense')
   }
-  const data = [
-    {
-      catergoryName: "Jan",
-      Amount: 123
-    }, {
-      catergoryName: "Feb",
-      Amount: 123
-    },
-    {
-      catergoryName: "March",
-      Amount: 123
-    }, {
-      catergoryName: "Apirl",
-      Amount: 123
-    }, {
-      catergoryName: "May",
-      Amount: 123
-    }, {
-      catergoryName: "June",
-      Amount: 123
-    }, {
-      catergoryName: "July",
-      Amount: 123
-    },
-  ]
+  const deleteExpense = async (id) => {
+console.log(id)
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.delete(`${server}/deleteBudget/${id}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      toast.success(data.message)
+      getAllBudget()
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
+
+
+
   return (
     <>
 
@@ -79,7 +100,7 @@ const ALLBudgtes = () => {
             </thead>
             <tbody>
               {
-                data.map((items, index) => (
+                values.map((items, index) => (
                   <tr className="bg-white border-b  hover:bg-gray-50 " key={index}>
                     <td className="w-4 p-4 w-1/6 border-r-2 border-gray-200">
 
@@ -88,13 +109,15 @@ const ALLBudgtes = () => {
                     </td>
 
                     <td className="px-6 py-4 w-1/6 border-r-2 border-gray-200 text-gray-500">
-                      {items.catergoryName}
+                      {items.BudgetMonth}
                     </td>
                     <td className="px-6 py-4 w-1/6 border-r-2 border-gray-200 text-gray-500">
-                      {items.Amount}
+                      {items.Total_Income
+                      }
                     </td>
                     <td className="px-6 py-4 w-1/6 border-r-2 border-gray-200 text-gray-500">
-                      {items.Amount}
+                      {items.Saving
+                      }
                     </td>
 
                     <td className="px-6 py-4 border-r-2 border-gray-200">
@@ -104,7 +127,7 @@ const ALLBudgtes = () => {
                         View</Link>
                     </td>
                     <td className="px-6 py-4 ">
-                      <button className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
+                      <button onClick={() => deleteExpense(items.budget_id)} className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
                         Delete</button>
                     </td>
                   </tr>
