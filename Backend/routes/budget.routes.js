@@ -8,7 +8,8 @@ import {budgetdetail,
     updateExpenseCategoryDetail,
     deleteExpenseCategory,
     getALLBudgets,
-    deleteBudget
+    deleteBudget,
+    getMonthlyBudgetDetail,
 } from '../controllers/Budget.controller.js '
 
 router.post('/budget',verifyToken,budgteinfo)
@@ -22,5 +23,6 @@ router.get('/getAllBudget',verifyToken,getALLBudgets)
 
 // delete monthly budget
 router.delete('/deleteBudget/:id',verifyToken,deleteBudget)
-
+//get monthly budget
+router.get('/getMonthlyExpense/:id',verifyToken,getMonthlyBudgetDetail)
 export default router

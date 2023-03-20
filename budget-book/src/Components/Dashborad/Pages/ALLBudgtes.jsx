@@ -19,7 +19,6 @@ const ALLBudgtes = () => {
         }
       })
       setValues(data.allBudgetDetail)
-      console.log(data)
     } catch (error) {
       toast.error(error.response.data.message)
     }
@@ -34,7 +33,7 @@ const ALLBudgtes = () => {
     navigate('/Budget/Edit-Expense')
   }
   const deleteExpense = async (id) => {
-console.log(id)
+
     try {
       let token = localStorage.getItem('token')
       const { data } = await Axios.delete(`${server}/deleteBudget/${id}`, {
@@ -122,7 +121,7 @@ console.log(id)
 
                     <td className="px-6 py-4 border-r-2 border-gray-200">
 
-                      <Link to={'/Budget/Edit-Expense'}
+                      <Link to={'/Budget/Edit-Expense'}  state={{ id:items.budget_id }}
                         className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
                         View</Link>
                     </td>

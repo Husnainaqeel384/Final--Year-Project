@@ -16,7 +16,7 @@ import ChangePassword from './Pages/ChangePassword'
 import DailReminder from './Pages/DailReminder'
 import Transcation from './Pages/Transcation'
 import Expense from './Pages/Expense'
-import UpdateExpense from './Pages/UpdateExpense'
+import UpdateMonthlyExpense from './Pages/UpdateMonthlyExpense'
 import UpdateCategory from './Pages/UpdateCategory'
 import Report from './Pages/Report'
 
@@ -63,7 +63,7 @@ const DashboardRoutes = () => {
                             <Route exact path='/change-password' element={ <ChangePassword /> } />
                             <Route exact path='/daily-reminder' element={ <DailReminder /> } />
                             <Route exact path='/transactions' element={ <Transcation /> } />
-                            <Route exact path='/Edit-Expense' element={ <UpdateExpense /> } />
+                            <Route exact path='/Edit-Expense' element={ <UpdateMonthlyExpense /> } />
                             <Route exact path='/report' element={ <Report /> } />
                             <Route exact path='//Update-Category-Value' element={ <UpdateCategory /> } />
                         </Routes>

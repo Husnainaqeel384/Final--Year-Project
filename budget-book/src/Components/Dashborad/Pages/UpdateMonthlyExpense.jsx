@@ -1,7 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 // import { useNavigate } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-const UpdateExpense = () => {
+import { server } from '../../../store'
+import Axios from 'axios'
+import { Link, useLocation } from 'react-router-dom'
+const UpdateMonthlyExpense = () => {
+  const location = useLocation()
+  const { id } = location.state
+
+  const [Monthlyexpensevalue, setMonthlyexpensevalue] = useState([])
   // const navigate = useNavigate();
   // const updateeditexpense = (catergoryName,amount) => {
   //   console.log(catergoryName)
@@ -10,31 +16,28 @@ const UpdateExpense = () => {
   //     otherParam: amount,
   //   })
   // }
-  const data = [
-    {
-      catergoryName: "Water",
-      Amount: 123
-    }, {
-      catergoryName: "Electricity",
-      Amount: 123
-    },
-    {
-      catergoryName: "Gas/Oil",
-      Amount: 123
-    }, {
-      catergoryName: "Phone",
-      Amount: 123
-    }, {
-      catergoryName: "Internet",
-      Amount: 123
-    }, {
-      catergoryName: "Lawn/Garden",
-      Amount: 123
-    }, {
-      catergoryName: "Maintenance",
-      Amount: 123
-    },
-  ]
+  const getmonthlyexpense = async () => {
+    try {
+      console.log(id)
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/getMonthlyExpense/${id}`, {
+
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      console.log(data)
+      setMonthlyexpensevalue(data.allBudgetDetailOfSpecificMonth)
+    } catch (error) {
+    }
+  }
+  useEffect(() => {
+    getmonthlyexpense()
+  }, [])
+
+
 
   return (
     <div className='mt-16 md:mt-5 lg:mt-5'>
@@ -65,7 +68,7 @@ const UpdateExpense = () => {
           </thead>
           <tbody>
             {
-              data.map((items, index) => (
+              Monthlyexpensevalue.map((items, index) => (
                 <tr className="bg-white border-b  hover:bg-gray-50 " key={index}>
                   <td className="w-4 p-4 w-1/6 border-r-2 border-gray-200">
                     <div className="flex items-center">
@@ -74,7 +77,7 @@ const UpdateExpense = () => {
                   </td>
 
                   <td className="px-6 py-4 w-2/6 border-r-2 border-gray-200 text-gray-500">
-                    {items.catergoryName}
+                    {items.categoryName}
                   </td>
                   <td className="px-6 py-4 w-2/6 border-r-2 border-gray-200 text-gray-500">
                     {items.Amount}
@@ -85,8 +88,8 @@ const UpdateExpense = () => {
                 <div className="h-2.5 w-2.5  mr-2"></div> Admin
               </div> */}
                     <Link to={'/Budget/Update-Category-Value'}
-                    state={{ categoryname:items.catergoryName,amount:items.Amount }}
-                      
+                      state={{ categoryname: items.categoryName, amount: items.Amount }}
+
                       // onClick={() => { updateeditexpense(items.catergoryName,items.Amount) }}
                       className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
                       Edit</Link>
@@ -107,4 +110,4 @@ const UpdateExpense = () => {
   )
 }
 
-export default UpdateExpense
+export default UpdateMonthlyExpense

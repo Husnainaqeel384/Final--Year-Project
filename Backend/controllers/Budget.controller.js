@@ -190,6 +190,20 @@ export const getALLBudgets = catchAsyncError(async (req, res, next) => {
 
 })
 
+// get Monthly Budget Detail of specific month
+
+export const getMonthlyBudgetDetail = catchAsyncError(async (req, res, next) => {
+    const budget_id = req.params.id
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let date = new Date();
+    let month = months[date.getMonth()];
+    const year = date.getFullYear()
+    const allBudgetDetailOfSpecificMonth = await db('budget_detail').select('*').where({ budget_id })
+    if (allBudgetDetailOfSpecificMonth.length > 0) {
+        res.json({ allBudgetDetailOfSpecificMonth })
+    }
+
+})
 export const deleteBudget = catchAsyncError(async (req, res, next) => {
 
     const user_id = req.user.id
