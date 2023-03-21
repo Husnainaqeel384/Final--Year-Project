@@ -3,10 +3,18 @@ import React, { useState, useEffect } from 'react'
 import { server } from '../../../store'
 import Axios from 'axios'
 import { Link, useLocation } from 'react-router-dom'
+import { useStateContext } from '../../../context/ContextProvider'
+import UpdateDailyExpense from './UpdateDailyExpense'
+import UpdateMonthlyCategoryValue from './UpdateMonthlyCategoryValue'
+import { toast } from 'react-hot-toast'
 const UpdateMonthlyExpense = () => {
   const location = useLocation()
   const { id } = location.state
-
+  const { openDailyExpense, setopenDailyExpense } = useStateContext();
+  const [MonthlycategoryName, setMonthlycategoryName] = useState('')
+  const [budgetDetailId, setbudgetDetailId] = useState('')
+  const [monthlyExpenseId, setmonthlyExpenseId] = useState('')
+  const [monthlyAmount, setmonthlyAmount] = useState('')
   const [Monthlyexpensevalue, setMonthlyexpensevalue] = useState([])
   // const navigate = useNavigate();
   // const updateeditexpense = (catergoryName,amount) => {
@@ -16,9 +24,10 @@ const UpdateMonthlyExpense = () => {
   //     otherParam: amount,
   //   })
   // }
+
   const getmonthlyexpense = async () => {
     try {
-      console.log(id)
+
       let token = localStorage.getItem('token')
       const { data } = await Axios.get(`${server}/getMonthlyExpense/${id}`, {
 
@@ -28,19 +37,70 @@ const UpdateMonthlyExpense = () => {
           'authorization': `Bearer ${token}`
         }
       })
-      console.log(data)
+
       setMonthlyexpensevalue(data.allBudgetDetailOfSpecificMonth)
     } catch (error) {
     }
   }
+  const EditUpdateCategoryValue = async (name, mid) => {
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/GetMonthlyExpenseCategoryvalue/${id}/
+          ${mid}/${name}`,
+       
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-type': 'application/json',
+            'authorization': `Bearer ${token}`
+          }
+        })
+
+        setMonthlycategoryName(data.check[0].categoryName)
+        setbudgetDetailId(mid)
+        setmonthlyAmount(data.check[0].Amount)
+
+        setopenDailyExpense(!openDailyExpense)
+    } catch (error) {
+      console.log(error.response.data.message)
+    }
+
+  }
+  const DeleteCategoryValue = async (name, mid) => {
+    console.log(name)
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.delete(`${server}/deleteMonthlyExpenseCategory/${id}/${mid}`, {
+        // budgetDetail_id: mid,
+        // categoryName: name,
+      }, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      toast.success(data.message)
+      getmonthlyexpense()
+    } catch (error) {
+      console.log(error.response.data.message)
+    }
+  }
+
   useEffect(() => {
     getmonthlyexpense()
-  }, [])
+    setmonthlyExpenseId(id)
+
+  }, [id])
 
 
 
   return (
+
     <div className='mt-16 md:mt-5 lg:mt-5'>
+      {
+        openDailyExpense && <UpdateMonthlyCategoryValue MonthlycategoryName={MonthlycategoryName} budgetDetailId={budgetDetailId} monthlyAmount={monthlyAmount} monthlyExpenseId={monthlyExpenseId} />
+      }
       <h1 className="mb-4 text-3xl text-center font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Update and Delete Expense</span> </h1>
       <div className=''>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -87,15 +147,25 @@ const UpdateMonthlyExpense = () => {
                     {/* <div className="flex items-center">
                 <div className="h-2.5 w-2.5  mr-2"></div> Admin
               </div> */}
-                    <Link to={'/Budget/Update-Category-Value'}
-                      state={{ categoryname: items.categoryName, amount: items.Amount }}
+                    {/* <Link to={'/Budget/Update-Category-Value'}
+                  state={{ categoryname: items.categoryName, amount: items.Amount }}
 
-                      // onClick={() => { updateeditexpense(items.catergoryName,items.Amount) }}
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
-                      Edit</Link>
+                  // onClick={() => { updateeditexpense(items.catergoryName,items.Amount) }}
+                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                  Edit</Link> */}
+                    <button onClick={() => {
+                      EditUpdateCategoryValue(items.categoryName, items.budgetDetail_id
+                      )
+                    }}
+                      className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'>Edit</button>
                   </td>
                   <td className="px-6 py-4 ">
-                    <button className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
+                    <button
+                      onClick={() => {
+                        DeleteCategoryValue(items.categoryName, items.budgetDetail_id
+                        )
+                      }}
+                      className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
                       Delete</button>
                   </td>
                 </tr>

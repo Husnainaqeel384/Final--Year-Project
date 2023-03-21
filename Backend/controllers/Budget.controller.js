@@ -215,3 +215,52 @@ export const deleteBudget = catchAsyncError(async (req, res, next) => {
         res.json({ message: "All data is Successfull delete" })
     }
 })
+
+export const GetMonthlyExpenseCategoryvalue = catchAsyncError(async (req, res, next) => {
+    const budget_id = req.params.id
+    const budgetDetail_id = req.params.mid
+    const categoryName = req.params.name
+
+
+    const check = await db('budget_detail').select('*').where({ budgetDetail_id }).andWhere({ budget_id })
+
+    if (check[0].categoryName === categoryName) {
+
+        res.json({ check })
+    }
+})
+
+// delete Monthly Expense Category
+export const deleteMonthlyExpenseCategory = catchAsyncError(async (req, res, next) => {
+    const budget_id = req.params.id
+    console.log(req.params.id)
+    const budgetDetail_id = req.params.mid
+    console.log(req.params.mid)
+
+    const deleteBudgetDetail = await db('budget_detail').delete().where({ budgetDetail_id }).andWhere(
+        function () {
+            this.where ({budget_id })
+        })
+    if (deleteBudgetDetail === 1) {
+        res.json({ message: "Successfull Delete" })
+    }
+})
+
+//update Monthly Expense Category
+export const updateMonthlyExpenseCategory = catchAsyncError(async (req, res, next) => {
+
+    const budget_id = req.params.id
+    const budgetDetail_id = req.params.budgetid
+    const {  categoryName, Amount } = req.body
+    console.log( req.params.id)
+    console.log( req.params.budgetid)
+    console.log( req.body)
+    const checkcategory = await db('budget_detail').select('*').where({ budgetDetail_id }).andWhere({ budget_id })
+    if (checkcategory[0].categoryName === categoryName) {
+        const updatecategory = await db('budget_detail').update({ Amount }).where({ budgetDetail_id }).andWhere({ budget_id })
+        if (updatecategory === 1) {
+            res.json({ message: "Successfull Update" })
+        }
+    }
+})
+

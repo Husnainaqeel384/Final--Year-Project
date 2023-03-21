@@ -11,6 +11,8 @@ const Expense = () => {
     const [expenseId, setExpenseId] = useState(null);
     const [categoryname, setcategoryname] = useState(null);
     const [categoryamount, setcategoryamount] = useState(null);
+    const [dataUpdated, setDataUpdated] = useState(false);
+
     const { openExpenseDropdown, setopenExpenseDropdown, openDailyExpense, setopenDailyExpense } = useStateContext();
     const EditUpdateExpense = (id, name, amount) => {
         setopenDailyExpense(!openDailyExpense)
@@ -46,20 +48,24 @@ const Expense = () => {
             })
 
             setdailyExpense(data.dailyrecordhistory)
-
+            setDataUpdated(false);
         } catch (error) {
 
         }
     }
+    const handleAddExpense = () => {
+        setopenExpenseDropdown(!openExpenseDropdown);
+        setDataUpdated(true); // set dataUpdated to true when Addexpense is closed
+    };
     useEffect(() => {
         GetDailyRecordHistory()
-    }, [setdailyExpense])
+    }, [ dataUpdated])
 
 
     return (
         <>
             {
-                openExpenseDropdown && <Addexpense />
+                openExpenseDropdown && <Addexpense onAddExpense={handleAddExpense} />
             }
             {
                 openDailyExpense && <UpdateDailyExpense expense_id={expenseId} categoryname={categoryname} categoryamount={categoryamount} />

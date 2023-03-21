@@ -10,6 +10,9 @@ import {budgetdetail,
     getALLBudgets,
     deleteBudget,
     getMonthlyBudgetDetail,
+    GetMonthlyExpenseCategoryvalue,
+    deleteMonthlyExpenseCategory,
+    updateMonthlyExpenseCategory
 } from '../controllers/Budget.controller.js '
 
 router.post('/budget',verifyToken,budgteinfo)
@@ -25,4 +28,14 @@ router.get('/getAllBudget',verifyToken,getALLBudgets)
 router.delete('/deleteBudget/:id',verifyToken,deleteBudget)
 //get monthly budget
 router.get('/getMonthlyExpense/:id',verifyToken,getMonthlyBudgetDetail)
+// get GetMonthlyExpenseCategoryvalue
+router.get('/GetMonthlyExpenseCategoryvalue/:id/:mid/:name',GetMonthlyExpenseCategoryvalue)
+//detete monthly budget category
+router.delete('/deleteMonthlyExpenseCategory/:id/:mid',deleteMonthlyExpenseCategory)
+// update monthly budget category
+router.post('/updateMonthlyExpenseCategory/:id/:budgetid',updateMonthlyExpenseCategory)
+
+
+
+
 export default router
