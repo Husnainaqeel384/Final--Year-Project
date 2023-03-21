@@ -5,7 +5,7 @@ import cors from "cors";
 // importing routes
 import userRoutes from "./routes/user.js"
 import budgetRoutes from "./routes/budget.routes.js"
-
+import reminderRoutes from "./routes/reminder.routes.js"
 // middleware 
 import ErrorMiddlewares from "./middlewares/Error.js"
 const app = express();
@@ -29,4 +29,5 @@ dotenv.config({
   );
   app.use('',userRoutes);
   app.use('',budgetRoutes);
+  app.use('',reminderRoutes);
   app.use(ErrorMiddlewares)
