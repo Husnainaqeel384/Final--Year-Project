@@ -274,8 +274,29 @@ export const MonthlybudgetData = catchAsyncError(async (req, res, next) => {
     const budget_id = await db('budget').select('budget_id').where({ BudgetMonth: month + "-" + year }).first('budget_id');
     const monthExpenseData = await db('budget_detail').select('*').where({ budget_id: budget_id.budget_id })
     if (monthExpenseData.length > 0) {
-
         res.json({ monthExpenseData })
     }
 
 })
+
+// get budget total income
+export const getBudgetIncomeAmount = catchAsyncError(async (req, res, next) => {
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let date = new Date();
+    let month = months[date.getMonth()];
+    const year = date.getFullYear()
+    const budgetincome = await db('budget').select('Total_Income').where({ BudgetMonth: month + "-" + year })
+  res.json({ budgetincome })
+    // if (monthExpenseData.length > 0) {
+    //     let totalIncome = 0;
+    //     monthExpenseData.forEach((item) => {
+    //         if (item.categoryName === "Income") {
+    //             totalIncome = totalIncome + item.Amount
+    //         }
+    //     })
+    //     res.json({ totalIncome })
+    // }
+
+})
+

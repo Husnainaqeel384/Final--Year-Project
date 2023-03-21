@@ -208,7 +208,7 @@ export const subCategory = {
     { label: "State/Local Taxes", value: "State/Local Taxes"},
     { label: "Legal Fees", value: "Legal Fees"},
   ],
-  Pet: [
+  pet: [
     { label: "Pet Food ", value: "pet Food" },
     { label: "Pet Medical", value: "pet Medical" },
   ],

@@ -13,7 +13,8 @@ import {budgetdetail,
     GetMonthlyExpenseCategoryvalue,
     deleteMonthlyExpenseCategory,
     updateMonthlyExpenseCategory,
-    MonthlybudgetData
+    MonthlybudgetData,
+    getBudgetIncomeAmount
 } from '../controllers/Budget.controller.js '
 
 
@@ -39,6 +40,7 @@ router.post('/updateMonthlyExpenseCategory/:id/:budgetid',updateMonthlyExpenseCa
 // Get Monthly Expense
 router.get('/getMonthlyExpensedata',verifyToken,MonthlybudgetData)
 
-
+// get budget income amount
+router.get('/getTotalAmount',getBudgetIncomeAmount)
 
 export default router
