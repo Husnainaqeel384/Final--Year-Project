@@ -12,8 +12,10 @@ import {budgetdetail,
     getMonthlyBudgetDetail,
     GetMonthlyExpenseCategoryvalue,
     deleteMonthlyExpenseCategory,
-    updateMonthlyExpenseCategory
+    updateMonthlyExpenseCategory,
+    MonthlybudgetData
 } from '../controllers/Budget.controller.js '
+
 
 router.post('/budget',verifyToken,budgteinfo)
 router.post('/dailyExpenseRecord',DailyExpenseRecord)
@@ -34,7 +36,8 @@ router.get('/GetMonthlyExpenseCategoryvalue/:id/:mid/:name',GetMonthlyExpenseCat
 router.delete('/deleteMonthlyExpenseCategory/:id/:mid',deleteMonthlyExpenseCategory)
 // update monthly budget category
 router.post('/updateMonthlyExpenseCategory/:id/:budgetid',updateMonthlyExpenseCategory)
-
+// Get Monthly Expense
+router.get('/getMonthlyExpensedata',verifyToken,MonthlybudgetData)
 
 
 
