@@ -7,6 +7,7 @@ import ForgotPassword from './Components/Layout/ForgotPassword';
 import RecoveryPassword from './Components/Layout/ResetPassword';
 import DashboardRoutes from './Components/Dashborad/DashboardRoutes';
 import  { Toaster } from 'react-hot-toast';
+import {ToastContainer} from 'react-toastify';
 import ProtectedRoute from './ProtectedRoute';
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
         <Route path='/*' element={<Home />}></Route>
       </Routes>
       <Toaster />
+      <ToastContainer />
+
     </Router>
 
   );
