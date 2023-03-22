@@ -41,7 +41,7 @@ export const  DeleteReminder = catchAsyncError(async (req, res, next) => {
     })
 })
 export const  UpdateReminder = catchAsyncError(async (req, res, next) => {
-    console.log(req.body)
+   
     const {Reminder_id,Reminder_title,ReminderDate} = req.body
     const reminder = await db('reminders').where({Reminder_id}).update({Reminder_title,ReminderDate})
     res.status(StatusCodes.OK).json({
