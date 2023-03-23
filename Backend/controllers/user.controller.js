@@ -110,6 +110,5 @@ export const getuserdata = catchAsyncError(async (req, res, next) => {
     if (!user) {
         return next(new ErrorHandler('User Not Update Successfully', StatusCodes.BAD_REQUEST))
     }
-    console.log(user)
     res.status(StatusCodes.ACCEPTED).json({ user })
 })

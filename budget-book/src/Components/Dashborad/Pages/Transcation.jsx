@@ -6,7 +6,9 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const Transcation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isedit, setIsedit] = useState(false);
   const [TransactionData, setTransactionData] = useState([]);
+  const [transactioId, setTransactioId] = useState('');
   const [transactionType, setTransactionType] = useState("");
   const [transactionDate, setTransactionDate] = useState("")
   const [sender, setSender] = useState("")
@@ -71,6 +73,56 @@ const getTransaction = async () => {
   }
 }
 
+const deleteTransaction = async (id) => {
+  try {
+    let token = localStorage.getItem('token')
+    const { data } = await axios.delete(`${server}/deleteTransaction/${id}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'authorization': `Bearer ${token}`
+      }
+    })
+    toast.success(data.message, { position: toast.POSITION.TOP_CENTER });
+    getTransaction()
+  } catch (error) {
+    toast.error(error.response.data.message, { position: toast.POSITION.TOP_CENTER });
+  }
+}
+const editTransaction = async () => {
+  try {
+    let token = localStorage.getItem('token')
+    const { data } = await axios.put(`${server}/updateTransaction/${transactioId}`, {
+      Transaction_type: transactionType,
+      Transaction_date: transactionDate,
+      Transaction_amount:amount,
+      Transaction_senderName:sender,
+      Transaction_receiverName:receiver,
+      Transaction_method:method,
+      Transaction_description:description
+    }, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'authorization': `Bearer ${token}`
+      }
+    })
+    setIsedit(false)
+    toast.success(data.message, { position: toast.POSITION.TOP_CENTER });
+    getTransaction()
+    setTransactionType("")
+    setTransactionDate("")
+    setSender("")
+    setReceiver("")
+    setMethod("")
+    setAmount('')
+    setDescription('')
+  } catch (error) {
+    toast.error(error.response.data.message, { position: toast.POSITION.TOP_CENTER });
+  }
+}
+
+
 
 useEffect(() => {
   getTransaction()
@@ -82,11 +134,15 @@ useEffect(() => {
 
         <header className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
           {
-            isOpen ? (<h1 className="text-2xl font-bold">Add Transactions</h1>) : (<h1 className="text-2xl font-bold">Transactions</h1>)
+            isOpen ?   
+            (<h1 className="text-2xl font-bold">Add Transactions</h1>):isedit ? 
+             (<h1 className="text-2xl font-bold">Update Transactions</h1>) :
+              (<h1 className="text-2xl font-bold">Transactions</h1>) 
           }
+        
         </header>
         {
-          isOpen ? (
+          isOpen || isedit ? (
             <div >
               <div className='flex flex-wrap gap-3 justify-center'>
                 <div className="mb-4 w-1/4">
@@ -191,22 +247,38 @@ useEffect(() => {
               <div className='md:flex md:justify-center'>
                 <button
                   className="bg-blue-500 mr-3 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false)
+                  setIsedit(false)
+                  }
+                  }
                 >
                   Cancel
                 </button>
-                <button
+                {
+                  isedit ? (<>
+                  
+                  <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  onClick={editTransaction}
+                >
+                  update
+                </button>
+                  </>):(<>
+                  <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   onClick={handleSubmit}
                 >
                   Submit
                 </button>
+                  </>)
+                }
               </div>
             </div>
           ) : " "
         }
         {
-          isOpen ? " " : (
+          isOpen || isedit ? " " : (
             <main className="p-4 flex-grow">
               <h2 className="text-2xl font-bold mb-4">Transactions</h2>
               <div className="flex flex-col md:flex-row justify-between mb-4">
@@ -227,6 +299,7 @@ useEffect(() => {
                       <th className="px-4 py-2 border">Sender</th>
                       <th className="px-4 py-2 border">Receiver</th>
                       <th className="px-4 py-2 border">Method</th>
+                      <th className="px-4 py-2 border">Description</th>
                       <th className="px-4 py-2 border">Actions</th>
                     </tr>
                   </thead>
@@ -241,9 +314,20 @@ useEffect(() => {
                       <td className="px-4 py-2 border">{item.Transaction_senderName}</td>
                       <td className="px-4 py-2 border">{item.Transaction_receiverName}</td>
                       <td className="px-4 py-2 border">{item.Transaction_method}</td>
+                      <td className="px-4 py-2 border">{item.Transaction_description}</td>
                       <td className="px-4 py-2 border">
-                        <a className="text-blue-500 hover:text-blue-600">Edit</a>
-                        <a className="text-red-500 hover:text-red-600 ml-2">Delete</a>
+                        <button onClick={()=>{
+                          setIsedit(true)
+                          setTransactioId(item.Transaction_id)
+                          setTransactionType(item.Transaction_type)
+                          setTransactionDate(item.Transaction_date)
+                          setAmount(item.Transaction_amount)
+                          setSender(item.Transaction_senderName)
+                          setReceiver(item.Transaction_receiverName)
+                          setMethod(item.Transaction_method)
+                          setDescription(item.Transaction_description)
+                        }} className="text-blue-500 hover:text-blue-600">Edit</button>
+                        <button onClick={()=>deleteTransaction(item.Transaction_id)} className="text-red-500 hover:text-red-600 ml-2">Delete</button>
                       </td>
                     </tr>
                     )
