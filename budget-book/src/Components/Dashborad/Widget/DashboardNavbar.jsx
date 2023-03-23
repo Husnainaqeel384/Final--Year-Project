@@ -37,7 +37,7 @@ const NavButton = ({ customFunc, icon, }) => (
     {icon}
   </button>);
 
-const DashboardNavbar = () => {
+const DashboardNavbar = ({username}) => {
   // const [name,setName]=useState('')
   // const { user } = useSelector(state => state.user)
  
@@ -77,7 +77,7 @@ const DashboardNavbar = () => {
           <img src={image1} className="rounded-full w-8 h-8" alt="" />
           <p>
             {/* <span className='text-gray-400 text-14'> Hi, </span>{' '} */}
-            <span className='text-gray-400 font-bold ml-1 text-14'>{'Husnain'}</span>
+            <span className='text-gray-400 font-bold ml-1 text-14'>{username}</span>
           </p>
           <MdKeyboardArrowDown className='text-gray-400 text-14' />
           {/* {isClicked.userProfile && <Profile />} */}

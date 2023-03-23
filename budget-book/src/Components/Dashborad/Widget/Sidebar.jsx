@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { MdOutlineCancel } from 'react-icons/md';
 import { GiReceiveMoney } from 'react-icons/gi';
 // import { MdKeyboardArrowDown } from 'react-icons/md'
 import { links } from '../../data/sidebarlinks';
 import { useStateContext } from '../../../context/ContextProvider';
-const Sidebar = () => {
-  const [userIsAdmin , setuserIsAdmin]=useState(false)
+const Sidebar = ({userIsAdmin}) => {
+  
   const { activeMenu, setactiveMenu, screenSize } = useStateContext();
   const hanldeCloseSideBar = () => {
     if (activeMenu && screenSize <= 900) {
