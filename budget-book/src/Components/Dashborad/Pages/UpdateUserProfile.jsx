@@ -11,6 +11,7 @@ const UpdateUserProfile = () => {
     setUserProfileId, setUserProfileFirstName, setUserProfileLastName
     , setUserProfileUserName, setUserProfileEmail
   } = useStateContext();
+  const [filename, setFilename] = useState('Choose File')
   const profileview = async () => {
     let token = localStorage.getItem('token')
     const { data } = await Axios.get(`${server}/profile`, {
@@ -26,7 +27,22 @@ const UpdateUserProfile = () => {
     setUserProfileUserName(data.user.Username)
     setUserProfileEmail(data.user.email)
   }
-  
+  const saveFile = async () => {
+    console.log(filename)
+    // try {
+    //   let token = localStorage.getItem('token')
+    //   const { data } = await Axios.post(`${server}/upload`, {
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-type': 'application/json',
+    //       'authorization': `Bearer ${token}`
+    //     }
+    //   })
+    //   console.log(data)
+    // } catch (error) {
+    //   console.log(error.response.data.message)
+    // }
+  }
 
   useEffect(() => {
     profileview()
@@ -65,8 +81,9 @@ const UpdateUserProfile = () => {
         <div className='md:flex  w-full h-max border border-gray '>
           <div className='md:w-2/6 border-r-2 border-black   '>
             <h1 className='w-full p-3 bg-blue-400 text-white'>Change Profile Picture</h1>
-            <input type="file" name="" id="" className='w-full mt-14' />
-            <button className='w-40 mt-40 rounded ml-12 bg-blue-600 p-2 text-white'>Change Pciture</button>
+            <input type="file" name="" id=""  className='w-full mt-14' onChange={(e)=>setFilename(e.target.files[0])} />
+            <button onClick={saveFile} 
+            className='w-40 mt-40 rounded ml-12 bg-blue-600 p-2 text-white'>Change Pciture</button>
           </div>
           <div className=' md:w-4/6 md:ml-5'>
             <div className='flex gap-5 p-3 w-full '>
