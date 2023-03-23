@@ -47,3 +47,17 @@ export const getTransaction = catchAsyncError(async (req, res, next) => {
         Transaction,
     });
 });
+
+export const deleteTransaction = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id;
+    const { Transaction_id } = req.body;
+    const Transaction = await db("transactions").where({ user_id, Transaction_id }).del();
+    if (!Transaction) {
+        return next(new ErrorHandler("Transaction not deleted", StatusCodes.NOT_FOUND));
+    }
+    res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Transaction deleted",
+
+    });
+});

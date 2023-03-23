@@ -67,13 +67,10 @@ const UpdateMonthlyExpense = () => {
 
   }
   const DeleteCategoryValue = async (name, mid) => {
-    console.log(name)
+   
     try {
       let token = localStorage.getItem('token')
       const { data } = await Axios.delete(`${server}/deleteMonthlyExpenseCategory/${id}/${mid}`, {
-        // budgetDetail_id: mid,
-        // categoryName: name,
-      }, {
         headers: {
           'Accept': 'application/json',
           'Content-type': 'application/json',

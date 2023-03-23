@@ -4,6 +4,7 @@ import { catchAsyncError } from "../middlewares/catchAsyncError.js"
 //import Status Code
 import { StatusCodes } from "http-status-codes"
 export const budgteinfo = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id;
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
@@ -18,11 +19,11 @@ export const budgteinfo = catchAsyncError(async (req, res, next) => {
         createdDate: year + "-" + monthNumber + "-" + todayDate,
         user_id: req.user.id
     }]
-    const budgetCheck = await db('budget').where({ BudgetMonth: month + "-" + year }).first('*');
+    const budgetCheck = await db('budget').where({ BudgetMonth: month + "-" + year ,user_id}).first('*');
     if (budgetCheck) {
         return next(new ErrorHandler("Current Month Budget Already exist", StatusCodes.BAD_REQUEST))
     }
-    const budgetAdd = await db('budget').insert(Budgetdata);
+    const budgetAdd = await db('budget').insert(Budgetdata).where({ user_id });
     if (budgetAdd) {
         // return next(new ErrorHandler("Please Try Again",StatusCodes.BAD_REQUEST))
         const UserBudget = await db('budget').where({ budget_id: budgetAdd[0] }).first('*');
@@ -34,22 +35,24 @@ export const budgteinfo = catchAsyncError(async (req, res, next) => {
 })
 //add daily expense record
 export const DailyExpenseRecord = catchAsyncError(async (req, res, nex) => {
+    const user_id = req.user.id;
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
     const { ExpensecategoryName, description, currentAmount } = req.body
-    const checkcategory = await db('expense').where({ ExpensecategoryName }).andWhere(function () {
+    const checkcategory = await db('expense').where({ ExpensecategoryName ,user_id}).andWhere(function () {
         this.where({ currentMonthYear: month + "-" + year })
     })
     if (checkcategory.length > 0) {
         const result = parseFloat(currentAmount) + parseFloat(checkcategory[0].Totalamount)
         await db('expense').update({ currentAmount, Totalamount: result }).where({ ExpensecategoryName })
+        res.status(200).json({ message: "Expense Category Updated" })
     }
     else {
-        await db('expense').insert({ ExpensecategoryName, description, currentAmount, currentMonthYear: month + "-" + year, Totalamount: currentAmount })
+        await db('expense').insert({ ExpensecategoryName, description, currentAmount, currentMonthYear: month + "-" + year, Totalamount: currentAmount,user_id })
     }
-    res.json({ checkcategory })
+    res.json({message:"Category Added", checkcategory })
         // var expense = req.body
 
 
@@ -81,18 +84,20 @@ export const AddDailyExpenseintoBudget = catchAsyncError(async (req, res, next) 
 })
 //get Expense Category Detail for Update
 export const getExpenseCategoryDetail = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id;
     const expenseId = req.params.id
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const categoryDetail = await db('expense').select('ExpensecategoryName', 'currentAmount').where({ expense_id: expenseId }).andWhere(function () {
+    const categoryDetail = await db('expense').select('ExpensecategoryName', 'currentAmount').where({ expense_id: expenseId,user_id }).andWhere(function () {
         this.where({ currentMonthYear: month + "-" + year })
     })
     res.json({ categoryDetail })
 })
 // update category Expense Detail
 export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id;
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
@@ -100,11 +105,11 @@ export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next
     const { ExpensecategoryName, previousAmount, NewAmount } = req.body
     const preAmount = parseFloat(previousAmount)
     const newamount = parseFloat(NewAmount)
-    const totalamount = await db('expense').where({ ExpensecategoryName }).andWhere(function () {
+    const totalamount = await db('expense').where({ ExpensecategoryName,user_id }).andWhere(function () {
         this.where({ currentMonthYear: month + "-" + year })
     })
     if (preAmount === newamount) {
-        const a = await db('expense').update({ currentAmount: newamount }).where({ ExpensecategoryName })
+        const a = await db('expense').update({ currentAmount: newamount }).where({ ExpensecategoryName,user_id })
         if (a === 1) {
 
             res.json({ message: "Successfull Update" })
@@ -113,7 +118,7 @@ export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next
     else if (preAmount > newamount) {
         let differnecBtw = preAmount - newamount
         const result = parseFloat(totalamount[0].Totalamount) - differnecBtw
-        const a = await db('expense').update({ currentAmount: newamount, Totalamount: result }).where({ ExpensecategoryName })
+        const a = await db('expense').update({ currentAmount: newamount, Totalamount: result }).where({ ExpensecategoryName,user_id })
         if (a === 1) {
 
             res.json({ message: "Successfull Update" })
@@ -122,7 +127,7 @@ export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next
     else if (preAmount < newamount) {
         let differnecBtw = newamount - preAmount
         const result = parseFloat(totalamount[0].Totalamount) + differnecBtw
-        const a = await db('expense').update({ currentAmount: newamount, Totalamount: result }).where({ ExpensecategoryName })
+        const a = await db('expense').update({ currentAmount: newamount, Totalamount: result }).where({ ExpensecategoryName,user_id })
         if (a === 1) {
 
             res.json({ message: "Successfull Update" })
@@ -133,18 +138,19 @@ export const updateExpenseCategoryDetail = catchAsyncError(async (req, res, next
 
 //delete Expense Category
 export const deleteExpenseCategory = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id;
     const expenseId = req.params.id
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const categoryDetail = await db('expense').select('ExpensecategoryName', 'currentAmount').where({ expense_id: expenseId }).andWhere(function () {
+    const categoryDetail = await db('expense').select('ExpensecategoryName', 'currentAmount').where({ expense_id: expenseId,user_id }).andWhere(function () {
         this.where({ currentMonthYear: month + "-" + year })
     })
 
     if (categoryDetail.length > 0) {
-        const result = await db('expense').delete().where({ expense_id: expenseId })
+        const result = await db('expense').delete().where({ expense_id: expenseId,user_id })
         if (result === 1) {
             res.json({ message: "Successfull Delete" })
         }
@@ -155,25 +161,25 @@ export const deleteExpenseCategory = catchAsyncError(async (req, res, next) => {
 //get daily Expense Record History
 
 export const dailyExpenseRecordHistory = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const dailyrecordhistory = await db('expense').select('*').where({ currentMonthYear: month + "-" + year }).orderBy('expense_id', 'desc')
+    const dailyrecordhistory = await db('expense').select('*').where({ currentMonthYear: month + "-" + year,user_id }).orderBy('expense_id', 'desc')
     res.json({ dailyrecordhistory: dailyrecordhistory })
 })
 
 
 export const budgetdetail = catchAsyncError(async (req, res, next) => {
-
-    console.log(req.body)
+    const user_id = req.user.id
     const data = req.body
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const { budget_id } = await db('budget').where({ BudgetMonth: month + "-" + year }).first('budget_id');
-    const dataWithBudgetId = data.map(obj => ({ budget_id, ...obj }));
+    const { budget_id } = await db('budget').where({ BudgetMonth: month + "-" + year,user_id }).first('budget_id');
+    const dataWithBudgetId = data.map(obj => ({ budget_id,user_id, ...obj }));
     const b = await db('budget_detail').insert(dataWithBudgetId);
     res.json({
         message: "Successfully Create Monthly Expenses"
@@ -193,12 +199,13 @@ export const getALLBudgets = catchAsyncError(async (req, res, next) => {
 // get Monthly Budget Detail of specific month
 
 export const getMonthlyBudgetDetail = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id
     const budget_id = req.params.id
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const allBudgetDetailOfSpecificMonth = await db('budget_detail').select('*').where({ budget_id })
+    const allBudgetDetailOfSpecificMonth = await db('budget_detail').select('*').where({ budget_id,user_id })
     if (allBudgetDetailOfSpecificMonth.length > 0) {
         res.json({ allBudgetDetailOfSpecificMonth })
     }
@@ -217,12 +224,13 @@ export const deleteBudget = catchAsyncError(async (req, res, next) => {
 })
 
 export const GetMonthlyExpenseCategoryvalue = catchAsyncError(async (req, res, next) => {
+   const user_id = req.user.id
     const budget_id = req.params.id
     const budgetDetail_id = req.params.mid
     const categoryName = req.params.name
 
 
-    const check = await db('budget_detail').select('*').where({ budgetDetail_id }).andWhere({ budget_id })
+    const check = await db('budget_detail').select('*').where({ budgetDetail_id,user_id }).andWhere({ budget_id })
 
     if (check[0].categoryName === categoryName) {
 
@@ -232,12 +240,12 @@ export const GetMonthlyExpenseCategoryvalue = catchAsyncError(async (req, res, n
 
 // delete Monthly Expense Category
 export const deleteMonthlyExpenseCategory = catchAsyncError(async (req, res, next) => {
+    const user_id = req.user.id
     const budget_id = req.params.id
-    console.log(req.params.id)
     const budgetDetail_id = req.params.mid
-    console.log(req.params.mid)
+ 
 
-    const deleteBudgetDetail = await db('budget_detail').delete().where({ budgetDetail_id }).andWhere(
+    const deleteBudgetDetail = await db('budget_detail').delete().where({ budgetDetail_id,user_id }).andWhere(
         function () {
             this.where({ budget_id })
         })
@@ -266,13 +274,13 @@ export const updateMonthlyExpenseCategory = catchAsyncError(async (req, res, nex
 
 // Get Monthly Expense 
 export const MonthlybudgetData = catchAsyncError(async (req, res, next) => {
-
+ const user_id = req.user.id
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const budget_id = await db('budget').select('budget_id').where({ BudgetMonth: month + "-" + year }).first('budget_id');
-    const monthExpenseData = await db('budget_detail').select('*').where({ budget_id: budget_id.budget_id })
+    const budget_id = await db('budget').select('budget_id').where({ BudgetMonth: month + "-" + year,user_id }).first('budget_id');
+    const monthExpenseData = await db('budget_detail').select('*').where({ budget_id: budget_id.budget_id ,user_id})
     if (monthExpenseData.length > 0) {
         res.json({ monthExpenseData })
     }
@@ -281,12 +289,12 @@ export const MonthlybudgetData = catchAsyncError(async (req, res, next) => {
 
 // get budget total income
 export const getBudgetIncomeAmount = catchAsyncError(async (req, res, next) => {
-
+const user_id = req.user.id
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let date = new Date();
     let month = months[date.getMonth()];
     const year = date.getFullYear()
-    const budgetincome = await db('budget').select('Total_Income').where({ BudgetMonth: month + "-" + year })
+    const budgetincome = await db('budget').select('Total_Income').where({ BudgetMonth: month + "-" + year,user_id })
   res.json({ budgetincome })
     // if (monthExpenseData.length > 0) {
     //     let totalIncome = 0;
