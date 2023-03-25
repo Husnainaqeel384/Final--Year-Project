@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.js"
 import budgetRoutes from "./routes/budget.routes.js"
 import reminderRoutes from "./routes/reminder.routes.js"
 import Transactionroutes from "./routes/Transaction.routes.js"
+import reportRoutes from "./routes/report.routes.js"
 // middleware 
 import ErrorMiddlewares from "./middlewares/Error.js"
 const app = express();
@@ -32,4 +33,5 @@ dotenv.config({
   app.use('',budgetRoutes);
   app.use('',reminderRoutes);
   app.use('',Transactionroutes);
+  app.use('',reportRoutes);
   app.use(ErrorMiddlewares)
