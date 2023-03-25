@@ -55,3 +55,13 @@ doc.moveDown();
 
 doc.end();
 });
+
+// get months
+export const getMonths = catchAsyncError(async (req, res, next) => {
+  const user_id = req.user.id;
+    const months = await db('budget').select('BudgetMonth').where({user_id}).distinct();
+    res.status(StatusCodes.OK).json({
+        success: true,
+        months
+    })
+});

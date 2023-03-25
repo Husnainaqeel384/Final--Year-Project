@@ -67,6 +67,7 @@ const getTransaction = async () => {
         'authorization': `Bearer ${token}`
       }
     })
+ 
     setTransactionData (data.Transaction)
   } catch (error) {
     toast.error(error.response.data.message, { position: toast.POSITION.TOP_CENTER });
