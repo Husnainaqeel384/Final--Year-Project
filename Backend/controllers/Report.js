@@ -12,7 +12,17 @@ function formatDate(date) {
     return year + "/" + month + "/" + day;
   }
 export const getReport = catchAsyncError(async (req, res, next) => {
-
+    const tableHeaders = ['Name', 'Age'];
+    const tableData = [
+      ['John Doe', 30],
+      ['Jane Smith', 25]
+    ];
+    
+    // Set up the table
+    // const table = {
+    //   headers: tableHeaders,
+    //   rows: tableData
+    // };
     // const user_id = req.user.id;
     const budgetdetail = await db('budget_detail').select('*');
     const doc = new pdfDoucment();
@@ -38,7 +48,8 @@ export const getReport = catchAsyncError(async (req, res, next) => {
     .text('Date', 200, 55, { align: 'right' })
     .text(formatDate(new Date()), 200, 65, { align: 'right' })
     
-
+doc.moveDown();
+// doc.table(table);
 
 
 
