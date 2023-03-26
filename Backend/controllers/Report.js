@@ -50,6 +50,49 @@ export const getReport = catchAsyncError(async (req, res, next) => {
     
 doc.moveDown();
 // doc.table(table);
+const data = [
+  { label: 'Apple', value: 50 },
+  { label: 'Banana', value: 20 },
+  { label: 'Cherry', value: 30 },
+
+];
+const total = data.reduce((acc, item) => acc + item.value, 0);
+const chartX = 100;
+const chartY = 100;
+const chartWidth = 400;
+const chartHeight = 400;
+const centerX = chartX + chartWidth / 2;
+const centerY = chartY + chartHeight / 2;
+const radius = chartWidth / 2;
+
+let currentAngle = -Math.PI / 2;
+
+data.forEach((item) => {
+  const angle = (item.value / total) * 2 * Math.PI;
+  doc
+    .moveTo(centerX, centerY)
+    .lineTo(centerX + Math.cos(currentAngle) * radius, centerY + Math.sin(currentAngle) * radius)
+    .arc(centerX, centerY, radius, currentAngle, currentAngle + angle)
+    .fill(item.color || '#ccc');
+
+  currentAngle += angle;
+});
+let legendX = chartX + chartWidth + 50;
+let legendY = chartY;
+
+data.forEach((item) => {
+  doc
+    .rect(legendX, legendY, 20, 20)
+    .fill(item.color || '#ccc');
+
+  doc
+    .font('Helvetica')
+    .fontSize(12)
+    .fillColor('#000')
+    .text(item.label, legendX + 30, legendY + 10);
+
+  legendY += 30;
+});
 
 
 
