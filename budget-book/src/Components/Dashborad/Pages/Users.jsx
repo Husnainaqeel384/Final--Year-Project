@@ -1,6 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineSearch } from 'react-icons/ai'
+import axios from 'axios'
+import { server } from '../../../store'
+import { toast } from "react-toastify";
 const Users = () => {
+    const [users, setUsers] = useState([]);
+    const [userId, setUserId] = useState("");
+    const [userName, setUserName] = useState("");
+    const [userEmail, setUserEmail] = useState("");
+    const [userRole, setUserRole] = useState("");
+
+    const [isEdit, setIsEdit] = useState(false);
+    const getUsers = async () => {
+        let token = localStorage.getItem('token')
+        try {
+            const { data } = await axios.get(`${server}/Allusers`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${token}`
+                }
+            }
+
+            );
+            // console.log(data)
+            setUsers(data.user);
+        } catch (error) {
+            toast.error(error.response.data.message, {
+                position: toast.POSITION.TOP_CENTER
+
+            })
+        }
+    }
+
+    useEffect(() => {
+        getUsers();
+    }, []);
     return (
         <>
 
@@ -10,15 +44,7 @@ const Users = () => {
 
                 </div>
 
-                <div className="flex items-center justify-between pt-3 pb-4 bg-white  " >
-                    <label htmlFor="table-search" className="sr-only">Search</label>
-                    <div className="relative ">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3  pointer-events-none">
-                            <AiOutlineSearch className="text-white " />
-                        </div>
-                        <input type="text" id="table-search-users" class="block p-2 pl-10 text-sm  text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for users" />
-                    </div>
-                </div>
+              
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
@@ -43,34 +69,79 @@ const Users = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="bg-white border-b  hover:bg-gray-50 ">
-                            <td className="w-4 p-4">
-                                <div className="flex items-center">
-                                    <p>1</p>
-                                </div>
-                            </td>
+                       {/* {
+                            users.map((user, index) => {
+                                return (
+                                    <tr key={user._id} className="bg-white dark:bg-gray-800">
+                                        <td className="p-4">
+                                            <div className="flex items-center">
+                                                <p>{index + 1}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <p>{user._id}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <p>{user.name}</p>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <p>{user.email}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <p>{user.role}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <p className="text-sm font-medium text-blue-600 cursor-pointer">Edit</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                       } */}
+                       {
 
-                            <td className="px-6 py-4">
-                                {12345}
-                            </td>
-                            <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
+                            users.map((user, index) => {    
+                                return (
+                                    <tr className="bg-white border-b  hover:bg-gray-50 " key={index}>
+                                    <td className="w-4 p-4">
+                                        <div className="flex items-center">
+                                            <p>{index+1} </p>
+                                        </div>
+                                    </td>
+        
+                                    <td className="px-6 py-4">
+                                        {user.user_id
+                                        
+                                    }
+                                    </td>
+                                    <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
+        
+                                        <div className="pl-3">
+                                            <div className="text-black font-semibold">{user.UserName}</div>
+                                            <div className="font-normal text-gray-500">{user.email}</div>
+                                        </div>
+                                    </th>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center">
+                                            <div className="h-2.5 w-2.5  mr-2"></div> {user.role}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                                            Edit</button>
+                                    </td>
+                                </tr>
 
-                                <div className="pl-3">
-                                    <div className="text-black font-semibold">Husnain</div>
-                                    <div className="font-normal text-gray-500">Husnainaqeel384@gmail.com</div>
-                                </div>
-                            </th>
-                            <td className="px-6 py-4">
-                                <div className="flex items-center">
-                                    <div className="h-2.5 w-2.5  mr-2"></div> Admin
-                                </div>
-                            </td>
-                            <td className="px-6 py-4">
-                                <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
-                                    Edit</button>
-                            </td>
-                        </tr>
-
+                                )
+                       }    
+                          )}
 
                     </tbody>
                 </table>

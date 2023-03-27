@@ -112,3 +112,15 @@ export const getuserdata = catchAsyncError(async (req, res, next) => {
     }
     res.status(StatusCodes.ACCEPTED).json({ user })
 })
+
+export const getAllUsers = catchAsyncError(async (req, res, next) => {
+    
+    if (req.user.userRole !== 'admin') {
+        return next(new ErrorHandler('You are not allowed to access this route', StatusCodes.UNAUTHORIZED))
+    }
+    const user = await db('register').select('*');
+    if (!user) {
+        return next(new ErrorHandler('User Not Update Successfully', StatusCodes.BAD_REQUEST))
+    }
+    res.status(StatusCodes.ACCEPTED).json({ user })
+})
