@@ -36,7 +36,7 @@ const DashboardRoutes = () => {
                 }
             })
             
-            if(data.user[0].role === 'admin'){
+            if(data.user[0].role === 'Admin'){
                 setuserIsAdmin(true)
             }
             setusername(data.user[0].UserName)
