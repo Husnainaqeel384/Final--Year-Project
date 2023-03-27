@@ -201,7 +201,7 @@ export const subCategory = {
     { label: "Charitable Donations", value: "Charitable Donations" },
     { label: "Religious Donations", value: "Religious Donations" },
   ],
-  Obligations: [
+  OBLIGATIONS: [
     { label: "Loans ", value: "Loans" },
     { label: "Credit Card Debt", value: "Credit Card Debt" },
     { label: "Federal Taxes", value: "Federal Taxes"},

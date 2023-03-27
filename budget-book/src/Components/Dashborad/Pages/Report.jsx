@@ -4,6 +4,7 @@ import { Chart as ChartJS, Tooltip, ArcElement, Legend } from "chart.js";
 import ClipLoader from "react-spinners/ClipLoader"
 import axios from 'axios'
 import { server } from '../../../store'
+import { toast } from 'react-toastify';
 ChartJS.register(Tooltip, ArcElement, Legend);
 const Report = () => {
     let [loading, setLoading] = useState(true);
@@ -35,6 +36,36 @@ const Report = () => {
 
         setMonthname(data.months)
     }
+    const generateReport = async () => {
+        if (selectedMonth === "") {
+            toast.error("Please Select Month", {
+                position: toast.POSITION.TOP_CENTER
+                })
+        } else {
+            try {
+                setLoading(true)
+                let token = localStorage.getItem('token')
+                const { data } = await axios.get(`${server}/report/${selectedMonth}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${token}`
+                    }
+                })
+                console.log(data)
+                setLoading(false)
+                setIsopen(true)
+
+            } catch (error) {
+                toast.error("Something Went Wrong", {
+                    position: toast.POSITION.TOP_CENTER
+                })
+            }
+
+
+        }
+    }
+
+
     useEffect(() => {
         reportmonth()
     }, [])
@@ -60,15 +91,13 @@ const Report = () => {
                         </select>
                     </div>
                     <button
-                        onClick={() => {
-                            setIsopen(!isopen)
+                        onClick={() => generateReport()
+                        }
 
-                        }
-                        }
                         className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0">Generate Report</button>
                 </div>
                 {
-                    isopen  ? (
+                    isopen ? (
                         <div>
                             <h3 className="text-xl font-bold mb-2 text-center">Expense Report</h3>
                             <div className="flex flex-col md:flex-row justify-between p-1 ">
@@ -149,7 +178,6 @@ const Report = () => {
                         <ClipLoader
                             color={color}
                             loading={loading}
-
                             size={150}
                             aria-label="Loading Spinner"
                             data-testid="loader"

@@ -108,7 +108,7 @@ const BudgetDetail = () => {
                   {option.label}
                 </option>
               ))}
-            </select>
+            </select> 
           </div>
           <div style={{ width: 150, height: 150 ,
            
