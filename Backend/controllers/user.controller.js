@@ -136,3 +136,13 @@ export const updateRole = catchAsyncError(async (req, res, next) => {
     res.status(StatusCodes.ACCEPTED).json({ message: "User Update Successfully" })
 }
 )
+
+export const deleteUser = catchAsyncError(async (req, res, next) => {
+    const userId = req.params.userId;
+    const user = await db('register').delete().where({ user_id: userId })
+    if (!user) {
+        return next(new ErrorHandler('User Not Found', StatusCodes.BAD_REQUEST))
+    }
+    res.status(StatusCodes.ACCEPTED).json({ message: "User Delete Successfully" })
+}
+)
