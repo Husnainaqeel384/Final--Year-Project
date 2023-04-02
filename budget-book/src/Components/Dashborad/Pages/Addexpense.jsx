@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Category, subCategory } from '../../data/sidebarlinks'
 import { useStateContext } from '../../../context/ContextProvider'
+import axios from 'axios'
 import { server } from '../../../store';
 import { toast } from 'react-hot-toast'
 // import { useNavigate } from 'react-router-dom'
@@ -13,11 +14,26 @@ const Addexpense = () => {
   const [categoryName, setcategoryName] = useState('');
   const [Amount, setAmount] = useState('');
   const [description, setdescription] = useState('');
-
-  const handleOptionChange = (event) => {
-    setSelectedValues(event.target.value);
-  };
-
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const handleMainCategorySelect = async (event) => {
+    const selectedMainCategoryId = parseInt(event.target.value);
+    setSelectedValues(event.target.value)
+    const selectedMainCategory = mainCategories.find(category => category.category_id === selectedMainCategoryId);
+    let token = localStorage.getItem('token')
+    if (selectedMainCategory) {
+      const { data } = await axios(`${server}/subCategories?categoryId=${selectedMainCategoryId}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      setSubCategories(data.subCategories);
+    } else {
+      setSubCategories([]);
+    }
+  }
   const handleInputChange = (event) => {
     setAmount(event.target.value);
   };
@@ -33,7 +49,7 @@ const Addexpense = () => {
     setdescription('');
   };
 
-  const handleSubmitClick =async () => {
+  const handleSubmitClick = async () => {
     try {
       let token = localStorage.getItem('token')
       const { data } = await Axios.post(`${server}/dailyExpenseRecord`,
@@ -60,7 +76,26 @@ const Addexpense = () => {
       console.log(error.response.data.message)
     }
   };
+  const getCategories = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/getCategories`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
 
+        }
+      })
+
+      setMainCategories(data.categories)
+    } catch (error) {
+
+    }
+  }
+  useEffect(() => {
+    getCategories()
+  }, [])
   return (
     <div className={`fixed z-10 inset-0 overflow-y-auto ${openExpenseDropdown ? '' : 'hidden'}`}>
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -77,18 +112,11 @@ const Addexpense = () => {
                   <label htmlFor="option" className="block text-gray-700 font-bold mb-2">
                     Select Main Category
                   </label>
-                  <select
-                    id="option"
-                    name="option"
-                    className="form-select w-full mb-4 px-4 py-2 rounded-md shadow-sm"
-                    value={selectedValues}
-                    onChange={handleOptionChange}
-                  >
-                    <option value="">Select an option</option>
-                    {Category.map((option) => (
-                      <option key={option.value} value={option.value} className='w-48 p-8'>
-                        {option.label}
-                      </option>
+                  <select onChange={handleMainCategorySelect}
+                    className="form-select w-full mb-4 px-4 py-2 rounded-md shadow-sm">
+                    <option value="">Select a main category</option>
+                    {mainCategories.map(category => (
+                      <option key={category.category_id} value={category.category_id} className='w-48 p-8' >{category.category_name}</option>
                     ))}
                   </select>
                   {selectedValues && (
@@ -96,18 +124,14 @@ const Addexpense = () => {
                       <label htmlFor="subOption" className="block text-gray-700 font-bold mb-2">
                         Category Name
                       </label>
-                      <select
-                        id="subOption"
-                        name="subOption"
-                        onChange={(e)=>{setcategoryName(e.target.value)}}
-                        className="form-select w-full mb-4 px-4 py-2 rounded-md shadow-sm"
-                      > <option value="">Select an option</option>
-                        {selectedValues &&
-                          subCategory[selectedValues].map((subOption) => (
-                            <option key={subOption.value} value={subOption.value}>
-                              {subOption.label}
-                            </option>
-                          ))}
+                      <select value={categoryName}
+                      onChange={(e) => { setcategoryName(e.target.value) }}
+                      className="form-select w-full mb-4 px-4 py-2 rounded-md shadow-sm"
+                      >
+                        <option value="">Select a subcategory</option>
+                        {subCategories.map(subCategory => (
+                          <option key={subCategory.subCategory_id} value={subCategory.subCategoryName}>{subCategory.subCategoryName}</option>
+                        ))}
                       </select>
                     </div>
                   )}

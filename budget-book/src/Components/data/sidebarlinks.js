@@ -55,6 +55,12 @@ export const links = [
         path: 'Budget/transactions',
         icon: <GrTransaction />,
       },
+      {
+        name: 'Add Category',
+        path: 'Budget/add-category',
+        icon: <AiFillFolderAdd />,
+        isAdminOnly: true,
+      },
       
 ];
 

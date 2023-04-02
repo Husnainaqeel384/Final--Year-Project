@@ -19,6 +19,7 @@ import Expense from './Pages/Expense'
 import UpdateMonthlyExpense from './Pages/UpdateMonthlyExpense'
 import UpdateCategory from './Pages/UpdateCategory'
 import Report from './Pages/Report'
+import Categories from './Pages/Categories'
 import { server } from '../../store'
 import axios from 'axios'
 const DashboardRoutes = () => {
@@ -93,6 +94,7 @@ const DashboardRoutes = () => {
                             <Route exact path='/Edit-Expense' element={<UpdateMonthlyExpense />} />
                             <Route exact path='/report' element={<Report />} />
                             <Route exact path='//Update-Category-Value' element={<UpdateCategory />} />
+                            <Route exact path='/add-category' element={<Categories />} />
                         </Routes>
                     </div>
 

@@ -6,29 +6,50 @@ import { useNavigate } from 'react-router-dom'
 import Axios from 'axios'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import axios from 'axios';
 const BudgetDetail = () => {
   const navigate = useNavigate()
-  const [selectedValues, setSelectedValues] = useState("");
+
   const [subCategoryValue, setsubCategoryValue] = useState("");
   const [Amount, setAmount] = useState(0);
   const [values, setValues] = useState([]);
   const [totalIncome, settotalIncome] = useState(0)
   const [totalBudgetIncome, settotalBudgetIncome] = useState(0)
   const [reduceincome, setreduceincome] = useState(0)
-  const handleMainDropdownChange = (event) => {
-    setSelectedValues(event.target.value);
-  };
-  const getTotalAmount = async () => {
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const handleMainCategorySelect = async (event) => {
+    const selectedMainCategoryId = parseInt(event.target.value);
+    const selectedMainCategory = mainCategories.find(category => category.category_id === selectedMainCategoryId);
     let token = localStorage.getItem('token')
-    const { data } = await Axios.get(`${server}/getTotalAmount`, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-type': 'application/json',
-        'authorization': `Bearer ${token}`
-      }
-    })
-    settotalIncome(data.budgetincome[0].Total_Income)
-    settotalBudgetIncome(data.budgetincome[0].Total_Income)
+    if (selectedMainCategory) {
+      const { data } = await axios(`${server}/subCategories?categoryId=${selectedMainCategoryId}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      setSubCategories(data.subCategories);
+    } else {
+      setSubCategories([]);
+    }
+  }
+  const getTotalAmount = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/getTotalAmount`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+        }
+      })
+      settotalIncome(data.budgetincome[0].Total_Income)
+      settotalBudgetIncome(data.budgetincome[0].Total_Income)
+    } catch (error) {
+      console.log(error.response.data.message)
+    }
 
     // const totalAmount = values.reduce((total, item) => {
     // return (total += item.Amount);
@@ -41,12 +62,12 @@ const BudgetDetail = () => {
     } else {
       const isUnique = values.every((value) => value.categoryName !== subCategoryValue);
       if (isUnique) {
-    
-        const result =totalIncome - Amount
+
+        const result = totalIncome - Amount
         settotalIncome(result)
-        const value= totalBudgetIncome-result
- 
-        setreduceincome(value )
+        const value = totalBudgetIncome - result
+
+        setreduceincome(value)
         setValues([...values, { categoryName: subCategoryValue, Amount: Amount }]);
       } else {
         toast.error('Duplicate Category Name Not allow');
@@ -58,12 +79,12 @@ const BudgetDetail = () => {
   // console.log(values)
   const removeFields = (index) => {
     const newArray = [...values];
-   
-    const result =totalIncome + parseFloat(newArray[index].Amount)
+
+    const result = totalIncome + parseFloat(newArray[index].Amount)
     newArray.splice(index, 1);
     settotalIncome(result)
-    setreduceincome(totalIncome-result)
-   
+    setreduceincome(totalIncome - result)
+
     setValues(newArray);
   };
   const saveBudget = async () => {
@@ -87,8 +108,26 @@ const BudgetDetail = () => {
       console.log(error.response.data.message)
     }
   }
+  const getCategories = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      const { data } = await Axios.get(`${server}/getCategories`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+          'authorization': `Bearer ${token}`
+
+        }
+      })
+
+      setMainCategories(data.categories)
+    } catch (error) {
+
+    }
+  }
   useEffect(() => {
     getTotalAmount()
+    getCategories()
   }, [])
 
   return (
@@ -101,42 +140,38 @@ const BudgetDetail = () => {
         <div className='flex  w-full'>
           <div className='w-2/4 ml-12 mt-12 '>
             <h1 className='mb-4 text-xl   text-gray-900 dark:text-black md:text-4xl lg:text-xl'>Select the Main Expense Category</h1>
-            <select value={selectedValues} onChange={handleMainDropdownChange} className='border border-gray w-56 h-8 text-gray bg-gray-200'>
-              <option value="" className='w-48 p-4'>Select an option</option>
-              {Category.map((option) => (
-                <option key={option.value} value={option.value} className='w-48 p-8'>
-                  {option.label}
-                </option>
+            <select onChange={handleMainCategorySelect} className='border border-gray w-56 h-8 text-gray bg-gray-200'>
+              <option value="">Select a main category</option>
+              {mainCategories.map(category => (
+                <option key={category.category_id} value={category.category_id} className='w-48 p-8' >{category.category_name}</option>
               ))}
-            </select> 
+            </select>
           </div>
-          <div style={{ width: 150, height: 150 ,
-           
+          <div style={{
+            width: 150, height: 150,
+
           }} className='w-2/4  md:ml-8 md:mt-8  '>
-            <CircularProgressbar 
-            
-            maxValue={totalIncome}
-            value={reduceincome}
-            className='w-full' text={totalIncome} />
-         
+            <CircularProgressbar
+
+              maxValue={totalIncome}
+              value={reduceincome}
+              className='w-full' text={totalIncome} />
+
           </div>
           <div className='md:ml-12 md:mt-4 '>
-          <p className='font-bold' >Total Income</p>
-          <span className='text-green-700 text-xl p-2'>{totalBudgetIncome}</span>
-      
+            <p className='font-bold' >Total Income</p>
+            <span className='text-green-700 text-xl p-2'>{totalBudgetIncome}</span>
+
           </div>
         </div>
         <div className='md:ml-12 md:-mt-9 ml-3 mt-5'>
           <h1 className='mb-4 text-xl  text-gray-900 dark:text-black md:text-4xl lg:text-xl'>Add the Sub Expense Category</h1>
           <div className=' w-full flex'>
             <select value={subCategoryValue} onChange={(e) => setsubCategoryValue(e.target.value)} className='border border-grayw-52 md:w-3/5 h-8 text-gray bg-gray-200'>
-              <option value="">Select an option</option>
-              {selectedValues &&
-                subCategory[selectedValues].map((subOption) => (
-                  <option key={subOption.value} value={subOption.value}>
-                    {subOption.label}
-                  </option>
-                ))}
+              <option value="">Select a subcategory</option>
+              {subCategories.map(subCategory => (
+                <option key={subCategory.subCategory_id} value={subCategory.subCategoryName}>{subCategory.subCategoryName}</option>
+              ))}
             </select>
             <p className='md:w-96 w-64 text-center'>
               <label htmlFor="">Enter Amount</label>
