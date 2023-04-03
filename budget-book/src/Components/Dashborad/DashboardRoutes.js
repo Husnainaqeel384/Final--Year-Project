@@ -52,10 +52,6 @@ const DashboardRoutes = () => {
     useEffect(() => {
         getuserdata();
     }, [])
-
-
-
-
     return (
         <>
             <div className='flex relative' >

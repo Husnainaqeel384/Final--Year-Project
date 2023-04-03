@@ -40,7 +40,7 @@ const profileview = useCallback(async () => {
         <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">User Information</span> </h1>
         <div className='md:flex  w-full h-max border border-gray '>
           <div className='md:w-1/4 border-r-1 border-black   '>
-            <img src={ url===''? image1:url   } alt="" className='w-52 h-52 mt-12 ml-5  border border-gray rounded-full' />
+            <img src={ url?url:image1   } alt="" className='w-52 h-52 mt-12 ml-5  border border-gray rounded-full' />
           </div>
           <div className=' md:w-3/4'>
             <div className='flex gap-5 p-3 w-full '>

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { AiOutlineMenu } from 'react-icons/ai'
 import { MdKeyboardArrowDown } from 'react-icons/md'
-import {  useSelector } from "react-redux"
+// import {  useSelector } from "react-redux"
 
 import { Link } from 'react-router-dom'
 import { useStateContext } from '../../../context/ContextProvider'
@@ -54,7 +54,7 @@ const DashboardNavbar = ({username,url}) => {
     window.addEventListener('resize', handleResize())
     handleResize();
     return () => window.removeEventListener('resize', handleResize())
-  }, [])
+  }, [setScreenSize])
 
   useEffect(() => {
     if (screenSize <= 900) {
@@ -62,7 +62,7 @@ const DashboardNavbar = ({username,url}) => {
     } else {
       setactiveMenu(true)
     }
-  }, [screenSize])
+  }, [screenSize,setactiveMenu])
 
 
   return (
@@ -74,10 +74,10 @@ const DashboardNavbar = ({username,url}) => {
         <div className='flex items-center cursor-pointer p-1 hover:bg-light-gray rounded-lg '
           onClick={() => setOpenDrop(!opendrop)}
         >
-          <img src={url==='' ?image1:url } className="rounded-full w-8 h-8" alt="" />
+          <img src={url?url:image1 } className="rounded-full w-8 h-8" alt="" />
           <p>
             {/* <span className='text-gray-400 text-14'> Hi, </span>{' '} */}
-            <span className='text-gray-400 font-bold ml-1 text-14'>{username}</span>
+            <span className='text-gray-400 font-bold ml-1 text-14 '>{username}</span>
           </p>
           <MdKeyboardArrowDown className='text-gray-400 text-14' />
           {/* {isClicked.userProfile && <Profile />} */}
