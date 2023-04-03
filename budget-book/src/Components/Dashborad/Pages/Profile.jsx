@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React,{useEffect,useCallback} from 'react'
 import { Link } from 'react-router-dom'
 import image1 from '../../../images/feature6.png'
 import Axios from "axios";
@@ -10,8 +10,9 @@ const {userProfileId,userProfileFirstName,
   setUserProfileId,setUserProfileFirstName,setUserProfileLastName
   ,setUserProfileUserName,setUserProfileEmail
 } = useStateContext();
-  let token = localStorage.getItem('token')
-  const profileview = async () => {
+const [url,seturl]=React.useState('')
+const profileview = useCallback(async () => {
+    let token = localStorage.getItem('token')
     const { data } = await Axios.get(`${server}/profile`, {
       headers: {
         'Accept': 'application/json',
@@ -24,10 +25,13 @@ const {userProfileId,userProfileFirstName,
     setUserProfileLastName(data.user.Lastname)
     setUserProfileUserName(data.user.Username)
     setUserProfileEmail(data.user.email)
-  }
+    seturl(`${server}/user/profile/${data.user.imagepath}`)
+    // seturl(`${process.env.REACT_APP_IMAGE_URL}/${data.user.imagepath}`)
+
+  },[setUserProfileId,setUserProfileFirstName,setUserProfileLastName,setUserProfileUserName,setUserProfileEmail,seturl])
   useEffect(() => {
     profileview()
-  }, [])
+  }, [profileview])
   
   return (
     <>
@@ -36,7 +40,7 @@ const {userProfileId,userProfileFirstName,
         <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">User Information</span> </h1>
         <div className='md:flex  w-full h-max border border-gray '>
           <div className='md:w-1/4 border-r-1 border-black   '>
-            <img src={image1} alt="" className='w-52 h-52 mt-12 ml-5  border border-gray rounded-full' />
+            <img src={ url===''? image1:url   } alt="" className='w-52 h-52 mt-12 ml-5  border border-gray rounded-full' />
           </div>
           <div className=' md:w-3/4'>
             <div className='flex gap-5 p-3 w-full '>

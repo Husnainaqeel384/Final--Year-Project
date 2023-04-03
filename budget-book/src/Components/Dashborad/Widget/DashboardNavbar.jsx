@@ -37,7 +37,7 @@ const NavButton = ({ customFunc, icon, }) => (
     {icon}
   </button>);
 
-const DashboardNavbar = ({username}) => {
+const DashboardNavbar = ({username,url}) => {
   // const [name,setName]=useState('')
   // const { user } = useSelector(state => state.user)
  
@@ -74,7 +74,7 @@ const DashboardNavbar = ({username}) => {
         <div className='flex items-center cursor-pointer p-1 hover:bg-light-gray rounded-lg '
           onClick={() => setOpenDrop(!opendrop)}
         >
-          <img src={image1} className="rounded-full w-8 h-8" alt="" />
+          <img src={url==='' ?image1:url } className="rounded-full w-8 h-8" alt="" />
           <p>
             {/* <span className='text-gray-400 text-14'> Hi, </span>{' '} */}
             <span className='text-gray-400 font-bold ml-1 text-14'>{username}</span>

@@ -70,6 +70,8 @@ export const userProfile = catchAsyncError(async (req, res, next) => {
     if (!user) {
         return next(new ErrorHandler("No such user exists", StatusCodes.BAD_REQUEST))
     }
+    // const imagepath =path.join(__dirname, '..', 'uploads', user.image);
+    // console.log(imagepath)
     res.status(StatusCodes.ACCEPTED).json({
         success: true,
         user: {
@@ -78,7 +80,8 @@ export const userProfile = catchAsyncError(async (req, res, next) => {
             Lastname: user.LastName,
             Username: user.UserName,
             role: user.role,
-            email: user.email
+            email: user.email,
+            imagepath: user.image
         }
     })
 
@@ -145,4 +148,14 @@ export const deleteUser = catchAsyncError(async (req, res, next) => {
     }
     res.status(StatusCodes.ACCEPTED).json({ message: "User Delete Successfully" })
 }
+)
+
+export const uploadImage = catchAsyncError(async (req, res, next) => {
+    const userId = req.user.id;
+    const user = await db('register').update({image: req.file.filename }).where({ user_id: userId })
+    if (!user) {
+        return next(new ErrorHandler('User Not Found', StatusCodes.BAD_REQUEST))
+    }
+    res.status(StatusCodes.ACCEPTED).json({ message: "User Image Upload Successfully" })
+}   
 )

@@ -23,7 +23,8 @@ export default app
 dotenv.config({
     path: "./config.env",
   });
-  
+  app.use(express.static('./uploads'))
+  app.use('/user/profile', express.static('./uploads'))
   app.use(
     cors({
       credentials: true,

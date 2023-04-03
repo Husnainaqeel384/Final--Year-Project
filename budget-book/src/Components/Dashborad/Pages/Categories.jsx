@@ -1,39 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 // import classNames from 'classnames';
 import { BiEditAlt } from 'react-icons/bi'
 import { RiDeleteBin6Line } from 'react-icons/ri'
-const categories = [
-    {
-        id: 1,
-        name: 'Main Category 1',
-        subcategories: [
-            { id: 1, name: 'Subcategory 1' },
-            { id: 2, name: 'Subcategory 2' },
-            { id: 3, name: 'Subcategory 3' },
-        ],
-    },
-    {
-        id: 2,
-        name: 'Main Category 2',
-        subcategories: [
-            { id: 4, name: 'Subcategory 4' },
-            { id: 5, name: 'Subcategory 5' },
-        ],
-    },
-    {
-        id: 3,
-        name: 'Main Category 2',
-        subcategories: [
-            { id: 4, name: 'Subcategory 4' },
-            { id: 5, name: 'Subcategory 5' },
-        ],
-    },
-];
+import Axios from 'axios';
+import { server } from '../../../store';
 
 const Category = ({ category, onDelete, onEdit }) => {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(category.name);
-
+    const [subCategories, setSubCategories] = useState([]);
     const handleEdit = () => {
         setEditing(true);
     };
@@ -55,13 +30,33 @@ const Category = ({ category, onDelete, onEdit }) => {
     const handleNameChange = (event) => {
         setName(event.target.value);
     };
+    const getSubCategories =useCallback( async () => {
+        try {
+            let token = localStorage.getItem('token')
 
+            const { data } = await Axios(`${server}/getsubCategories`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-type': 'application/json',
+                    'authorization': `Bearer ${token}`
+                }
+            })
+            const filteredSubcategories = data.subCategories.filter(subcategory => subcategory.category_id === category.category_id);
+            setSubCategories(filteredSubcategories);
+
+        } catch (error) {
+
+        }
+    }, [category.category_id])
+    useEffect(() => {
+        getSubCategories()
+    }, [getSubCategories])
     return (
         <>
 
             <div className="p-4 border-b border-gray-200">
                 <div className="flex justify-between items-center">
-                    <div className="font-bold">{category.name}</div>
+                    <div className="font-bold">{category.category_name}</div>
                     <div className="flex items-center space-x-2">
                         <button
                             className="px-2 py-1 bg-gray-200 rounded-md hover:bg-gray-300"
@@ -106,11 +101,17 @@ const Category = ({ category, onDelete, onEdit }) => {
                     </div>
                 ) : (
                     <div className="mt-4">
-                        {category.subcategories.map((subcategory) => (
-                            <div key={subcategory.id} className="ml-4 flex justify-between space-x-2">
-                                {subcategory.name}
+                      
+                        {subCategories.map((subcategory) => (
+                            <div key={subcategory.subCategory_id} className="ml-4 flex justify-between space-x-2">
+                              {
+                                    subcategory.category_id === category.category_id ? (
+                                        <div className="font-bold">{subcategory.subCategoryName}</div>
+                                    ) : "null"
+                              }
                                 <div>
-                                    <button className="px-2 py-1  rounded-md  text-blue-300"> <BiEditAlt />  </button>
+                                    <button onClick={() => { }} 
+                                    className="px-2 py-1  rounded-md  text-blue-300"> <BiEditAlt />  </button>
                                     <button className="px-2 py-1  rounded-md text-red-600"><RiDeleteBin6Line /> </button>
                                 </div>
                             </div>
@@ -124,26 +125,32 @@ const Category = ({ category, onDelete, onEdit }) => {
 };
 
 const Categories = () => {
-    const [categoriesData, setCategoriesData] = useState(categories);
+
     const [ismainCategory, setMainCategory] = useState(false)
     const [isSubCategory, setSubCategory] = useState(false)
-    const handleDelete = (categoryId) => {
-        const updatedCategories = categoriesData.filter(
-            (category) => category.id !== categoryId
-        );
-        setCategoriesData(updatedCategories);
-    };
+    const [mainCategories, setMainCategories] = useState([]);
+    
+   
+    const getCategories = async () => {
+        try {
+            let token = localStorage.getItem('token')
+            const { data } = await Axios.get(`${server}/getCategories`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-type': 'application/json',
+                    'authorization': `Bearer ${token}`
 
-    const handleEdit = (categoryId, name) => {
-        const updatedCategories = categoriesData.map((category) => {
-            if (category.id === categoryId) {
-                return { ...category, name };
-            }
-            return category;
-        });
-        setCategoriesData(updatedCategories);
-    };
+                }
+            })
 
+            setMainCategories(data.categories)
+        } catch (error) {
+
+        }
+    }
+    useEffect(() => {
+        getCategories()
+    }, [])
     return (
         <>
             <div className="max-w-md mx-auto mt-2">
@@ -226,15 +233,10 @@ const Categories = () => {
                     </div>
                 </div>
                 <div className="mt-4">
-                    {categoriesData.map((category) => (
+                    {mainCategories.map((category) => (
                         <Category
-
-
-                            key={category.id}
+                            key={category.category_id}
                             category={category}
-                            onDelete={handleDelete}
-
-                            onEdit={handleEdit}
                         />
                     ))}
                 </div>

@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useCallback } from 'react'
 import { useStateContext } from '../../../context/ContextProvider'
 import Axios from "axios";
 import { server } from '../../../store';
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
+// import { toast } from 'react-hot-toast'
+// import { useForm } from 'react-hook-form'
+// import { yupResolver } from '@hookform/resolvers/yup';
+// import * as yup from "yup";
+import { toast } from 'react-toastify'
 const UpdateUserProfile = () => {
   const navigate = useNavigate()
   const { userProfileId, userProfileFirstName,
@@ -12,7 +16,7 @@ const UpdateUserProfile = () => {
     , setUserProfileUserName, setUserProfileEmail
   } = useStateContext();
   const [filename, setFilename] = useState('Choose File')
-  const profileview = async () => {
+  const profileview =useCallback( async () => {
     let token = localStorage.getItem('token')
     const { data } = await Axios.get(`${server}/profile`, {
       headers: {
@@ -26,27 +30,42 @@ const UpdateUserProfile = () => {
     setUserProfileLastName(data.user.Lastname)
     setUserProfileUserName(data.user.Username)
     setUserProfileEmail(data.user.email)
-  }
+  }, [setUserProfileId, setUserProfileFirstName, setUserProfileLastName, setUserProfileUserName, setUserProfileEmail])
   const saveFile = async () => {
-    console.log(filename)
-    // try {
-    //   let token = localStorage.getItem('token')
-    //   const { data } = await Axios.post(`${server}/upload`, {
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Content-type': 'application/json',
-    //       'authorization': `Bearer ${token}`
-    //     }
-    //   })
-    //   console.log(data)
-    // } catch (error) {
-    //   console.log(error.response.data.message)
-    // }
+    if (filename === 'Choose File') {
+      toast.error('Please Select File', {
+        position: "top-center",
+
+      })
+    } else {
+      try {
+        let token = localStorage.getItem('token')
+        const formData = new FormData();
+        formData.append('file', filename);
+        const { data } = await Axios.post(`${server}/upload`,
+          formData, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data; boundary=<calculated when request is sent>',
+            'authorization': `Bearer ${token}`
+          }
+        })
+        navigate('/Budget/User-profile')
+        toast.success(data.message, {
+          position: "top-center",
+        })
+      } catch (error) {
+        console.log(error.response.data.message)
+      }
+
+
+    }
+
   }
 
   useEffect(() => {
     profileview()
-  }, [])
+  }, [profileview])
 
   const updateProfile = async () => {
     try {
@@ -65,7 +84,10 @@ const UpdateUserProfile = () => {
         }
       })
       navigate('/Budget/User-profile')
-      toast.success(data.message)
+      toast.success(data.message, {
+        position: "top-center",
+
+      })
 
     } catch (error) {
       console.log(error.response.data.message)
@@ -81,9 +103,9 @@ const UpdateUserProfile = () => {
         <div className='md:flex  w-full h-max border border-gray '>
           <div className='md:w-2/6 border-r-2 border-black   '>
             <h1 className='w-full p-3 bg-blue-400 text-white'>Change Profile Picture</h1>
-            <input type="file" name="" id=""  className='w-full mt-14' onChange={(e)=>setFilename(e.target.files[0])} />
-            <button onClick={saveFile} 
-            className='w-40 mt-40 rounded ml-12 bg-blue-600 p-2 text-white'>Change Pciture</button>
+            <input type="file" name="" id="" className='w-full mt-14' onChange={(e) => setFilename(e.target.files[0])} />
+            <button onClick={saveFile}
+              className='w-40 mt-40 rounded ml-12 bg-blue-600 p-2 text-white'>Change Pciture</button>
           </div>
           <div className=' md:w-4/6 md:ml-5'>
             <div className='flex gap-5 p-3 w-full '>

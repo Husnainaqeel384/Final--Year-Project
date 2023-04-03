@@ -25,6 +25,7 @@ import axios from 'axios'
 const DashboardRoutes = () => {
     const { activeMenu } = useStateContext();
     const [userIsAdmin , setuserIsAdmin]=useState(false)
+    const [url,seturl]=useState('')
     const[username,setusername]=useState('')
     const getuserdata = async() => {
         try {
@@ -41,6 +42,8 @@ const DashboardRoutes = () => {
                 setuserIsAdmin(true)
             }
             setusername(data.user[0].UserName)
+           
+            seturl(`${server}/user/profile/${data.user[0].image}`)
         } catch (error) {
 
         }
@@ -73,7 +76,7 @@ const DashboardRoutes = () => {
                 <div className={`dark:bg-main-bg bg-main-bg min-h-screen w-full 
                     ${activeMenu ? 'md:ml-72' : 'flex-2'}`}>
                     <div className='fixed md:static bg-main-bg navbar w-full navbarshadow'>
-                        <DashboardNavbar username={username} />
+                        <DashboardNavbar username={username} url={url} />
 
                     </div>
 
