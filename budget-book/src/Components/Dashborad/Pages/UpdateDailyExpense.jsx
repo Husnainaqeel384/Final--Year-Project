@@ -59,7 +59,7 @@ const UpdateDailyExpense = ({ expense_id }) => {
                 }
             })
             toast.success(data.message)
-            setopenDailyExpense(!openDailyExpense)
+            setopenDailyExpense(false);
         } catch (error) {
             console.log(error.response.data.message)
         }

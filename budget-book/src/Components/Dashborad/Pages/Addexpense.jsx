@@ -66,11 +66,11 @@ const Addexpense = () => {
             'authorization': `Bearer ${token}`
           }
         })
-
+        setopenExpenseDropdown(false);
       toast.success(data.message)
 
       // navigate('/Budget/Add-Expenses')
-      setopenExpenseDropdown(!openExpenseDropdown)
+      // setopenExpenseDropdown(!openExpenseDropdown)
       // window.location.reload();
     } catch (error) {
       console.log(error.response.data.message)
@@ -136,7 +136,7 @@ const Addexpense = () => {
                     </div>
                   )}
                   <label htmlFor="input" className="block text-gray-700 font-bold mb-2">
-                    Input
+                    Enter Amount
                   </label>
                   <input
                     type="text"
@@ -148,7 +148,7 @@ const Addexpense = () => {
                     onChange={handleInputChange}
                   />
                   <label htmlFor="textarea" className="block text-gray-700 font-bold mb-2">
-                    Textarea
+                    Enter Description
                   </label>
                   <textarea
                     id="textarea"

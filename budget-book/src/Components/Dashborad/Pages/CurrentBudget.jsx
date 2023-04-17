@@ -4,7 +4,9 @@ import { server } from '../../../store'
 import { Line } from 'rc-progress';
 const CurrentBudget = () => {
   const [data, setData] = useState([])
-
+const [totalIncome, setTotalIncome] = useState(0)
+const [totalbudgetAmount,settotalbudgetAmount]=useState(0)
+const [savingAmount,setsavingAmount]=useState(0)
   const getmonthlyexpense = async () => {
 
     try {
@@ -17,7 +19,9 @@ const CurrentBudget = () => {
         }
       })
       setData(data.monthExpenseData)
-
+      setTotalIncome(data.Income)
+      settotalbudgetAmount(data.TotalBudgetAmount)
+      setsavingAmount(data.saving)
     } catch (error) {
     }
   }
@@ -57,17 +61,17 @@ const CurrentBudget = () => {
     <div className='mt-16 md:mt-5 lg:mt-5'>
       <h1 className="mb-4 text-3xl text-center font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Your Current Budget</span> </h1>
       <div className='w-full border md:flex md:flex-wrap ' >
-        <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex  '>  
-            <span className='w-1/2 font-bold text-center border'>Total Income</span>
-            <span className='w-1/2 text-center border'>50000</span>
+        <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
+            <span className='w-1/2 font-bold text-lg text-center border p-2'>Total Income</span>
+            <span className='w-1/2 text-center text-lg border p-2'>{totalIncome}</span>
           </div>
           <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
-            <span className='w-1/2 font-bold text-center border'>Saving Amount</span>
-            <span className='w-1/2 text-center border'>50000</span>
+            <span className='w-1/2 font-bold text-lg text-center border p-2'>Saving Amount</span>
+            <span className='w-1/2 text-center text-lg border p-2'>{savingAmount}</span>
           </div>
           <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
-            <span className='w-1/2 font-bold text-center border'>Remaining Amount</span>
-            <span className='w-1/2 text-center border'>50000</span>
+            <span className='w-1/2 font-bold text-lg text-center border p-2'>Total Budget Amount</span>
+            <span className='w-1/2 text-center text-lg font-semibold  border p-2'>{totalbudgetAmount}</span>
           </div>
           <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
             
@@ -125,7 +129,18 @@ const CurrentBudget = () => {
 
 
                     <td className="px-6 py-4 border-r-2 border-gray-200 text-gray-500">
-                      0
+                      {
+                      items.remainingAmount === 0 ? (
+                        <>
+                        <div className='flex justify-between'>
+                        <span className="text-green-500">-</span>
+                        <span className="text-green-500"></span>
+                        </div>
+                        </>
+                      ) : (
+                        <span className="text-green-500 font-semibold">{items.remainingAmount}</span>
+                      )
+                      }
                     </td>
                     <td className="px-6 py-4 border-r-2 border-gray-400 text-gray-500">
                       {items.percentofUsingAmount + "%"}

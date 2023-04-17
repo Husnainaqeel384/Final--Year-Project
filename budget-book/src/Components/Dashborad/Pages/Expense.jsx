@@ -4,7 +4,7 @@ import { server } from '../../../store';
 import Addexpense from './Addexpense';
 import Axios from 'axios'
 import { toast } from 'react-hot-toast';
-
+import { HiRefresh } from 'react-icons/hi';
 import UpdateDailyExpense from './UpdateDailyExpense';
 const Expense = () => {
     const [dailyexpense, setdailyExpense] = useState([])
@@ -72,9 +72,13 @@ const Expense = () => {
             }
             <div className='md:mt-0 mt-12'>
                 <h1 className="mb-4 text-3xl text-center font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Add Your Daily Expenses </span> </h1>
-                <div className='mt-4 border border-gray-200'>
+                <div className='mt-4 border border-gray-200 flex justify-between'>
                     <button onClick={() => setopenExpenseDropdown(!openExpenseDropdown)} className="text-white mt-4   p-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 ">Add Expense</button>
-
+                   <span className='p-3 '> Refresh
+                   <button className='ml-1 bg-gray-200 p-3' 
+                   onClick={() => GetDailyRecordHistory()}
+                   > <HiRefresh /> </button>
+                   </span>
                 </div>
                 <div>
                     <h1>Your Daily Expense Record Here</h1>
