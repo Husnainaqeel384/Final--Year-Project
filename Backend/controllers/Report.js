@@ -113,21 +113,44 @@ export const getMonths = catchAsyncError(async (req, res, next) => {
 export const generateReport = catchAsyncError(async (req, res, next) => {
   const user_id = req.user.id;
   const month = req.params.month;
-  console.log(month);
-  const budget = await db('budget').select('*').where({ user_id }).orderBy('budget_id', 'desc')
-    .limit(2);
+  // split month and year
+  const monthName = month.split("-")[0];
+  const year = month.split("-")[1]
+  //get month number
+  const date = new Date(`${monthName},${year}`);
+  const monthNumber = date.getMonth() + 1
+  //get previous month number
+  const prevMonth1 = monthNumber === 1 ? 12 : monthNumber - 1;
+  // get previous month name
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const prevMonthName = months[prevMonth1 - 1];
+  const prevMonth = `${prevMonthName}-${year}`;
+
+  const previousMonth = await db('budget').select('*').where({ user_id }).where('BudgetMonth', prevMonth);
+
+  const budget = await db('budget').select('*').where({ user_id }).where('BudgetMonth', month)
+
   if (budget[0].BudgetMonth === month) {
     // return next(new ErrorHandler(`No Budget for ${month}`, StatusCodes.NOT_FOUND));
     console.log(budget[0].budget_id)
-    const budgetdetail = await db('budget_detail').select('*').where({ user_id });
+    const budgetdetail = await db('budget_detail').select('*').where({ user_id, budget_id: budget[0].budget_id });
+    let totalbudgetAmount = budgetdetail.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.Amount;
+    }, 0);
+    let totalRemianingAmount = budgetdetail.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.remainingAmount;
+    }, 0);
+    const totalSpentAmount = totalbudgetAmount - totalRemianingAmount;
+    // this is the total saving amount subtract total budget amount from total spent amount
+    const totalSavingAmount = totalbudgetAmount - totalSpentAmount;
     res.status(StatusCodes.OK).json({
       success: true,
+      previousMonth,
       budget,
-      budgetdetail
+      budgetdetail,
+      totalbudgetAmount,
+      totalSpentAmount,totalSavingAmount
     })
   }
-  // const iid =await db('budget').select('id').where({ BudgetMonth:month,user_id });
-  // console.log(iid)
-
 
 });
