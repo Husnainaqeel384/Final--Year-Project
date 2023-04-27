@@ -22,6 +22,8 @@ import Report from './Pages/Report'
 import Categories from './Pages/Categories'
 import { server } from '../../store'
 import axios from 'axios'
+import BillSplitterer from './Pages/BillSplitterer'
+import ViewBillspliterGroup from './Pages/ViewBillspliterGroup'
 const DashboardRoutes = () => {
     const { activeMenu } = useStateContext();
     const [userIsAdmin , setuserIsAdmin]=useState(false)
@@ -94,6 +96,8 @@ const DashboardRoutes = () => {
                             <Route exact path='/report' element={<Report />} />
                             <Route exact path='//Update-Category-Value' element={<UpdateCategory />} />
                             <Route exact path='/add-category' element={<Categories />} />
+                            <Route exact path='/Bill-Splitter' element={ <BillSplitterer />} />
+                            <Route exact path='/Bill-Splitter/Group/:id' element={ <ViewBillspliterGroup />} />
                         </Routes>
                     </div>
 

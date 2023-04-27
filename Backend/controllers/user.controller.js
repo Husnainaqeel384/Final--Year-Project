@@ -111,7 +111,7 @@ export const getuserdata = catchAsyncError(async (req, res, next) => {
     const user_id = req.user.id
     const user = await db('register').select('*').where({ user_id: user_id });
     if (!user) {
-        return next(new ErrorHandler('User Not Update Successfully', StatusCodes.BAD_REQUEST))
+        return next(new ErrorHandler('User Not Found', StatusCodes.BAD_REQUEST))
     }
     res.status(StatusCodes.ACCEPTED).json({ user })
 })

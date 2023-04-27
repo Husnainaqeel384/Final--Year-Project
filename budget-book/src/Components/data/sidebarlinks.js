@@ -7,7 +7,8 @@ import { BsFillAlarmFill } from 'react-icons/bs';
 import { GrTransaction } from 'react-icons/gr';
 import { AiFillFolderAdd } from 'react-icons/ai';
 import { FaHistory } from 'react-icons/fa';
-
+import {BsSignpostSplit} from 'react-icons/bs'
+ 
 
 
 export const links = [
@@ -54,6 +55,11 @@ export const links = [
         name: 'Transactions',
         path: 'Budget/transactions',
         icon: <GrTransaction />,
+      },
+      {
+        name: 'BillSplitter ',
+        path: 'Budget/Bill-Splitter',
+        icon: <BsSignpostSplit />,
       },
       {
         name: 'Add Category',

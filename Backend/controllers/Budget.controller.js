@@ -314,6 +314,7 @@ export const MonthlybudgetData = catchAsyncError(async (req, res, next) => {
     let totalAmount = monthExpenseData.reduce((accumulator, currentValue) => {
         return accumulator + currentValue.Amount;
     }, 0);
+    
 
     if (monthExpenseData.length > 0) {
         res.json({
