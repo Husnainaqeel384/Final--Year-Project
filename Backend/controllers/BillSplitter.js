@@ -56,6 +56,7 @@ export const createGroup = catchAsyncError(async (req, res, next) => {
     await db('billsplitter_detail').insert({ billSplitterGroup_id: billSplitter[0].billSplitterGroup_id, user_id, memberName: username[0].UserName })
     const addmembers = await db('billsplitter_detail').insert(
         groupMembers)
+        await db('billsplitter_detail').where({ billSplitterGroup_id: billSplitter[0].billSplitterGroup_id, user_id,memberName: username[0].UserName }).update({ GroupCreatedPerson: true })
     res.status(StatusCodes.OK).json({
         success: true,
         message: "Group Added Successfully"
@@ -66,14 +67,30 @@ export const createGroup = catchAsyncError(async (req, res, next) => {
 export const AllGroups = catchAsyncError(async (req, res, next) => {
 
     const user_id = req.user.id;
+    const userName = await db('register').where({ user_id }).select('UserName')
+    const GetGroupAll = await db('billSplitter_detail').leftJoin('billspilttergroup', 'billSplitter_detail.billSplitterGroup_id', 'billspilttergroup.billSplitterGroup_id').where({ MemberName:userName[0].UserName }).select('billspilttergroup.billSplitterGroup_id', 'billspilttergroup.GroupName', 'billSplitter_detail.memberName','billSplitter_detail.user_id', 'billSplitter_detail.GroupCreatedPerson')
+//   GetGroupAll.map((group) => {
+//         if(group.GroupCreatedPerson === 1){
+//              const id = group.user_id
+//              const username = db('register').where({user_id:id}).select('UserName')
+//                 group.memberName =  group.memberName
+//         }else if(group.GroupCreatedPerson === 0){
+//             const id = group.user_id
+//              const username = db('register').where({user_id:id}).select('UserName')
+//              console.log(username)
+//             group.memberName = username[0].UserName
 
-    const AllGroups = await db('billspilttergroup').where({ user_id }).select('*')
-    if (!AllGroups) {
+//         } 
+
+//     })
+
+    if (!GetGroupAll) {
         return next(new ErrorHandler("No Group Created Yet", StatusCodes.BAD_REQUEST))
     }
     res.status(StatusCodes.OK).json({
         success: true,
-        AllGroups
+        // AllGroups,
+        GetGroupAll
     })
 })
 
@@ -98,11 +115,11 @@ export const deleteGroup = catchAsyncError(async (req, res, next) => {
 export const getGroup = catchAsyncError(async (req, res, next) => {
     const user_id = req.user.id;
     const { id } = req.params;
-    const getGroup = await db('billspilttergroup').where({ user_id, billSplitterGroup_id: id }).select('*')
+    const getGroup = await db('billspilttergroup').where({  billSplitterGroup_id: id }).select('*')
     if (!getGroup) {
         return next(new ErrorHandler("Group Not Found", StatusCodes.BAD_REQUEST))
     }
-    const getMembers = await db('billsplitter_detail').where({ user_id, billSplitterGroup_id: id }).select('*')
+    const getMembers = await db('billsplitter_detail').where({  billSplitterGroup_id: id }).select('*')
     const billsplitterdetailDescription = await db('billsplitter_bill_description').where({ billSplitterGroup_id: id }).select('*').orderBy('date', 'desc')
     res.status(StatusCodes.OK).json({
         success: true,

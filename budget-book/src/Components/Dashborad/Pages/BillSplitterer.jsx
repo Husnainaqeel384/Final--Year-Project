@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { RiDeleteBin6Line } from 'react-icons/ri'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { GrView } from 'react-icons/gr'
 import { toast } from 'react-toastify';
@@ -99,7 +98,7 @@ const BillSplitterer = () => {
             })
             setMembers([])
             setGroupName('')
-            viewGroup()
+            viewGroups()
 
         } catch (error) {
             toast.error(error.response.data.message, {
@@ -111,7 +110,7 @@ const BillSplitterer = () => {
     }
 
 
-    const viewGroup = async () => {
+    const viewGroups = async () => {
         try {
             const token = localStorage.getItem('token')
             const { data } = await axios.get(`${server}/AllGroups`, {
@@ -120,7 +119,8 @@ const BillSplitterer = () => {
                     'Authorization': `Bearer ${token}`
                 }
             })
-            setGroup(data.AllGroups)
+            console.log(data)
+            setGroup(data.GetGroupAll)
         } catch (error) {
             toast.error(error.response.data.message, {
                 position: "top-center",
@@ -141,7 +141,7 @@ const BillSplitterer = () => {
                 position: "top-center",
                 autoClose: 2000
             })
-            viewGroup()
+            viewGroups()
 
         } catch (error) {
             toast.error(error.response.data.message, {
@@ -195,7 +195,7 @@ const deleteMember = async (id) => {
 }
 
     useEffect(() => {
-        viewGroup()
+        viewGroups()
         MemberLists()
     }, [])
     return (
@@ -305,8 +305,9 @@ const deleteMember = async (id) => {
                         <table className="table-auto border w-full">
                             <thead>
                                 <tr>
-                                    <th className="px-4 py-2 border">Sr.no</th>
+                                    <th className=" border w-1">Sr.no</th>
                                     <th className="px-4 py-2 border">Group Name</th>
+                                    {/* <th className="px-4 py-2 border">Creater Name</th> */}
                                     <th className="px-4 py-2 border">Actions</th>
                                 </tr>
                             </thead>
@@ -315,25 +316,31 @@ const deleteMember = async (id) => {
                                     group.length > 0 ? (
                                         group.map((group, index) => (
                                             <tr key={index}>
-                                                <td className="border px-4 py-2">{index + 1} </td>
+                                                <td className="border ">{index + 1} </td>
                                                 <td className="border px-4 py-2">{group.GroupName}</td>
+                                                {/* <td className="border px-4 py-2">{group.memberName}</td> */}
                                                 <td className="border px-4 py-2 flex">
                                                     <Link
                                                         to={`/Budget/Bill-Splitter/Group/${group.billSplitterGroup_id}`}
                                                         className="px-2 py-1  rounded-md text-blue-600"    >
                                                         <GrView className='' />
                                                     </Link>
-                                                    <button
-                                                        onClick={() => deleteGroup(group.billSplitterGroup_id	)
-                                                        }
-                                                        className="px-2 py-1  rounded-md text-red-600"    >
-                                                        <RiDeleteBin6Line />
-                                                    </button>
+                                                    {
+                                                        group.GroupCreatedPerson ===1 ? (
+                                                            <button onClick={() => deleteGroup(group.billSplitterGroup_id)}
+                                                                className="px-2 py-1  rounded-md text-red-600"    >
+                                                                <AiOutlineCloseCircle className='' />
+                                                            </button>
+                                                        ) : (
+                                                           <></>
+                                                        )
+                                                    }
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
+                                            <td className=" px-4 py-2"></td>
                                             <td className=" px-4 py-2">No Group created </td>
                                         </tr>
                                     )
