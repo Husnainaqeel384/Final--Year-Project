@@ -154,7 +154,7 @@ const BudgetDetail = () => {
             <CircularProgressbar
 
               maxValue={totalIncome}
-              value={reduceincome}
+              // value={reduceincome}
               className='w-full' text={totalIncome} />
 
           </div>

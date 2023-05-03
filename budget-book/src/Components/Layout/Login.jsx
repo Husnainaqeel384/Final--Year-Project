@@ -35,7 +35,7 @@ const Login = () => {
         <>
             <Header />
             <div className="relative flex flex-col justify-center h-full m-10 ">
-                <div className="w-92 p-6  sm:m-auto sm:w-96  bg-white rounded-md shadow-xl shadow-rose-600/40 ring ring-2 ring-purple-600 lg:max-w-xl">
+                <div className="w-92 p-6  sm:m-auto sm:w-96  bg-white rounded-md shadow-xl shadow-rose-600/40  ring-2 ring-purple-600 lg:max-w-xl">
                     <h1 className="text-3xl font-semibold text-center text-purple-700  uppercase ">
                         Sign in
                     </h1>
@@ -83,19 +83,19 @@ const Login = () => {
                             </Link>
                         </div>
                     </form>
-                    <hr className='mt-6' />
+                    {/* <hr className='mt-6' />
                     <p className="border-solid border-black  border-2 w-10  bg-white m-auto -mt-4 text-xl font-light text-center text-gray-700">
                         OR
                     </p>
                     <Link className=''>
                         <FcGoogle className='h-10 w-auto m-auto mt-4 ' />
-                    </Link>
+                    </Link> */}
                     <p className="mt-8 text-xs font-light text-center text-gray-700">
                         {" "}
                         Don't have an account?{" "}
                         <Link
                             to="/register"
-                            className="font-medium text-purple-600 hover:underline"
+                            className="font-medium text-blue-600 hover:underline"
                         >
                             Sign up
                         </Link>

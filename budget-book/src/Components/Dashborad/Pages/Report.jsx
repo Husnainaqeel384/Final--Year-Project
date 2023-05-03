@@ -7,6 +7,7 @@ import { server } from '../../../store'
 import { toast } from 'react-toastify';
 ChartJS.register(Tooltip, ArcElement, Legend);
 const Report = () => {
+    const [isMonthnameSelected, setIsMonthnameSelected] = useState(false)
     const [totalbudgetAmount, setTotalbudgetAmount] = useState(0)
     const [SelectedMonthName, setSelectedMonthName] = useState("")
     const [selectMonthSaving, setSelectMonthSaving] = useState(0)
@@ -14,7 +15,6 @@ const Report = () => {
     const [totalSpendAmount, setTotalSpendAmount] = useState(0)
     const [totalPreviousMonthSaving, setTotalPreviousMonthSaving] = useState(0)
     const [totalPreviousMonthIncome, setTotalPreviousMonthIncome] = useState(0)
-
     const [PreviousMonthName, setPreviousMonthName] = useState("")
     //this is the total saving amount subtract total budget amount from total spent amount
     const [totalSaving, setTotalSaving] = useState(0)
@@ -62,6 +62,7 @@ const Report = () => {
                         'authorization': `Bearer ${token}`
                     }
                 })
+                setIsMonthnameSelected(true)
                 setBudgetDetails(data.budgetdetail)
                 setTotalbudgetAmount(data.totalbudgetAmount)
                 setTotalSpendAmount(data.totalSpentAmount)
@@ -94,7 +95,7 @@ const Report = () => {
                 <header className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Reports</h1>
                 </header>
-             
+
                 <main className="p-4 flex-grow">
                     <div className="flex flex-col md:flex-row justify-between mb-4">
                         <div className="flex items-center">
@@ -117,8 +118,9 @@ const Report = () => {
 
                             className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0">Generate Report</button>
                     </div>
-
-                    <div className=' border-4' >
+                  {
+                    isMonthnameSelected ? (
+                        <div className=' border-4' >
                         <h3 className="text-xl font-bold mb-2 text-center">Expense Report</h3>
                         <div className="flex flex-col md:flex-row justify-between p-1 ">
                             <div className="w-full md:w-1/2 mb-4 md:mb-0 ">
@@ -250,6 +252,13 @@ const Report = () => {
                             <span className='font-bold text-xl '> Budget Book Report</span>
                         </div>
                     </div>
+                ) : (   
+                    <>
+                    </>
+                )
+                  }
+
+                  
                 </main>
             </div>
         </>

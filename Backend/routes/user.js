@@ -36,7 +36,7 @@ const upload = multer({
 
 
 import {
-  register, login, userProfile, updateProfile, getuserdata, getAllUsers, uploadImage,
+  register, login, userProfile, updateProfile, getuserdata, getAllUsers, uploadImage,mainpagedata,
   updateRole, deleteUser
 } from "../controllers/user.controller.js"
 import { verifyToken } from "../middlewares/authJwt.js"
@@ -50,6 +50,9 @@ router.get('/Allusers', verifyToken, getAllUsers) // for admin
 router.put('/updateRole/:userId', verifyToken, updateRole)
 router.delete('/deleteUser/:userId', verifyToken, deleteUser)
 router.post('/upload', verifyToken, upload.single('file'), uploadImage)
+
+// get main page data 
+router.get('/mainpagedata',verifyToken,mainpagedata );
 router.get('/', (req, res) => {
   res.send("Hello")
 })

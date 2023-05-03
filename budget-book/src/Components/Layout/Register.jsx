@@ -165,13 +165,13 @@ const Register = () => {
                             </button>
                         </div>
                     </div>
-                    <hr className='mt-6' />
+                    {/* <hr className='mt-6' />
                     <p className="border-solid border-black  border-2 w-10  bg-white m-auto -mt-4 text-xl font-light text-center text-gray-700">
                         OR
                     </p>
                     <Link className=''>
                         <FcGoogle className='h-10 w-auto m-auto mt-4 ' />
-                    </Link>
+                    </Link> */}
                     <p className="mt-8 text-xs font-light text-center text-gray-700">
                         {" "}
                         Do you have an account?{" "}

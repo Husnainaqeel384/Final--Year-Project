@@ -127,7 +127,7 @@ const UpdateMonthlyExpense = () => {
             {
               Monthlyexpensevalue.map((items, index) => (
                 <tr className="bg-white border-b  hover:bg-gray-50 " key={index}>
-                  <td className="w-4 p-4 w-1/6 border-r-2 border-gray-200">
+                  <td className=" p-4 w-1/6 border-r-2 border-gray-200">
                     <div className="flex items-center">
                       <p>{index + 1}</p>
                     </div>

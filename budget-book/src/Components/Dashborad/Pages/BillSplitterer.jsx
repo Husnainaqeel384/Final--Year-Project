@@ -119,7 +119,7 @@ const BillSplitterer = () => {
                     'Authorization': `Bearer ${token}`
                 }
             })
-            console.log(data)
+            
             setGroup(data.GetGroupAll)
         } catch (error) {
             toast.error(error.response.data.message, {
@@ -307,7 +307,7 @@ const deleteMember = async (id) => {
                                 <tr>
                                     <th className=" border w-1">Sr.no</th>
                                     <th className="px-4 py-2 border">Group Name</th>
-                                    {/* <th className="px-4 py-2 border">Creater Name</th> */}
+                                    <th className="px-4 py-2 border">Creater Name</th>
                                     <th className="px-4 py-2 border">Actions</th>
                                 </tr>
                             </thead>
@@ -316,9 +316,9 @@ const deleteMember = async (id) => {
                                     group.length > 0 ? (
                                         group.map((group, index) => (
                                             <tr key={index}>
-                                                <td className="border ">{index + 1} </td>
+                                                <td className="border text-center ">{index + 1} </td>
                                                 <td className="border px-4 py-2">{group.GroupName}</td>
-                                                {/* <td className="border px-4 py-2">{group.memberName}</td> */}
+                                                <td className="border px-4 py-2">{group.UserName}</td>
                                                 <td className="border px-4 py-2 flex">
                                                     <Link
                                                         to={`/Budget/Bill-Splitter/Group/${group.billSplitterGroup_id}`}
@@ -326,7 +326,7 @@ const deleteMember = async (id) => {
                                                         <GrView className='' />
                                                     </Link>
                                                     {
-                                                        group.GroupCreatedPerson ===1 ? (
+                                                        group.group_creator ===1 ? (
                                                             <button onClick={() => deleteGroup(group.billSplitterGroup_id)}
                                                                 className="px-2 py-1  rounded-md text-red-600"    >
                                                                 <AiOutlineCloseCircle className='' />

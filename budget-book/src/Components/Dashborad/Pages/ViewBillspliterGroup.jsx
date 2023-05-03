@@ -211,7 +211,7 @@ const ViewBillspliterGroup = () => {
                                                     billDetailsDescription.length > 0 ? (
                                                         billDetailsDescription.map((bill, index) => {
                                                             return (
-                                                                <div className='flex justify-between border-b p-2'>
+                                                                <div className='flex justify-between border-b p-2' key={index}>
                                                                     <p className='w-1/4 border-r-2 p-2'>{bill.date}</p>
                                                                     <p className='w-3/4  p-2'>{bill.description}</p>
                                                                 </div>

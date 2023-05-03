@@ -132,7 +132,7 @@ export const generateReport = catchAsyncError(async (req, res, next) => {
 
   if (budget[0].BudgetMonth === month) {
     // return next(new ErrorHandler(`No Budget for ${month}`, StatusCodes.NOT_FOUND));
-    console.log(budget[0].budget_id)
+  
     const budgetdetail = await db('budget_detail').select('*').where({ user_id, budget_id: budget[0].budget_id });
     let totalbudgetAmount = budgetdetail.reduce((accumulator, currentValue) => {
       return accumulator + currentValue.Amount;

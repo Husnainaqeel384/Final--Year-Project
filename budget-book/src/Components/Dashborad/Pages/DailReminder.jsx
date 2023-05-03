@@ -4,7 +4,7 @@ import { server } from '../../../store'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const DailRemainder = () => {
-  const [reminderId ,setReminderId] = useState('') 
+  const [reminderId, setReminderId] = useState('')
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [update, setUpdate] = useState(false)
@@ -151,17 +151,22 @@ const DailRemainder = () => {
                       <span className='font-bold'>Status : {item.Status}</span>
                       <div className='w-full p-2 ml-80 '>
                         {
-                          item.Status === 'Pending' ? <button
-                            onClick={() => { statusdone(item.Reminder_id) }}
-                            className='bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600 ml-2'>Done</button> : ''
+                          item.Status === 'Pending' ? (
+                            <>
+                              <button
+                                onClick={() => { statusdone(item.Reminder_id) }}
+                                className='bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600 ml-2'>Done</button>
+                              <button onClick={() => {
+                                setReminderId(item.Reminder_id)
+                                setUpdate(true)
+                                setDate(item.ReminderDate)
+                                setTitle(item.Reminder_title)
+                              }}
+                                className='bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600 ml-2 '>Edit</button>
+                            </>
+                          ) : ''
                         }
-                        <button onClick={() => {
-                         setReminderId(item.Reminder_id)
-                          setUpdate(true)
-                          setDate(item.ReminderDate)
-                          setTitle(item.Reminder_title)
-                        }}
-                          className='bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600 ml-2 '>Edit</button>
+
                         <button onClick={() => { DeleteReminder(item.Reminder_id) }}
                           className='bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-600 ml-2'>Delete</button>
 
@@ -190,10 +195,10 @@ const DailRemainder = () => {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="block w-full rounded-md py-2 px-3 mb-4 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" type="date" id="date" name="date" />
-         { 
-         update ? <button onClick={ ()=>{EditReminder()} }  className="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Update</button> : <button onClick={addReminder} className="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Add</button>
+          {
+            update ? <button onClick={() => { EditReminder() }} className="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Update</button> : <button onClick={addReminder} className="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Add</button>
 
-         }
+          }
           {/* </form> */}
         </div>
       </div>
