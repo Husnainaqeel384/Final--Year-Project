@@ -36,7 +36,7 @@ const upload = multer({
 
 
 import {
-  register, login, userProfile, updateProfile, getuserdata, getAllUsers, uploadImage,mainpagedata,
+  register, login, userProfile, updateProfile, getuserdata, getAllUsers, uploadImage,mainpagedata,forgetPassword,resetPassword,NewPassword,
   updateRole, deleteUser
 } from "../controllers/user.controller.js"
 import { verifyToken } from "../middlewares/authJwt.js"
@@ -51,7 +51,10 @@ router.put('/updateRole/:userId', verifyToken, updateRole)
 router.delete('/deleteUser/:userId', verifyToken, deleteUser)
 router.post('/upload', verifyToken, upload.single('file'), uploadImage)
 
-// get main page data 
+router.post('/forgetPassword', forgetPassword)
+router.get('/password/reset/:UserId/:token', resetPassword)
+router.post('/NewPassword/:token', NewPassword)
+// get main page data  
 router.get('/mainpagedata',verifyToken,mainpagedata );
 router.get('/', (req, res) => {
   res.send("Hello")

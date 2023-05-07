@@ -6,7 +6,8 @@ import { catchAsyncError } from "../middlewares/catchAsyncError.js"
 import { StatusCodes } from "http-status-codes"
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt"
-
+// const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 export const register = catchAsyncError(async (req, res, next) => {
     const uniqueUserId = cryptoRandomString({ length: 6, type: 'numeric' })
@@ -18,7 +19,7 @@ export const register = catchAsyncError(async (req, res, next) => {
         UserName: req.body.username,
         //psassword bcrypt
         password: await bcrypt.hash(req.body.Password, 10),
-        image:'1682786345349-feature6.png'
+        image: '1682786345349-feature6.png'
     }]
     //check user exist or not
     const Existuser = await db('register').select('email').where({ email: req.body.Email });
@@ -161,68 +162,100 @@ export const uploadImage = catchAsyncError(async (req, res, next) => {
 }
 )
 
-export const forgotPassword = catchAsyncError(async (req, res, next) => {
+export const forgetPassword = catchAsyncError(async (req, res, next) => {
 
     const user = await db('register').where({ email: req.body.Email }).first('*');
     if (!user) {
         return next(new ErrorHandler("No such user exists", StatusCodes.BAD_REQUEST))
     }
-    const token = user.getResetPasswordToken();
-    await user.save({ validateBeforeSave: false })
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/password/reset/${token}`;
-    const message = `Your password reset token is as follow:\n\n${resetUrl}\n\nIf you have not requested this email, then ignore it.`
+    const resetToken = process.env.JWT_SECRET_KEY + user.password;
+    const token = jwt.sign({ id: user.user_id, UserEmail: user.email, resetToken }, process.env.JWT_SECRET_KEY, {
+        expiresIn: '15m'
+    })
+    const resetUrl = `${req.protocol}://${req.get('host')}/password/reset/${user.user_id}/${token}`;
+    const message = `If you have not requested this email, then ignore it.`
+    // console.log(message)
+    let testAccount = await nodemailer.createTestAccount();
+    const transporter = nodemailer.createTransport({
+        // host: 'smtp.ethereal.email',
+        service: 'gmail',
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        }
+    });
 
-    try {
-        await sendEmail({
-            email: user.email,
-            subject: 'Shopit Password Recovery',
-            message
-        })
-        res.status(StatusCodes.ACCEPTED).json({ success: true, message: `Email sent to: ${user.email}` })
-    } catch (error) {
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-        await user.save({ validateBeforeSave: false })
-        return next(new ErrorHandler(error.message, StatusCodes.BAD_REQUEST))
+    let info = await transporter.sendMail({
+        from: "Budget book",
+        to: user.email,
+        subject: 'Reset Password Link',
+        html: `<h1>Click the Link to reset the Password</h1>
+        <p>${message}</p>
+        <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none;">Reset Password</a>
+        `,
+
+    });
+    if (!info) {
+        return next(new ErrorHandler('Email could not be sent', StatusCodes.BAD_REQUEST))
     }
+    res.status(StatusCodes.ACCEPTED).json({ message: "We Send You a link for Reset password. The Link Expire within 5 minute" })
 })
-
 export const resetPassword = catchAsyncError(async (req, res, next) => {
 
-    const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-    const user = await db('register').where({ resetPasswordToken, resetPasswordExpire: { $gt: Date.now() } }).first('*');
+    const { UserId, token } = req.params;
+    const user = await db('register').where({ user_id: UserId }).first('*');
     if (!user) {
         return next(new ErrorHandler('Password reset token is invalid or has been expired', StatusCodes.BAD_REQUEST))
     }
-    if (req.body.Password !== req.body.ConfirmPassword) {
-        return next(new ErrorHandler('Password does not match', StatusCodes.BAD_REQUEST))
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    if (!decoded) {
+        return next(new ErrorHandler('Invalid token', StatusCodes.BAD_REQUEST))
     }
-    user.password = req.body.Password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-    sendToken(user, StatusCodes.ACCEPTED, res)
-}
-)
+
+    // Redirect to the frontend reset password page
+    // res.redirect(`http://localhost:3000/reset-password`);
+    res.redirect(`${process.env.FRONTEND_URL_RESET_URL}/${token}`);
+})
+
+
+export const NewPassword = catchAsyncError(async (req, res, next) => {
+
+    const { token } = req.params;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    if (!decoded) {
+        return next(new ErrorHandler('Invalid token', StatusCodes.BAD_REQUEST))
+    }
+    if (req.body.Password !== req.body.ConfirmPassword) {
+     return next(new ErrorHandler('Password does not match', StatusCodes.BAD_REQUEST))
+    }
+    const newpassword =await bcrypt.hash(req.body.Password, 10)
+    const resetPassword = await db('register').update({ password: newpassword }).where({ email: decoded.UserEmail })
+    if (!resetPassword) {
+    // res.status(StatusCodes.BAD_REQUEST).json({ message: "Password not reset" })
+        return next(new ErrorHandler('Password not reset',StatusCodes.BAD_REQUEST ))
+    }
+    res.status(StatusCodes.ACCEPTED).json({ message: "Password Reset Successfully" })
+})
 
 export const mainpagedata = catchAsyncError(async (req, res, next) => {
 
     const user_id = req.user.id
     const totalCount = await db('budget').count('* as total').where({ user_id: user_id }).first();
 
-    const username = await db('register').select('UserName').where({user_id})
+    const username = await db('register').select('UserName').where({ user_id })
     const totalbillSpilterGroups = await db('billSplitter_detail').count('* as total').where({ MemberName: username[0].UserName }).first();
     const totalTransaction = await db('transactions').count('* as total').where({ user_id: user_id }).first();
     const totalPendingReminders = await db('reminders').count('* as total').where({ user_id: user_id, status: 'Pending' }).first();
     const totaldoneReminders = await db('reminders').count('* as total').where({ user_id: user_id, status: 'Done' }).first();
     const totalUser = await db('register').count('* as total').first();
-res.status(StatusCodes.ACCEPTED).json({ totalBudgets: totalCount.total
-    , totalbillSpilterGroups: totalbillSpilterGroups.total,
-    totalTransaction: totalTransaction.total,
-    totalPendingReminders: totalPendingReminders.total,
-    totaldoneReminders: totaldoneReminders.total,
-    totalUser: totalUser.total
+    res.status(StatusCodes.ACCEPTED).json({
+        totalBudgets: totalCount.total
+        , totalbillSpilterGroups: totalbillSpilterGroups.total,
+        totalTransaction: totalTransaction.total,
+        totalPendingReminders: totalPendingReminders.total,
+        totaldoneReminders: totaldoneReminders.total,
+        totalUser: totalUser.total
 
-})
+    })
 }
 )

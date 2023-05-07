@@ -22,7 +22,7 @@ function App() {
       }/>
         <Route path='/register' element={<Register />}></Route>
         <Route path='/forgot-password' element={<ForgotPassword />}></Route>
-        <Route path='/reset-password' element={<RecoveryPassword />}></Route>
+        <Route path='/reset-password/:token' element={<RecoveryPassword />}></Route>
         <Route element={<ProtectedRoute />}>
    
           <Route path='/Budget/*' element={<DashboardRoutes />}/>
