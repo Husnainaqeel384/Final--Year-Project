@@ -56,7 +56,7 @@ export const createGroup = catchAsyncError(async (req, res, next) => {
     await db('billsplitter_detail').insert({ billSplitterGroup_id: billSplitter[0].billSplitterGroup_id, user_id, memberName: username[0].UserName })
     const addmembers = await db('billsplitter_detail').insert(
         groupMembers)
-        // await db('billsplitter_detail').where({ billSplitterGroup_id: billSplitter[0].billSplitterGroup_id, user_id,memberName: username[0].UserName }).update({ GroupCreatedPerson: true })
+    // await db('billsplitter_detail').where({ billSplitterGroup_id: billSplitter[0].billSplitterGroup_id, user_id,memberName: username[0].UserName }).update({ GroupCreatedPerson: true })
     res.status(StatusCodes.OK).json({
         success: true,
         message: "Group Added Successfully"
@@ -70,12 +70,19 @@ export const AllGroups = catchAsyncError(async (req, res, next) => {
     const userName = await db('register').where({ user_id }).select('UserName')
     // const GetGroupAll = await db('billSplitter_detail').leftJoin('billspilttergroup', 'billSplitter_detail.billSplitterGroup_id', 'billspilttergroup.billSplitterGroup_id').where({ MemberName:userName[0].UserName }).select('billspilttergroup.billSplitterGroup_id', 'billspilttergroup.GroupName', 'billSplitter_detail.memberName','billSplitter_detail.user_id', 'billSplitter_detail.GroupCreatedPerson')
 
-// SELECT billSplitterGroup_id, GroupName , UserName ,if(billspilttergroup.user_id=1, true, false) as group_creator FROM billspilttergroup  INNER JOIN register ON billspilttergroup.user_id = register.user_id 
-    
-const GetGroupAll =await db.select('billSplitterGroup_id', 'GroupName', 'UserName').select(db.raw(`IF(billspilttergroup.user_id = ${user_id}, true, false) as group_creator`))
-.from('billspilttergroup')
-.innerJoin('register', 'billspilttergroup.user_id', 'register.user_id')
-if (!GetGroupAll) {
+    // SELECT billSplitterGroup_id, GroupName , UserName ,if(billspilttergroup.user_id=1, true, false) as group_creator FROM billspilttergroup  INNER JOIN register ON billspilttergroup.user_id = register.user_id 
+
+    const GetGroupAll = await db.select('billSplitterGroup_id', 'GroupName', 'UserName').select(db.raw(`IF(billspilttergroup.user_id = ${user_id}, true, false) as group_creator`))
+        .from('billspilttergroup')
+        .innerJoin('register', 'billspilttergroup.user_id', 'register.user_id')
+
+    // const GetGroupAll = await db
+    // .select('billSplitterGroup_id', 'GroupName', db.raw('concat(FirstName, " ", LastName) as Name'), db.raw(`if(billspilttergroup.user_id = ${user_id}, true, false) as group_creator`))
+    // .from('billspilttergroup')
+    // .join('register', 'billspilttergroup.user_id', '=', 'register.user_id')
+    // .where('billspilttergroup.user_id', '=', `${user_id}`)
+    // .orWhere('register.user_id', '=', `${user_id}`)
+    if (!GetGroupAll) {
         return next(new ErrorHandler("No Group Created Yet", StatusCodes.BAD_REQUEST))
     }
     res.status(StatusCodes.OK).json({
@@ -106,11 +113,11 @@ export const deleteGroup = catchAsyncError(async (req, res, next) => {
 export const getGroup = catchAsyncError(async (req, res, next) => {
     const user_id = req.user.id;
     const { id } = req.params;
-    const getGroup = await db('billspilttergroup').where({  billSplitterGroup_id: id }).select('*')
+    const getGroup = await db('billspilttergroup').where({ billSplitterGroup_id: id }).select('*')
     if (!getGroup) {
         return next(new ErrorHandler("Group Not Found", StatusCodes.BAD_REQUEST))
     }
-    const getMembers = await db('billsplitter_detail').where({  billSplitterGroup_id: id }).select('*')
+    const getMembers = await db('billsplitter_detail').where({ billSplitterGroup_id: id }).select('*')
     const billsplitterdetailDescription = await db('billsplitter_bill_description').where({ billSplitterGroup_id: id }).select('*').orderBy('date', 'desc')
     res.status(StatusCodes.OK).json({
         success: true,
@@ -141,25 +148,25 @@ export const billSplit = catchAsyncError(async (req, res, next) => {
     const billDate = date.toISOString().slice(0, 10);
     const billTime = date.toTimeString().slice(0, 8);
     const billDateTime = billDate + " " + billTime;
-    const billSplitDetail = await db('billsplitter_detail').where({  billSplitterGroup_id }).select('*')
+    const billSplitDetail = await db('billsplitter_detail').where({ billSplitterGroup_id }).select('*')
     if (mode === 'All') {
         // const countMembers = await db('billsplitter_detail')
         //     .where({ user_id, billSplitter_id })
         //     .count('MemberName')
         const username = await db('register').where({ user_id }).select('UserName')
 
-        const count = billSplitDetail.reduce((acc, obj) => obj.MemberName === username[0].UserName ? acc + 1 : acc+1, 0)
+        const count = billSplitDetail.reduce((acc, obj) => obj.MemberName === username[0].UserName ? acc + 1 : acc + 1, 0)
 
         // const numMembers = parseInt(countMembers[0])
         const billAmount = parseFloat(bill)
         const splitAmount = billAmount / count;
         billSplitDetail.forEach(async (member) => {
-            const selectedMember = await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).select('*')
+            const selectedMember = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).select('*')
             const selectedMemberBill = parseFloat(selectedMember[0].bill)
             const updatedBill = selectedMemberBill + splitAmount
-            await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
+            await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
         })
-      
+
 
         const addBill = await db('billsplitter_bill_description').insert({
             billSplitterGroup_id,
@@ -183,16 +190,16 @@ export const billSplit = catchAsyncError(async (req, res, next) => {
         const splitAmount = billAmount / count;
         billSplitDetail.forEach(async (member) => {
             if (member.MemberName === userName[0].UserName) {
-                const selectedMember = await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).select('*')
+                const selectedMember = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).select('*')
                 const selectedMemberBill = parseFloat(selectedMember[0].bill)
                 const updatedBill = selectedMemberBill + 0
-                await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
+                await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
             }
             else {
-                const selectedMember = await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).select('*')
+                const selectedMember = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).select('*')
                 const selectedMemberBill = parseFloat(selectedMember[0].bill)
-                const updatedBill = selectedMemberBill + splitAmount 
-                await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
+                const updatedBill = selectedMemberBill + splitAmount
+                await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: member.MemberName }).update({ bill: updatedBill })
             }
         })
         const addBill = await db('billsplitter_bill_description').insert({
@@ -224,7 +231,7 @@ export const clearBillAmount = catchAsyncError(async (req, res, next) => {
     const userName = await db('register').where({ user_id }).select('UserName')
     const billdetail = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: userName[0].UserName }).select('bill')
     if ((billdetail[0].bill == ClearBillAmount) && (ClearBillAmount > 0)) {
-        const updateBillAmount = await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: userName[0].UserName }).update({ bill: 0 })
+        const updateBillAmount = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: userName[0].UserName }).update({ bill: 0 })
         await db('billsplitter_bill_description').where({ billSplitterGroup_id }).insert({
             billSplitterGroup_id,
             description: ` ${userName[0].UserName} cleared the ${ClearBillAmount} bill amount`,
@@ -243,7 +250,7 @@ export const clearBillAmount = catchAsyncError(async (req, res, next) => {
     }
     if (ClearBillAmount < billdetail[0].bill) {
         const updatedBillAmount = billdetail[0].bill - ClearBillAmount
-        const updateBillAmount = await db('billsplitter_detail').where({  billSplitterGroup_id, MemberName: userName[0].UserName }).update({ bill: updatedBillAmount })
+        const updateBillAmount = await db('billsplitter_detail').where({ billSplitterGroup_id, MemberName: userName[0].UserName }).update({ bill: updatedBillAmount })
         // const clearBillAmount = await db('billsplitter_detail').where({ user_id, billSplitter_id }).update({ bill: 0 })
         if (!updatedBillAmount) {
             return next(new ErrorHandler("Bill Amount Not Cleared", StatusCodes.BAD_REQUEST))

@@ -9,7 +9,7 @@ const NewBudget = () => {
     const [AnotherIncome,setAnotherIncome]=useState(0)
     const [saving,setSaving]=useState(0)
     const navigate = useNavigate()
-    const submitbudget = () => {
+    const submitbudget = async() => {
 
         if(income===0){
             toast.error('Please Enter Monthly Income')
@@ -24,7 +24,7 @@ const NewBudget = () => {
         const token = localStorage.getItem('token')
     
         try {
-            const {data}= Axios.post( `${server}/budget`,{
+            const {data}= await Axios.post( `${server}/budget`,{
                 TotalIncome:total,
                 saving:saving
             },{
@@ -34,13 +34,13 @@ const NewBudget = () => {
                     'authorization': `Bearer ${token}`
                 }
             })
-            toast.success(data.message)
+            toast.success(data.message,{position:'top-center'})
+            navigate('/Budget/Budget-detail')
 
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error.response.data.message,{position:'top-center'})
         }
 
-        // navigate('/Budget/Budget-detail')
        }
     }
     return (

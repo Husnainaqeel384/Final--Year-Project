@@ -15,7 +15,7 @@ export const budgteinfo = catchAsyncError(async (req, res, next) => {
         BudgetMonth: month + "-" + year,
         Total_Income: req.body.TotalIncome,
         Saving: req.body.saving,
-        // (year + "-" + month + "-" + date);
+        // (year + "-" + month + "-" + date); 
         createdDate: year + "-" + monthNumber + "-" + todayDate,
         user_id: req.user.id
     }]

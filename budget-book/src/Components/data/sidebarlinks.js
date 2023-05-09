@@ -61,6 +61,11 @@ export const links = [
         path: 'Budget/Bill-Splitter',
         icon: <BsSignpostSplit />,
       },
+      // {
+      //   name: 'My Notes ',
+      //   path: 'Budget/My-Notes',
+      //   icon: <BsSignpostSplit />,
+      // },
       {
         name: 'Add Category',
         path: 'Budget/add-category',
