@@ -4,7 +4,7 @@ import { MdCreate } from 'react-icons/md';
 import {HiOutlineDocumentReport ,HiUserGroup} from 'react-icons/hi'
 
 import { BsFillAlarmFill } from 'react-icons/bs';
-import { GrTransaction } from 'react-icons/gr';
+import { GrTransaction ,GrNotes} from 'react-icons/gr';
 import { AiFillFolderAdd } from 'react-icons/ai';
 import { FaHistory } from 'react-icons/fa';
 import {BsSignpostSplit} from 'react-icons/bs'
@@ -61,11 +61,11 @@ export const links = [
         path: 'Budget/Bill-Splitter',
         icon: <BsSignpostSplit />,
       },
-      // {
-      //   name: 'My Notes ',
-      //   path: 'Budget/My-Notes',
-      //   icon: <BsSignpostSplit />,
-      // },
+      {
+        name: 'My Notes ',
+        path: 'Budget/My-Notes',
+        icon: <GrNotes />,
+      },
       {
         name: 'Add Category',
         path: 'Budget/add-category',

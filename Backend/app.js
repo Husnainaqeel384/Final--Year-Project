@@ -10,6 +10,7 @@ import Transactionroutes from "./routes/Transaction.routes.js"
 import reportRoutes from "./routes/report.routes.js"
 import categoriesRoutes from "./routes/categories.routes.js"
 import billSplitter from "./routes/BillSpiltter.routes.js"
+import addnotes from "./routes/Addnotes.routes.js"
 // middleware 
 import ErrorMiddlewares from "./middlewares/Error.js"
 const app = express();
@@ -39,4 +40,5 @@ dotenv.config({
   app.use('',reportRoutes);
   app.use('',categoriesRoutes);
   app.use('',billSplitter);
+  app.use('',addnotes);
   app.use(ErrorMiddlewares)
