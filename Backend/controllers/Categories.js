@@ -16,7 +16,7 @@ export const getCategories = catchAsyncError(async (req, res, next) => {
 })
 
 export const getsubCategories = catchAsyncError(async (req, res, next) => {
-    console.log(req.query.categoryId)
+    // console.log(req.query.categoryId)
     const subCategories = await db('subcategory').select('*').where({category_id:req.query.categoryId});
     if (!subCategories) {
         return next(new ErrorHandler("No SubCategories Found", StatusCodes.NOT_FOUND))

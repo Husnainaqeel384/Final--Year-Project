@@ -8,9 +8,9 @@ import { StatusCodes } from "http-status-codes"
 export const addMembers = catchAsyncError(async (req, res, next) => {
     const user_id = req.user.id;
     const { memberName } = req.body;
-    console.log(memberName)
+    // console.log(memberName)
     const checkUsername = await db('register').where({ UserName: memberName }).select('UserName')
-    console.log(checkUsername)
+    // console.log(checkUsername)
     if (checkUsername.length === 0) {
         return next(new ErrorHandler("Member UserName does not Exist in budget-book", StatusCodes.BAD_REQUEST))
     }

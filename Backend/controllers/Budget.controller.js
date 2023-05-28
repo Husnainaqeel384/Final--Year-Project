@@ -290,9 +290,9 @@ export const updateMonthlyExpenseCategory = catchAsyncError(async (req, res, nex
     const budget_id = req.params.id
     const budgetDetail_id = req.params.budgetid
     const { categoryName, Amount } = req.body
-    console.log(req.params.id)
-    console.log(req.params.budgetid)
-    console.log(req.body)
+    // console.log(req.params.id)
+    // console.log(req.params.budgetid)
+    // console.log(req.body)
     const checkcategory = await db('budget_detail').select('*').where({ budgetDetail_id }).andWhere({ budget_id })
     if (checkcategory[0].categoryName === categoryName) {
         const updatecategory = await db('budget_detail').update({ Amount }).where({ budgetDetail_id }).andWhere({ budget_id })
