@@ -4,29 +4,32 @@
 // }
 
 .feature {
-    min-height: 228vh;
-}
 
+}
+.featureDiv{
+    color: rgb(0, 66, 144);
+}
 .featurefirstdiv {
     >h1 {
+        color: rgb(0, 66, 144);
         // font-size: 2.441em;
-        -webkit-text-stroke: 1.5px black;
-        -webkit-text-stroke-width: 0.5px;
-        -webkit-text-stroke-color: #000000;
-        -webkit-text-fill-color: #ffffff;
-        font-weight: bolder;
+        // -webkit-text-stroke: 1.5px black;
+        // -webkit-text-stroke-width: 0.5px;
+        // -webkit-text-stroke-color: #000000;
+        // -webkit-text-fill-color: #ffffff;
+        // font-weight: bolder;
         // border: 1px solid;
     }    
 
     >h6 {
-        color: #0063AA; 
+      
         font-weight: bolder;
     }
 
     a {
         width: 17em;
         height: 3em;
-        background: #0063AA;
+      
         border-radius: 15px;
     }
 }

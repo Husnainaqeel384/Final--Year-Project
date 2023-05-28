@@ -9,6 +9,9 @@ import DashboardRoutes from './Components/Dashborad/DashboardRoutes';
 import  { Toaster } from 'react-hot-toast';
 import {ToastContainer} from 'react-toastify';
 import ProtectedRoute from './ProtectedRoute';
+import About from './Components/Layout/About';
+import Policy from './Components/Layout/Policy';
+import Contact from './Components/Layout/Contact';
 function App() {
   return (
     <Router >
@@ -21,6 +24,9 @@ function App() {
         // </ProtectedRoute> 
       }/>
         <Route path='/register' element={<Register />}></Route>
+        <Route path='/about' element={<About />}></Route>
+        <Route path='/privacy-policy' element={<Policy />}></Route>
+        <Route path='/contact' element={<Contact />}></Route>
         <Route path='/forgot-password' element={<ForgotPassword />}></Route>
         <Route path='/reset-password/:token' element={<RecoveryPassword />}></Route>
         <Route element={<ProtectedRoute />}>

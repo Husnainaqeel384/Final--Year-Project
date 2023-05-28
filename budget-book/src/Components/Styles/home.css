@@ -29,5 +29,13 @@
     color: rgb(0, 66, 144);
     font-weight: bolder;
     /* overflow: hidden; */
-    text-shadow: rgba(52, 144, 209, 0.6) 0px 5px 1px;
+    /* text-shadow: rgba(52, 144, 209, 0.6) 0px 5px 1px; */
+}
+
+.box-shadows{
+    box-shadow: 30px 30px 30px -10px rgba(0,0,0,0.15),
+    inset 10px 10px 10px rgba(172, 172, 236, 0.75),
+    -15px -15px 35px rgba(255,255,255,0.55),
+    inset -1px -1px 10px rgba(0,0,0,0.2);
+    
 }
