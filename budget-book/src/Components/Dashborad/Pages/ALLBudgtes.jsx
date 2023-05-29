@@ -57,7 +57,7 @@ const ALLBudgtes = () => {
 
       <div className=" mt-16 md:mt-5 overflow-x-auto shadow-md -z-1 ">
         <div className="ml-16 text-lg ">
-          <h1 className="mb-4 text-3xl md:mt-12  font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">All Budgets</span> </h1>
+          <h1 className="mb-4 text-3xl md:mt-2  font-extrabold text-center text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">All Budgets</span> </h1>
 
         </div>
 
@@ -72,24 +72,24 @@ const ALLBudgtes = () => {
         </div> */}
         <div className='p-2'>
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-blue-100 dark:bg-blue-100 dark:text-black">
               <tr>
-                <th scope="col" className="p-4 w-1/6 border-r-4 border-indigo-400">
+                <th scope="col" className="p-4 w-1/6 border-r-4 border-indigo-100">
                   <div className="flex items-center">
                     <p>SR.No</p>
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-100">
                   Budget Month
                 </th>
-                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-100">
                   Amount
                 </th>
-                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-100">
                   saving Amount
                 </th>
 
-                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+                <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-100">
                   View
                 </th>
                 <th scope="col" className="px-6 py-3 w-1/6 ">
@@ -122,11 +122,11 @@ const ALLBudgtes = () => {
                     <td className="px-6 py-4 border-r-2 border-gray-200">
 
                       <Link to={'/Budget/Edit-Expense'}  state={{ id:items.budget_id }}
-                        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                        className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800 ">
                         View</Link>
                     </td>
                     <td className="px-6 py-4 ">
-                      <button onClick={() => deleteExpense(items.budget_id)} className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
+                      <button onClick={() => deleteExpense(items.budget_id)} className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:red:bg-blue-700 focus:outline-none dark:focus:ring-red-700 ">
                         Delete</button>
                     </td>
                   </tr>

@@ -76,8 +76,8 @@ const Register = () => {
             </div>
         } */}
             <div className="relative flex flex-col justify-center h-full m-10 ">
-                <div className="w-92 p-4 sm:m-auto sm:w-96  bg-white rounded-md shadow-xl shadow-rose-600/40  ring-2 ring-purple-600 lg:max-w-xl">
-                    <h1 className="text-3xl font-semibold text-center text-purple-700  uppercase ">
+                <div className="w-92 p-4 sm:m-auto sm:w-96  bg-white rounded-md shadow-xl shadow-rose-600/40  ring-2 ring-indigo-600 lg:max-w-xl">
+                    <h1 className="text-3xl font-semibold text-center text-indigo-600  uppercase ">
                         Sign up
                     </h1>
                     <div className="mt-3" >
@@ -93,7 +93,7 @@ const Register = () => {
 
                                 value={fname}
                                 onChange={(e) => setFname(e.target.value)}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                className="block w-full px-4 py-2 mt-2 text-indigo-600 bg-white border rounded-md  focus:border-indigo-600 focus:outline-none focus:ring focus:ring-opacity-40"
                             />
                         </div>
                         <div className="mb-2">
@@ -108,7 +108,7 @@ const Register = () => {
 
                                 value={lname}
                                 onChange={(e) => setLname(e.target.value)}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                className="block w-full px-4 py-2 mt-2 text-indigo-600 bg-white border rounded-md  focus:border-indigo-600 focus:outline-none focus:ring focus:ring-opacity-40"
                             />
                         </div>
                         <div className="mb-2">
@@ -123,7 +123,7 @@ const Register = () => {
 
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                className="block w-full px-4 py-2 mt-2 text-indigo-600 bg-white border rounded-md focus:border-indigo-600 focus:outline-none focus:ring focus:ring-opacity-40"
                             />
                         </div>
                         <div className="mb-2">
@@ -138,7 +138,7 @@ const Register = () => {
 
                                 value={Email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                className="block w-full px-4 py-2 mt-2 text-indigo-600 bg-white border rounded-md focus:border-indigo-600  focus:outline-none focus:ring focus:ring-opacity-40"
                             />
                         </div>
                         <div className="mb-2">
@@ -153,14 +153,14 @@ const Register = () => {
 
                                 value={Password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                className="block w-full px-4 py-2 mt-2 text-indigo-600 bg-white border rounded-md focus:border-indigo-600 focus:outline-none focus:ring focus:ring-opacity-40"
                             />
                         </div>
 
                         <div className="mt-6">
                             <button
                                 onClick={handleSubmit}
-                                className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600">
+                                className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-indigo-600 rounded-md hover:bg-indigo-800 focus:outline-none focus:bg-indigo-600">
                                 Sign Up
                             </button>
                         </div>
@@ -177,7 +177,7 @@ const Register = () => {
                         Do you have an account?{" "}
                         <a
                             href="/login"
-                            className="font-medium text-purple-600 hover:underline"
+                            className="font-medium text-indigo-600 hover:underline"
                         >
                             Sign in
                         </a>

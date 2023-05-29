@@ -278,7 +278,10 @@ const deleteMember = async (id) => {
                     </div>
                     <div className='p-3 flex justify-center'>
                         <button onClick={() => AddMembersInArray(memberName)}
-                            className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0"> Add </button>
+
+
+
+className="whitespace-nowrap text-base font-medium  bg-transparent border border-blue-500 text-blue-500    hover:bg-green-500 hover:text-white text-center py-2 px-4 rounded"> Add </button>
                     </div>
                     <div className=''>
                         {
@@ -296,7 +299,7 @@ const deleteMember = async (id) => {
                     </div>
                     <div onClick={createGroup}
                         className='p-3 flex justify-center'>
-                        <button className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0"> Create Group</button>
+                        <button className="bg-indigo-600 hover:bg-indigo-900 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0"> Create Group</button>
                     </div>
                 </div>
                 <div className='md:w-1/2'>

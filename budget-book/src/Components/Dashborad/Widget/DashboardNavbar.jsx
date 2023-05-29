@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { AiOutlineMenu } from 'react-icons/ai'
+import { HiMenu } from 'react-icons/hi'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 // import {  useSelector } from "react-redux"
 
@@ -68,7 +68,7 @@ const DashboardNavbar = ({username,url}) => {
   return (
     <div className='flex justify-between p-2 md:mx-6 relative' >
       <NavButton title='Menu' customFunc={() => setactiveMenu((preActiveMenu) => !preActiveMenu)}
-        icon={<AiOutlineMenu />}
+        icon={<HiMenu className='text-blue-700 font-extrabold h-6 w-6 hover:text-blue-900' />}
       />
       <div className='flex'>
         <div className='flex items-center cursor-pointer p-1 hover:bg-light-gray rounded-lg '

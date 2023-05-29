@@ -39,39 +39,39 @@ const MainDashboard = () => {
   return (
     <>
      
-      <div className="bg-gray-200">
+      <div className="bg-white mt-10 ">
         <div className="container mx-auto">
           <div className="flex flex-wrap">
             {/* Four equal-sized boxes */}
             <div className="w-full md:w-1/2 xl:w-1/4 p-3">
-              <div className="bg-white h-full p-5 rounded shadow">
-                <h3 className="text-lg font-bold mb-4 text-center">Total Budgets</h3>
+              <div className="bg-blue-100 h-full p-5 rounded-xl box-shadowss">
+                <h3 className="text-lg font-bold mb-4 text-blue-700 text-center">Total Budgets</h3>
                 <p className="text-center text-2xl mt-10">{totalBudgets} </p>
               </div>
             </div>
             <div className="w-full md:w-1/2 xl:w-1/4 p-3">
-              <div className="bg-white h-full p-5 rounded shadow">
-                <h3 className="text-lg font-bold mb-4 text-center">Total Split Groups</h3>
+            <div className="bg-blue-100 h-full p-5 rounded-xl box-shadowss">
+                <h3 className="text-lg font-bold mb-4 text-blue-700 text-center">Total Split Groups</h3>
                 <p className="text-center text-2xl mt-10">{totalBillSpliterGroups} </p>
               </div>
             </div>
             <div className="w-full md:w-1/2 xl:w-1/4 p-3">
-              <div className="bg-white h-full p-5 rounded shadow">
-                <h3 className="text-lg font-bold mb-4 text-center">Total Transaction Records</h3>
+            <div className="bg-blue-100 h-full p-5 rounded-xl box-shadowss">
+                <h3 className="text-lg font-bold mb-4  text-blue-700 text-center">Total Transaction Records</h3>
                 <p className="text-center text-2xl mt-10">{totalTransactions} </p>
               </div>
             </div>
             <div className="w-full md:w-1/2 xl:w-1/4 p-3">
-              <div className="bg-white h-full p-5 rounded shadow">
-                <h3 className="text-lg font-bold mb-4 text-center">Total Reminders</h3>
+            <div className="bg-blue-100 h-full p-5 rounded-xl box-shadowss">
+                <h3 className="text-lg font-bold mb-4 text-blue-700 text-center">Total Reminders</h3>
                 <div className="flex justify-between w-full">
                   <div className="w-1/2 border p-2 text-center">
-                    <h3 className="text-lg font-bold mb-4 ">Pending</h3>
-                    <p className="text-red-500"> {totalpendingreminder}</p>
+                    <h3 className="text-lg font-bold mb-4 text-red-600">Pending</h3>
+                    <p className=""> {totalpendingreminder}</p>
                   </div>
                   <div className="w-1/2 border p-2 text-center">
-                    <h3 className="text-lg font-bold mb-4">Done</h3>
-                    <p className="text=center text-green-600">{totaldonereminder} </p>
+                    <h3 className="text-lg font-bold mb-4 text-green-600">Done</h3>
+                    <p className="text=center">{totaldonereminder} </p>
                   </div>
                 </div>
               </div>

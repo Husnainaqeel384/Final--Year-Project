@@ -133,7 +133,7 @@ useEffect(() => {
     <>
       <div className="flex flex-col h-screen">
 
-        <header className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
+        <header className="bg-indigo-600 text-white px-4 py-3 flex items-center justify-between">
           {
             isOpen ?   
             (<h1 className="text-2xl font-bold">Add Transactions</h1>):isedit ? 
@@ -281,18 +281,18 @@ useEffect(() => {
         {
           isOpen || isedit ? " " : (
             <main className="p-4 flex-grow">
-              <h2 className="text-2xl font-bold mb-4">Transactions</h2>
+            
               <div className="flex flex-col md:flex-row justify-between mb-4">
                 <form action="#" method="GET" className="flex items-center">
                   <label htmlFor="search" className="sr-only">Search</label>
                   <input type="text" id="search" name="search" placeholder="Search" className="border border-gray-500 py-2 px-3 rounded-l-lg focus:outline-none focus:border-gray-700" />
-                  <button type="submit" className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-r-lg focus:outline-none">Search</button>
+                  <button type="submit" className="bg-indigo-600 hover:bg-indigo-900 text-white py-2 px-4 rounded-r-lg focus:outline-none">Search</button>
                 </form>
                 <button onClick={() => setIsOpen(true)} className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded focus:outline-none">Add Transaction</button>
               </div>
               <div className="overflow-x-auto">
-                <table className="table-auto border w-full">
-                  <thead>
+                <table className="table-auto border w-full ">
+                  <thead className='bg-blue-100'>
                     <tr>
                       <th className="px-4 py-2 border">Type</th>
                       <th className="px-4 py-2 border">Date</th>
@@ -327,8 +327,8 @@ useEffect(() => {
                           setReceiver(item.Transaction_receiverName)
                           setMethod(item.Transaction_method)
                           setDescription(item.Transaction_description)
-                        }} className="text-blue-500 hover:text-blue-600">Edit</button>
-                        <button onClick={()=>deleteTransaction(item.Transaction_id)} className="text-red-500 hover:text-red-600 ml-2">Delete</button>
+                        }} className="text-blue-500 hover:text-blue-600 font-semibold">Edit</button>
+                        <button onClick={()=>deleteTransaction(item.Transaction_id)} className="text-red-500 hover:text-red-600 ml-2 font-semibold text-center">Delete</button>
                       </td>
                     </tr>
                     )

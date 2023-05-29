@@ -98,7 +98,7 @@ const MyNotes = () => {
 
 
   return (
-    <div className="flex flex-col h-screen bg-gray-200">
+    <div className="flex flex-col h-screen bg-gray-100">
       <h1 className="mb-4 text-3xl font-bold text-center text-gray-800">
         My Notes
       </h1>

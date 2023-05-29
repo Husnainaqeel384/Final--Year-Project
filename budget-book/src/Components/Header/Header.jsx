@@ -36,7 +36,7 @@ const Header = () => {
                         <GiArchiveRegister className='ml-4 h-8 w-auto  mr-0 w-30 text-sky-600 '></GiArchiveRegister> 
                         <Link
                             to="/register"
-                            className="ml-3 inline-flex items-center justify-center whitespace-nowrap rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                            className="ml-3 inline-flex items-center justify-center whitespace-nowrap rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-800"
                         >
                             Sign up
                         </Link>

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { MdOutlineCancel } from 'react-icons/md';
-import { GiReceiveMoney } from 'react-icons/gi';
+import { GiTakeMyMoney}  from 'react-icons/gi';
 // import { MdKeyboardArrowDown } from 'react-icons/md'
 import { links } from '../../data/sidebarlinks';
 import { useStateContext } from '../../../context/ContextProvider';
@@ -13,8 +13,8 @@ const Sidebar = ({userIsAdmin}) => {
       setactiveMenu(false)
     }
   }
-  const activeLink = 'flex items-center gap-4 pl-4 pt-2 pb-2 rounded-lg bg-blue-400 text-white  text-md m-2';
-  const normalLink = 'flex items-center gap-5 pl-4 pt-2 pb-2 rounded-lg text-lg text-gray-700 dark:text-gray-600 dark:hover:text-black hover:bg-gray-200 m-2';
+  const activeLink = 'flex items-center gap-4 pl-4 pt-2 pb-2 rounded-lg bg-indigo-600 text-white  text-md m-2';
+  const normalLink = 'flex items-center gap-5 pl-4 pt-2 pb-2 rounded-lg text-lg text-gray-700 dark:text-gray-600 dark:hover:text-black hover:bg-blue-400 m-2';
   return (
     <>
       <div className='ml-3 h-screen md:overflow-hiden overflow-auto  md:hover:overflow-auto pb-10'>
@@ -22,7 +22,7 @@ const Sidebar = ({userIsAdmin}) => {
           <div className='flex justify-between items-center'>
             <Link to="/Budget" onClick={hanldeCloseSideBar}
               className="items-center gap-3 ml-3 mt-4 flex text-xl font-extrabold tracking-tight text-blue-700"
-            > <GiReceiveMoney /><span>Budget-Book</span>
+            > <GiTakeMyMoney className='w-10 h-10'/><span>Budget-Book</span>
             </Link>
             <button
               type="button"

@@ -60,45 +60,45 @@ const [savingAmount,setsavingAmount]=useState(0)
   return (
     <div className='mt-16 md:mt-5 lg:mt-5'>
       <h1 className="mb-4 text-3xl text-center font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-4xl"><span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Your Current Budget</span> </h1>
-      <div className='w-full border md:flex md:flex-wrap ' >
-        <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
-            <span className='w-1/2 font-bold text-lg text-center border p-2'>Total Income</span>
-            <span className='w-1/2 text-center text-lg border p-2'>{totalIncome}</span>
+      <div className='w-full border border-green-500 md:flex md:flex-wrap ' >
+        <div className='w-full md:w-1/3 border-r-2 border-green-500 md:flex'>  
+            <span className='w-1/2 font-medium text-sm text-center border border-green-500 p-2'>Total Income</span>
+            <span className='w-1/2 text-center text-sm border p-2'>{totalIncome}</span>
           </div>
-          <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
-            <span className='w-1/2 font-bold text-lg text-center border p-2'>Saving Amount</span>
-            <span className='w-1/2 text-center text-lg border p-2'>{savingAmount}</span>
+          <div className='w-full md:w-1/3 border-r-2 border-green-500 md:flex'>  
+            <span className='w-1/2 font-medium text-sm text-center border border-green-500 p-2'>Saving Amount</span>
+            <span className='w-1/2 text-center text-sm border p-2'>{savingAmount}</span>
           </div>
-          <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
-            <span className='w-1/2 font-bold text-lg text-center border p-2'>Total Budget Amount</span>
-            <span className='w-1/2 text-center text-lg font-semibold  border p-2'>{totalbudgetAmount}</span>
+          <div className='w-full md:w-1/3 border-r-2 border-green-500 md:flex'>  
+            <span className='w-1/2 font-medium text-sm text-center border border-green-500 p-2'>Total Budget Amount</span>
+            <span className='w-1/2 text-center text-sm font-semibold  border p-2'>{totalbudgetAmount}</span>
           </div>
-          <div className='w-full md:w-1/2 border-r-2 border-gray-200 md:flex'>  
+          <div className='w-full md:w-1/2 border-r-2 border-green-500 md:flex'>  
             
           </div>
         
       </div>
       <div className=''>
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 mt-8">
+          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-blue-100 dark:text-black">
             <tr>
-              <th scope="col" className="p-4 w-1/6 border-r-4 border-indigo-400">
+              <th scope="col" className="p-4 w-1/6 border-r-4 border-blue-200">
 
                 SR.No
 
               </th>
-              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-blue-200">
                 Category Name
               </th>
-              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-blue-200">
                 Expense Amount
               </th>
 
 
-              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-blue-200">
                 Remaining Amount
               </th>
-              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 border-indigo-400">
+              <th scope="col" className="px-6 py-3 w-1/6 border-r-4 ">
                 Progress Bar
               </th>
             </tr>

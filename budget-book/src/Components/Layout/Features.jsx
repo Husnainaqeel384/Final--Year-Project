@@ -21,39 +21,39 @@ const Features = () => {
                             <h2 className='text-3xl pt-6 font-bold text-indigo-600 text-center'>Features</h2>
                     </div>
                     <div className=' max-h-min flex flex-wrap justify-center w-full gap-5  p-4 '>
-                        <div className=' md:w-1/4  border-2 rounded border-indigo-600 p-2 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv '>Monthly Budget</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className=' md:w-1/4  rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100 '>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3 '>Monthly Budget</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 The monthly budget feature allows users to track their income and expenses, providing a clear overview of their financial situation and helping them make informed spending decisions.
                             </p>
                         </div>
-                        <div className='md:w-1/4 border-2 rounded p-2 border-indigo-600 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv '>Categories</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className='md:w-1/4 rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100'>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3 '>Categories</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 The budget book includes categories such as income, Fuel, transportation, groceries,  entertainment, and savings, allowing users to organize and track their expenses effectively for better financial planning.
                             </p>
                         </div>
-                        <div className='md:w-1/4 border-2 rounded p-2 border-indigo-600 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv'>Reminders</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className='md:w-1/4 rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100'>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3'>Reminders</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 The reminders feature in a budget book displays notification to users for upcoming bill payments and important financial deadlines, helping them stay organized and avoid late payments or missed opportunities.
                             </p>
                         </div>
-                        <div className='md:w-1/4 border-2 rounded p-2 border-indigo-600 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv'>Notes</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className='md:w-1/4 rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100'>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3'>Notes</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 The notes feature in a budget management system allows users to add personalized memos or descriptions to specific transactions, helping them remember important details or categorize expenses more effectively for future reference and analysis.
                             </p>
                         </div>
-                        <div className='md:w-1/4 border-2 rounded p-2 border-indigo-600 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv'>Split Bill</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className='md:w-1/4 rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100'>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3'>Split Bill</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 The split bills feature in a budget book allows users to divide shared expenses among multiple participants, accurately tracking each person's contribution and simplifying the process of settling bills within a group, such as roommates, friends, or colleagues.
                             </p>
                         </div>
-                        <div className='md:w-1/4 border-2 rounded p-2 border-indigo-600 bg-blue-100'>
-                            <h1 className=' font-medium text-center text-lg featureDiv'>Forecasting</h1>
-                            <p className=' text-sm text-center p-2 '>
+                        <div className='md:w-1/4 rounded-3xl box-shadows border-indigo-600 p-6 bg-blue-100'>
+                            <h1 className=' font-medium text-center text-lg featureDiv mt-3'>Forecasting</h1>
+                            <p className=' text-xs text-center p-2 '>
                                 Forecasting in a budget book uses historical financial data and trends to project future income, expenses, and savings, enabling users to anticipate their financial situation and make proactive decisions for better financial planning.
                             </p>
                         </div>

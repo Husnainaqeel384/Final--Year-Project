@@ -92,7 +92,7 @@ const Report = () => {
     return (
         <>
             <div className="flex flex-col h-screen">
-                <header className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
+                <header className="bg-indigo-600 text-white px-4 py-3 flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Reports</h1>
                 </header>
 
@@ -103,7 +103,7 @@ const Report = () => {
                             <select name="" id=""
                                 value={selectedMonth}
                                 onChange={(e) => { setSelectedMonth(e.target.value) }}
-                                className="border border-gray-500 py-2 px-3 rounded-lg focus:outline-none focus:border-gray-700">
+                                className="border border-green-500 py-2 px-3 rounded-lg focus:outline-none focus:border-green-700">
                                 <option value="">-- Select Month --</option>
                                 {
                                     monthname.map((month, index) => {
@@ -116,7 +116,7 @@ const Report = () => {
                             onClick={() => generateReport()
                             }
 
-                            className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0">Generate Report</button>
+                            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded focus:outline-none mt-4 md:mt-0">Generate Report</button>
                     </div>
                   {
                     isMonthnameSelected ? (
