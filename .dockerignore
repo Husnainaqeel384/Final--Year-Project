@@ -1,0 +1,19 @@
+# Everything here stays out of images: secrets, personal files and local build output.
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!.env.example
+.git
+.github
+.dev-mail
+.vscode
+images-library
+docs
+*.sql
+*.md
+*.lnk
+apps/api/uploads
+apps/api/test
+apps/web/src/images

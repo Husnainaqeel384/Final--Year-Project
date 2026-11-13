@@ -1,3 +1,118 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import 'react-toastify/dist/ReactToastify.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Every color is a role token so light and dark are chosen in one place.
+   Chart colors are validated for color-blind separation against these surfaces. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #6f6d67;
+  --line: #e1e0d9;
+  --accent: #1c5cab;
+  --accent-hover: #184f95;
+  --accent-soft: #cde2fb;
+  --accent-text: #1c5cab;
+  --good: #006300;
+  --good-soft: #dcf2dc;
+  --warning: #8a5a00;
+  --warning-soft: #fdeecb;
+  --critical: #b42f2f;
+  --critical-soft: #fbe0e0;
+
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #898781;
+  --chart-surface: #fcfcfb;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #262624;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --ink-3: #a3a198;
+  --line: #2c2c2a;
+  --accent: #256abf;
+  --accent-hover: #2a78d6;
+  --accent-soft: #15355f;
+  --accent-text: #86b6ef;
+  --good: #4cc94c;
+  --good-soft: #143314;
+  --warning: #fab219;
+  --warning-soft: #3a2b08;
+  --critical: #f08a8a;
+  --critical-soft: #3f1b1b;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-grid: #2c2c2a;
+  --chart-axis: #898781;
+  --chart-surface: #1a1a19;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-critical: var(--critical);
+  --color-critical-soft: var(--critical-soft);
+}
+
+@layer base {
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 2px;
+  }
+
+  dialog::backdrop {
+    background: rgb(11 11 11 / 0.5);
+  }
+
+  /* Tailwind's reset removes the pointer cursor, which makes buttons feel inert. */
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+}
+
+/* Numbers in columns must line up; large standalone figures keep proportional digits. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

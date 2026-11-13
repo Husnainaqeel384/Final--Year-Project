@@ -1,0 +1,91 @@
+# Development stack: your code folder is mounted into the containers, so saving
+# a file updates the running app without rebuilding anything.
+#
+#   npm run docker:dev        start (web app at http://localhost:5173)
+#   npm run docker:dev:down   stop (your data is kept)
+#
+# docker-compose.yml is the production-style stack. This file is separate so the
+# two can never be mixed up, and each has its own database.
+
+name: budget-book-dev
+
+x-node-app: &node-app
+  image: node:24-alpine
+  working_dir: /app
+  volumes:
+    - .:/app
+    # node_modules stay inside Docker: packages installed on Windows contain
+    # native files that cannot run on Linux, and the reverse is also true.
+    - root_modules:/app/node_modules
+    - api_modules:/app/apps/api/node_modules
+    - web_modules:/app/apps/web/node_modules
+
+services:
+  # Installs packages only when package-lock.json has changed, then exits.
+  deps:
+    <<: *node-app
+    command: >
+      sh -c 'hash=$$(sha1sum package-lock.json | cut -d" " -f1);
+      if [ "$$hash" != "$$(cat node_modules/.lock-hash 2>/dev/null)" ]; then
+      npm ci --no-audit --no-fund && echo "$$hash" > node_modules/.lock-hash;
+      else echo "Packages are up to date"; fi'
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: budget_book
+      MYSQL_USER: budget_book
+      MYSQL_PASSWORD: budget_book_local
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  api:
+    <<: *node-app
+    restart: unless-stopped
+    command: npm run dev:docker --workspace @budget-book/api
+    depends_on:
+      deps:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      APP_URL: http://localhost:5173
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: budget_book
+      DB_PASSWORD: budget_book_local
+      DB_NAME: budget_book
+      RUN_MIGRATIONS_ON_START: 'true'
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      JWT_SECRET: ${JWT_SECRET:?Run "npm run setup" first to create .env with a JWT_SECRET}
+    ports:
+      - '4000:4000'
+
+  web:
+    <<: *node-app
+    restart: unless-stopped
+    command: npm run dev --workspace @budget-book/web -- --host 0.0.0.0
+    depends_on:
+      deps:
+        condition: service_completed_successfully
+    environment:
+      VITE_DEV_API_PROXY: http://api:4000
+      # File-change events don't reach containers from a Windows folder, so Vite checks for changes.
+      VITE_USE_POLLING: 'true'
+    ports:
+      - '5173:5173'
+
+volumes:
+  db_data:
+  root_modules:
+  api_modules:
+  web_modules:

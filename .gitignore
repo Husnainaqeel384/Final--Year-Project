@@ -1,0 +1,32 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+
+# Secrets — this repository is public. Only *.example files are committed.
+.env
+.env.*
+!.env.example
+config.env
+
+# Personal data and local reference material (see CLAUDE.md rules 4 and 7)
+images-library/
+*.sql
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+
+# Emails saved locally when SMTP is not configured; they contain reset links
+.dev-mail/
+
+# Logs
+logs/
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.lnk
+.idea/
+.vscode/*
+!.vscode/extensions.json

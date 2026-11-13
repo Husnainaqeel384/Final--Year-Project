@@ -1,0 +1,42 @@
+{
+  "name": "budget-book",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Open-source budget management for individuals and teams: budgets, expenses, bill splitting, forecasts and Excel, Slack and calendar integrations.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Husnainaqeel384/Final--Year-Project.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "predev": "node scripts/setup.mjs",
+    "dev": "concurrently --names api,web --prefix-colors blue,green --kill-others-on-fail \"npm run dev -w @budget-book/api\" \"npm run dev -w @budget-book/web\"",
+    "build": "npm run build -w @budget-book/web",
+    "start": "npm run start -w @budget-book/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:migrate": "npm run db:migrate -w @budget-book/api",
+    "db:seed": "npm run db:seed -w @budget-book/api",
+    "admin:promote": "npm run admin:promote -w @budget-book/api --",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:dev": "node scripts/setup.mjs && docker compose -f docker-compose.dev.yml up -d && docker compose -f docker-compose.dev.yml logs -f api web",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yml down"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Budget Book">
+  <rect width="64" height="64" rx="14" fill="#1c5cab"/>
+  <path d="M14 18c0-2.2 1.8-4 4-4h10c2.2 0 4 1.2 4 3v33c0-1.8-1.8-3-4-3H18c-2.2 0-4-1.8-4-4V18Z" fill="#fff"/>
+  <path d="M50 18c0-2.2-1.8-4-4-4H36c-2.2 0-4 1.2-4 3v33c0-1.8 1.8-3 4-3h10c2.2 0 4-1.8 4-4V18Z" fill="#cde2fb"/>
+  <rect x="37" y="33" width="3.5" height="8" rx="1" fill="#1c5cab"/>
+  <rect x="42" y="26" width="3.5" height="15" rx="1" fill="#1c5cab"/>
+</svg>

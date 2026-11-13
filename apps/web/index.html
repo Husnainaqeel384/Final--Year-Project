@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Budget Book — Open-source budget management for people and teams</title>
+    <meta
+      name="description"
+      content="Plan monthly budgets, track expenses, split bills and forecast spending. Free, open source and self-hostable, with Excel, Google Sheets, Slack and calendar integrations."
+    />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#1c5cab" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Budget Book" />
+    <meta property="og:title" content="Budget Book — Budget management for people and teams" />
+    <meta
+      property="og:description"
+      content="Budgets, expenses, bill splitting, forecasts and Excel, Slack and calendar integrations. Open source."
+    />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Budget Book — Budget management for people and teams" />
+    <meta
+      name="twitter:description"
+      content="Budgets, expenses, bill splitting, forecasts and integrations. Open source."
+    />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Budget Book",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "url": "%VITE_SITE_URL%/",
+        "license": "https://opensource.org/licenses/MIT",
+        "description": "Open-source budget management for individuals and organizations: monthly budgets, expense tracking, bill splitting, spending forecasts, and Excel, CSV, PDF, Google Sheets, calendar, Slack and webhook integrations.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Monthly budgets by category",
+          "Expense and transaction tracking",
+          "Bill splitting between group members",
+          "Month-end spending forecast",
+          "Personal and organization workspaces with roles",
+          "Excel and CSV import and export",
+          "PDF monthly reports",
+          "Google Sheets and calendar feeds",
+          "Slack, Discord and webhook notifications"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Budget Book free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Budget Book is open source under the MIT license and can be self-hosted at no cost." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can a team or company use Budget Book?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every account has a personal workspace and can create organizations, where members share budgets, expenses and transactions with owner, admin or member roles." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Budget Book work with Excel?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Transactions and expenses can be imported from Excel or CSV, and transactions, expenses and budgets can be exported to Excel or CSV. Monthly reports can be downloaded as PDF." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where is my financial data stored?",
+            "acceptedAnswer": { "@type": "Answer", "text": "In your own MySQL database. Budget Book is self-hosted and does not send your data to a third party unless you turn on an integration." }
+          }
+        ]
+      }
+    </script>
+
+    <!-- Runs before first paint so dark-mode users never see a white flash. -->
+    <script src="/theme-init.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <h1>Budget Book</h1>
+      <p>
+        Open-source budget management for individuals and organizations: monthly budgets, expense
+        tracking, bill splitting, forecasts and Excel, Slack and calendar integrations. Please enable
+        JavaScript to use the app.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

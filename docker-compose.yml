@@ -1,0 +1,70 @@
+# Runs the database, API and web app together:
+#   npm run setup   (creates .env with a unique JWT secret, first time only)
+#   docker compose up --build -d
+# The app is then at http://localhost:8080
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DOCKER_DB_NAME:-budget_book}
+      MYSQL_USER: ${DOCKER_DB_USER:-budget_book}
+      MYSQL_PASSWORD: ${DOCKER_DB_PASSWORD:-budget_book_local}
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    # No ports are published: only the API can reach the database.
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      APP_URL: ${DOCKER_APP_URL:-http://localhost:8080}
+      COOKIE_SECURE: ${DOCKER_COOKIE_SECURE:-false}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DOCKER_DB_USER:-budget_book}
+      DB_PASSWORD: ${DOCKER_DB_PASSWORD:-budget_book_local}
+      DB_NAME: ${DOCKER_DB_NAME:-budget_book}
+      RUN_MIGRATIONS_ON_START: 'true'
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+      JWT_SECRET: ${JWT_SECRET:?Run "npm run setup" first to create .env with a JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-Budget Book <no-reply@example.com>}
+    volumes:
+      - uploads:/app/apps/api/uploads
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_SITE_URL: ${DOCKER_APP_URL:-http://localhost:8080}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '${DOCKER_WEB_PORT:-8080}:8080'
+
+volumes:
+  db_data:
+  uploads:

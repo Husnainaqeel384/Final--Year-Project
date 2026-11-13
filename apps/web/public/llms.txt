@@ -1,0 +1,24 @@
+# Budget Book
+
+> Budget Book is a free, open-source (MIT) budget management web app for individuals and organizations. It is self-hosted on MySQL and built with React, Redux Toolkit, Express and Knex.
+
+## What it does
+
+- Monthly budgets split by category, with planned, spent and remaining amounts
+- Expense and transaction tracking with search and filters
+- Bill splitting between group members, with settlement history
+- Month-end spending forecast based on the current run rate and past months
+- Reminders and notes
+- Personal and organization workspaces with owner, admin and member roles
+
+## Integrations
+
+- Excel (.xlsx) and CSV import and export
+- PDF monthly reports
+- Google Sheets live feed through IMPORTDATA
+- Calendar feed (.ics) for Google Calendar, Outlook and Apple Calendar
+- Slack, Discord and generic webhook notifications, compatible with Zapier and Make
+
+## Links
+
+- Source code: https://github.com/Husnainaqeel384/Final--Year-Project
