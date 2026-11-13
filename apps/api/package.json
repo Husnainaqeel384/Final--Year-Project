@@ -13,6 +13,7 @@
     "test": "vitest run",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
+    "demo:reset": "node scripts/reset-demo.js",
     "admin:promote": "node scripts/promote-admin.js"
   },
   "dependencies": {

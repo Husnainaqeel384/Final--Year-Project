@@ -2,10 +2,13 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { env, isProduction } from '../config/env.js';
 import { requireAuth, SESSION_COOKIE } from '../middlewares/auth.js';
+import { blockDemoAccount } from '../middlewares/demo.js';
 import { validate } from '../middlewares/validate.js';
 import { avatarUpload } from '../middlewares/upload.js';
 import { authLimiter } from '../middlewares/rateLimit.js';
 import * as auth from '../services/auth.service.js';
+import { findDemoUser } from '../services/demo.service.js';
+import { AppError } from '../utils/errors.js';
 import { currency, email, password, requiredText } from '../utils/schemas.js';
 
 const router = Router();
@@ -61,6 +64,17 @@ router.post(
   },
 );
 
+// The one-click "Try the demo" sign-in. Without demo mode it doesn't exist.
+router.post('/demo', authLimiter, async (_req, res) => {
+  if (!env.DEMO_MODE) throw new AppError('Not found', 404);
+  const user = await findDemoUser();
+  setSessionCookie(res, user);
+  res.json({
+    success: true,
+    data: { user: auth.presentUser(user), organizations: await auth.listOrganizationsFor(user.id) },
+  });
+});
+
 router.post('/logout', (_req, res) => {
   res.clearCookie(SESSION_COOKIE, { path: '/' });
   res.json({ success: true });
@@ -91,6 +105,7 @@ router.get('/me', requireAuth, async (req, res) => {
 router.patch(
   '/me',
   requireAuth,
+  blockDemoAccount,
   validate({ body: z.object({ ...profile, currency }) }),
   async (req, res) => {
     const user = await auth.updateProfile(req.user, req.valid.body);
@@ -104,7 +119,7 @@ router.patch('/me/preferences', requireAuth, validate({ body: z.object({ currenc
   res.json({ success: true, data: auth.presentUser(user) });
 });
 
-router.post('/me/avatar', requireAuth, avatarUpload, async (req, res) => {
+router.post('/me/avatar', requireAuth, blockDemoAccount, avatarUpload, async (req, res) => {
   const user = await auth.saveAvatar(req.user, req.file);
   res.json({ success: true, data: auth.presentUser(user) });
 });
@@ -112,6 +127,7 @@ router.post('/me/avatar', requireAuth, avatarUpload, async (req, res) => {
 router.post(
   '/me/password',
   requireAuth,
+  blockDemoAccount,
   authLimiter,
   validate({ body: z.object({ currentPassword: z.string().min(1), newPassword: password }) }),
   async (req, res) => {

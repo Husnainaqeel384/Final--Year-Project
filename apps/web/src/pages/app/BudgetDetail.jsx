@@ -357,6 +357,8 @@ function BudgetDetail() {
               <dl className="divide-line flex divide-x text-sm">
                 {[
                   ['Income', budget.income],
+                  // Money in from received transactions linked to this budget.
+                  ['Received', budget.incomeReceived],
                   ['Savings goal', budget.savingsGoal],
                 ].map(([label, value]) => (
                   <div key={label} className="px-5 first:pl-0 last:pr-0">

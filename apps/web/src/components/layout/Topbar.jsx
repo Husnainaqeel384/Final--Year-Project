@@ -9,6 +9,7 @@ import { setSidebarOpen, toggleTheme } from '../../redux/features/uiSlice';
 import { useDismiss } from '../../hooks/useDismiss';
 import { IconButton } from '../ui/Button';
 import CurrencyMenu from './CurrencyMenu';
+import NotificationMenu from './NotificationMenu';
 import { menuClass, menuItemClass } from './menuStyles';
 
 
@@ -146,6 +147,7 @@ function Topbar() {
       </div>
       <div className="flex items-center gap-2 sm:gap-3">
         <CurrencyMenu />
+        <NotificationMenu />
         <IconButton
           label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={() => dispatch(toggleTheme())}

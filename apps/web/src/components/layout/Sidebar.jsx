@@ -15,6 +15,7 @@ import {
   LuWallet,
 } from 'react-icons/lu';
 import { setSidebarOpen } from '../../redux/features/uiSlice';
+import { FEATURES } from '../../config/features';
 import { Brand } from './Brand';
 
 const SECTIONS = [
@@ -31,7 +32,7 @@ const SECTIONS = [
       { label: 'Budgets', to: '/app/budgets', icon: LuWallet },
       { label: 'Expenses', to: '/app/expenses', icon: LuReceipt },
       { label: 'Transactions', to: '/app/transactions', icon: LuArrowLeftRight },
-      { label: 'Split bills', to: '/app/splits', icon: LuSplit },
+      ...(FEATURES.splitBills ? [{ label: 'Split bills', to: '/app/splits', icon: LuSplit }] : []),
     ],
   },
   {

@@ -86,9 +86,16 @@
     @apply bg-page text-ink font-sans antialiased;
   }
 
-  :focus-visible {
+  /* Keyboard outline for buttons and links only: the owner wants form fields to look the same when focused. */
+  :focus-visible:not(input, select, textarea) {
     outline: 2px solid var(--accent-text);
     outline-offset: 2px;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
   }
 
   dialog::backdrop {

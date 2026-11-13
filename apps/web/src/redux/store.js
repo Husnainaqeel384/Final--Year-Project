@@ -15,6 +15,7 @@ import splitReducer from './features/splitSlice';
 import organizationReducer from './features/organizationSlice';
 import adminReducer from './features/adminSlice';
 import integrationReducer from './features/integrationSlice';
+import notificationReducer from './features/notificationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -33,5 +34,6 @@ export const store = configureStore({
     organization: organizationReducer,
     admin: adminReducer,
     integration: integrationReducer,
+    notification: notificationReducer,
   },
 });

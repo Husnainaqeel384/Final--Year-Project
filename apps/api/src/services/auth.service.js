@@ -8,6 +8,7 @@ import { logger } from '../config/logger.js';
 import { db } from '../db/knex.js';
 import { AppError } from '../utils/errors.js';
 import { createOpaqueToken, hashToken } from '../utils/tokens.js';
+import { isDemoAccount } from './demo.service.js';
 import { actionEmail, sendMail } from './mail.service.js';
 
 const BCRYPT_COST = 12;
@@ -28,6 +29,8 @@ export function presentUser(user) {
     role: user.role,
     currency: user.currency,
     avatarUrl: user.avatar ? `/uploads/${user.avatar}` : null,
+    // Lets the web app explain why account settings are locked.
+    isDemo: isDemoAccount(user),
   };
 }
 
@@ -132,7 +135,8 @@ export async function changePassword(user, { currentPassword, newPassword }) {
 export async function requestPasswordReset(email) {
   const user = await db('users').where({ email }).first();
   // The caller responds identically either way, so this can't be used to discover accounts.
-  if (!user) return;
+  // Demo addresses are fictional, and anyone can ask, so no email is sent for them.
+  if (!user || isDemoAccount(user)) return;
 
   const { token, hash } = createOpaqueToken();
   await db('password_reset_tokens').insert({

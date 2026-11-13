@@ -6,6 +6,7 @@ import {
   LuArrowDownRight,
   LuArrowUpRight,
   LuBell,
+  LuCheck,
   LuCircleCheck,
   LuClock,
   LuPlus,
@@ -28,7 +29,8 @@ import {
 import { Card, CardHeader } from '../../components/ui/Card';
 import { Badge, EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback';
 import { BudgetStatusLabel, Meter } from '../../components/ui/Meter';
-import { buttonClass } from '../../components/ui/Button';
+import { IconButton, buttonClass } from '../../components/ui/Button';
+import MarkPaidDialog from '../../components/reminders/MarkPaidDialog';
 import { CashFlowChart } from '../../components/charts/Charts';
 import { Sparkline } from '../../components/charts/Sparkline';
 import { CategoryBreakdown } from '../../components/charts/CategoryBreakdown';
@@ -184,7 +186,7 @@ function TransactionRow({ item, currency }) {
   );
 }
 
-function ReminderRow({ item }) {
+function ReminderRow({ item, currency, onPay }) {
   const days = daysUntil(item.dueDate);
   const tone = days < 0 ? 'critical' : days <= 3 ? 'warning' : 'neutral';
   return (
@@ -194,10 +196,62 @@ function ReminderRow({ item }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{item.title}</p>
-        <p className="text-ink-3 text-xs">{formatDate(item.dueDate)}</p>
+        <p className="text-ink-3 text-xs">
+          {formatDate(item.dueDate)}
+          {item.amount ? ` · ${formatMoney(item.amount, currency)}` : ''}
+        </p>
       </div>
       <Badge tone={tone}>{describeDue(item.dueDate)}</Badge>
+      <IconButton label={`Mark ${item.title} as done`} onClick={() => onPay(item)}>
+        <LuCheck className="size-4" />
+      </IconButton>
     </li>
+  );
+}
+
+const sentence = (item) => {
+  const days = daysUntil(item.dueDate);
+  if (days < 0) return `${item.title} is ${describeDue(item.dueDate).toLowerCase()}`;
+  return `${item.title} is due ${describeDue(item.dueDate).toLowerCase()}`;
+};
+
+/**
+ * Only for what can't wait: overdue, or due today or tomorrow. Anything further
+ * out stays in the bell and the reminders card, so the strip keeps its weight.
+ */
+function AlertStrip({ items, onPay }) {
+  const urgent = items.filter((item) => daysUntil(item.dueDate) <= 1);
+  if (urgent.length === 0) return null;
+
+  const overdue = urgent.some((item) => daysUntil(item.dueDate) < 0);
+  const shown = urgent.slice(0, 3).map(sentence);
+  const rest = urgent.length - shown.length;
+  return (
+    <section
+      aria-label="Reminders that need attention"
+      className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl px-4 py-3 ${overdue ? 'bg-critical-soft' : 'bg-warning-soft'}`}
+    >
+      <LuTriangleAlert className={`size-5 shrink-0 ${overdue ? 'text-critical' : 'text-warning'}`} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">
+          {urgent.length} {urgent.length === 1 ? 'reminder needs' : 'reminders need'} attention
+        </p>
+        <p className="text-ink-2 text-sm">
+          {shown.join(' · ')}
+          {rest > 0 && ` · and ${rest} more`}
+        </p>
+      </div>
+      <div className="flex shrink-0 gap-2">
+        {urgent.length === 1 && (
+          <button type="button" onClick={() => onPay(urgent[0])} className={buttonClass('primary', 'sm')}>
+            <LuCheck className="size-4" aria-hidden="true" /> {urgent[0].amount ? 'Mark paid' : 'Mark done'}
+          </button>
+        )}
+        <Link to="/app/reminders" className={buttonClass('secondary', 'sm')}>
+          Review
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -217,8 +271,10 @@ function Dashboard() {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.dashboard);
   const firstName = useSelector((state) => state.auth.user?.firstName);
+  const { items: alerts, version } = useSelector((state) => state.notification);
   const { activeId, organization, currency, canManage } = useWorkspace();
   const [month, setMonth] = useState(currentMonth());
+  const [paying, setPaying] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -228,8 +284,9 @@ function Dashboard() {
       dispatch(setError(getErrorMessage(err)));
     }
     // activeId: the workspace header changes the response, so a switch must refetch.
+    // version: a reminder paid from here or the bell changes the totals and the list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, month, activeId]);
+  }, [dispatch, month, activeId, version]);
 
   useEffect(() => {
     load();
@@ -297,6 +354,8 @@ function Dashboard() {
       {header}
       {/* Previous numbers stay visible while refetching so the layout never jumps. */}
       <div className={`space-y-4 transition-opacity ${loading ? 'opacity-60' : ''}`}>
+        <AlertStrip items={alerts} onPay={setPaying} />
+
         {!data.hasBudget && (
           <Card>
             <EmptyState
@@ -416,7 +475,7 @@ function Dashboard() {
               ) : (
                 <ul className="space-y-3.5">
                   {reminders.map((item) => (
-                    <ReminderRow key={item.id} item={item} />
+                    <ReminderRow key={item.id} item={item} currency={currency} onPay={setPaying} />
                   ))}
                 </ul>
               )}
@@ -424,6 +483,8 @@ function Dashboard() {
           </Card>
         </div>
       </div>
+
+      <MarkPaidDialog reminder={paying} onClose={() => setPaying(null)} />
     </>
   );
 }

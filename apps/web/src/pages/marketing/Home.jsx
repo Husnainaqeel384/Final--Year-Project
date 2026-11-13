@@ -1,3 +1,4 @@
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   LuBell,
@@ -14,12 +15,16 @@ import {
 } from 'react-icons/lu';
 import { buttonClass } from '../../components/ui/Button';
 import { GITHUB_URL, MarketingLayout } from '../../components/layout/MarketingLayout';
+import { DemoButton } from '../../components/auth/DemoButton';
+import { DEMO_MODE, FEATURES as FLAGS } from '../../config/features';
 
 const FEATURES = [
   { icon: LuWallet, title: 'Monthly budgets', text: 'Set income and savings goals, then plan every category before the month starts.' },
   { icon: LuReceipt, title: 'Expense tracking', text: 'Log spending in seconds and see what is left in each category as you go.' },
   { icon: LuChartLine, title: 'Spending forecast', text: 'Projects your month-end total from your pace so far, so you can adjust in time.' },
-  { icon: LuSplit, title: 'Bill splitting', text: 'Split shared costs with a group and keep a clear history of who settled what.' },
+  ...(FLAGS.splitBills
+    ? [{ icon: LuSplit, title: 'Bill splitting', text: 'Split shared costs with a group and keep a clear history of who settled what.' }]
+    : []),
   { icon: LuBell, title: 'Reminders and notes', text: 'Keep bill due dates and money notes next to the numbers they relate to.' },
   { icon: LuBuilding2, title: 'Teams and organizations', text: 'Share budgets with your team using owner, admin and member roles.' },
 ];
@@ -40,10 +45,13 @@ const FAQ = [
 ];
 
 function Home() {
+  const signedIn = useSelector((state) => Boolean(state.auth.user));
+  const showDemo = DEMO_MODE && !signedIn;
+
   return (
     <MarketingLayout
       title="Budget Book — Open-source budget management for people and teams"
-      description="Plan monthly budgets, track expenses, split bills and forecast spending. Free, open source and self-hostable, with Excel, Google Sheets, Slack and calendar integrations."
+      description="Plan monthly budgets, track expenses, get bill reminders and forecast spending. Free, open source and self-hostable, with Excel, Google Sheets, Slack and calendar integrations."
       path="/"
     >
       <section className="mx-auto max-w-6xl px-4 pt-16 pb-10 text-center sm:px-6 sm:pt-24">
@@ -52,11 +60,12 @@ function Home() {
           Know where your money goes before the month ends
         </h1>
         <p className="text-ink-2 mx-auto mt-5 max-w-xl text-lg text-pretty">
-          Budget Book brings budgets, expenses, shared bills and forecasts together, for you or your
+          Budget Book brings budgets, expenses, bill reminders and forecasts together, for you or your
           whole team.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/register" className={buttonClass('primary')}>
+          {showDemo && <DemoButton />}
+          <Link to="/register" className={buttonClass(showDemo ? 'secondary' : 'primary')}>
             Create a free account
           </Link>
           <a href={GITHUB_URL} target="_blank" rel="noreferrer" className={buttonClass('secondary')}>

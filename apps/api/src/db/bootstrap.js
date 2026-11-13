@@ -26,5 +26,6 @@ export async function migrate() {
 
 export async function bootstrapDatabase() {
   if (env.RUN_MIGRATIONS_ON_START) await migrate();
-  if (env.SEED_DEMO_DATA) await seedDemoData();
+  // A demo site is useless without its demo accounts.
+  if (env.SEED_DEMO_DATA || env.DEMO_MODE) await seedDemoData();
 }

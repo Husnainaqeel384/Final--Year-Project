@@ -25,3 +25,6 @@ export const password = z
 
 export const email = z.email('Enter a valid email address').max(255).toLowerCase();
 export const requiredText = (max) => z.string().trim().min(1, 'This field is required').max(max);
+
+// An empty query value (?search=) means "no filter", not an invalid value.
+export const optional = (schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional());

@@ -1,7 +1,7 @@
 import { useId } from 'react';
 
 const controlClass =
-  'border-line bg-surface text-ink placeholder:text-ink-3 focus:border-accent-text w-full rounded-lg border px-3 py-2 text-sm transition-colors outline-none';
+  'border-line bg-surface text-ink placeholder:text-ink-3 w-full rounded-lg border px-3 py-2 text-sm transition-colors outline-none';
 
 function FieldShell({ id, label, hint, children }) {
   return (

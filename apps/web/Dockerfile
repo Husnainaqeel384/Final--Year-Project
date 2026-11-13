@@ -11,6 +11,9 @@ COPY apps/web ./apps/web
 # Baked into canonical links and the sitemap at build time.
 ARG VITE_SITE_URL=http://localhost:8080
 ENV VITE_SITE_URL=$VITE_SITE_URL
+# true on the public demo site: shows the one-click demo sign-in.
+ARG VITE_DEMO_MODE=false
+ENV VITE_DEMO_MODE=$VITE_DEMO_MODE
 RUN npm run build --workspace @budget-book/web
 
 FROM nginxinc/nginx-unprivileged:stable-alpine

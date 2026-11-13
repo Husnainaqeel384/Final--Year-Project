@@ -23,6 +23,8 @@ const schema = z.object({
   DB_NAME: z.string().regex(/^[A-Za-z0-9_]+$/, 'may only contain letters, numbers and underscores').default('budget_book'),
   RUN_MIGRATIONS_ON_START: booleanString.default(true),
   SEED_DEMO_DATA: booleanString.default(false),
+  // A public demo: one-click demo sign-in, locked demo accounts and a nightly reset.
+  DEMO_MODE: booleanString.default(false),
 
   JWT_SECRET: z.string().min(32, 'must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('7d'),

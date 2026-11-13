@@ -5,6 +5,12 @@ export async function login(credentials) {
   return res.data.data;
 }
 
+/** Signs in to the shared demo account. Only available on the demo site. */
+export async function loginDemo() {
+  const res = await client.post('/auth/demo');
+  return res.data.data;
+}
+
 export async function register(details) {
   const res = await client.post('/auth/register', details);
   return res.data;

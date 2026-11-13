@@ -5,6 +5,10 @@ const transactionSlice = createSlice({
   initialState: {
     items: [],
     total: 0,
+    // Money in, out and pending for the current filters (any type), plus net.
+    totals: { received: 0, sent: 0, pending: 0, net: 0 },
+    counts: { received: 0, sent: 0, pending: 0 },
+    loaded: false,
     loading: false,
     error: null,
   },
@@ -16,6 +20,9 @@ const transactionSlice = createSlice({
     setTransactions: (state, action) => {
       state.items = action.payload.items;
       state.total = action.payload.total;
+      state.totals = action.payload.totals;
+      state.counts = action.payload.counts;
+      state.loaded = true;
       state.loading = false;
     },
     setError: (state, action) => {

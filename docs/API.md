@@ -39,6 +39,7 @@ Months use `YYYY-MM` and dates use `YYYY-MM-DD`.
 | --- | --- | --- | --- |
 | POST | `/auth/register` | `firstName, lastName, username, email, password` | Public |
 | POST | `/auth/login` | `email, password` | Public. Sets the session cookie |
+| POST | `/auth/demo` | | Public. Signs in to the demo account. Only exists when `DEMO_MODE` is on |
 | POST | `/auth/logout` | | Public |
 | POST | `/auth/forgot-password` | `email` | Public. The response is the same whether or not the account exists |
 | POST | `/auth/reset-password` | `token, password` | Public |
@@ -91,16 +92,23 @@ A month can hold several named budgets, for example "Household" and "Vacation". 
 
 | Method | Path | Body |
 | --- | --- | --- |
-| GET | `/reminders` | |
-| POST | `/reminders` | `title, dueDate` |
-| PATCH | `/reminders/:id` | Any of `title, dueDate, status` |
+| GET | `/reminders` | Query: `status` (`open` or `done`), `search`, `today`, `page`, `limit`. Returns the page, counts and summary figures |
+| GET | `/reminders/alerts` | Query: `today`. Open reminders overdue or due within 3 days, with counts |
+| POST | `/reminders` | `title, dueDate`, optional `amount, categoryName, frequency, note` |
+| PATCH | `/reminders/:id` | Any of the create fields |
+| POST | `/reminders/:id/complete` | `completedOn`, optional `payment: { amount, paidTo, method, budgetId, categoryName }` |
+| POST | `/reminders/:id/reopen` | |
 | DELETE | `/reminders/:id` | |
 | GET | `/notes` | |
 | POST | `/notes` | `body` |
 | PATCH | `/notes/:id` | `body` |
 | DELETE | `/notes/:id` | |
 
+`frequency` is `none`, `weekly`, `monthly` or `yearly`. Completing a repeating reminder opens the next one. A `payment` is saved as a `sent` transaction, so with a budget and category it counts as an expense there. `today` is the caller's local date, so "overdue" follows the user's calendar rather than the server's time zone.
+
 ## Bill splitting
+
+Hidden in the web app for now (`FEATURES.splitBills` in `apps/web/src/config/features.js`); the endpoints still work.
 
 Splits belong to people, so these endpoints ignore `X-Organization-Id`.
 

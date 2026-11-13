@@ -9,6 +9,7 @@ import { setOrganizations } from './redux/features/workspaceSlice';
 import { PageLoader } from './components/ui/Feedback';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import AppShell from './components/layout/AppShell';
+import { FEATURES } from './config/features';
 
 // Pages are split so visitors to the landing page do not download the whole dashboard.
 const Home = lazy(() => import('./pages/marketing/Home'));
@@ -104,8 +105,8 @@ function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="reminders" element={<Reminders />} />
             <Route path="notes" element={<Notes />} />
-            <Route path="splits" element={<Splits />} />
-            <Route path="splits/:id" element={<SplitGroup />} />
+            {FEATURES.splitBills && <Route path="splits" element={<Splits />} />}
+            {FEATURES.splitBills && <Route path="splits/:id" element={<SplitGroup />} />}
             <Route path="integrations" element={<Integrations />} />
             <Route path="organization" element={<Organization />} />
             <Route path="profile" element={<Profile />} />

@@ -2,11 +2,14 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { db } from '../db/knex.js';
 import { requireAdmin } from '../middlewares/auth.js';
+import { blockDemoWrites } from '../middlewares/demo.js';
 import { validate } from '../middlewares/validate.js';
 import { notFound } from '../utils/errors.js';
 import { idParam, requiredText } from '../utils/schemas.js';
 
 const router = Router();
+// Categories are shared by every account, so the demo admin may only look.
+router.use(blockDemoWrites);
 
 const nameBody = z.object({ name: requiredText(100) });
 

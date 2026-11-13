@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSidebarOpen } from '../../redux/features/uiSlice';
 import { PageLoader } from '../ui/Feedback';
+import DemoBanner from './DemoBanner';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
@@ -26,6 +27,7 @@ function AppShell() {
 
       <Topbar />
       <main className="max-w-[1920px] p-4 sm:p-6 lg:p-8">
+        <DemoBanner />
         {/* Local boundary keeps the sidebar and top bar in place while a page loads. */}
         <Suspense fallback={<PageLoader />}>
           <Outlet />

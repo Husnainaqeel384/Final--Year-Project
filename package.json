@@ -24,6 +24,7 @@
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run db:migrate -w @budget-book/api",
     "db:seed": "npm run db:seed -w @budget-book/api",
+    "demo:reset": "npm run demo:reset -w @budget-book/api",
     "admin:promote": "npm run admin:promote -w @budget-book/api --",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",

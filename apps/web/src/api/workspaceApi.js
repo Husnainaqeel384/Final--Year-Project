@@ -2,10 +2,13 @@ import { client } from './client';
 
 const data = (res) => res.data.data;
 
-export const fetchReminders = () => client.get('/reminders').then(data);
+export const fetchReminders = (params) => client.get('/reminders', { params }).then(data);
 export const createReminder = (reminder) => client.post('/reminders', reminder).then(data);
 export const updateReminder = (id, reminder) =>
   client.patch(`/reminders/${id}`, reminder).then(data);
+export const completeReminder = (id, body) => client.post(`/reminders/${id}/complete`, body).then(data);
+export const fetchReminderAlerts = (params) => client.get('/reminders/alerts', { params }).then(data);
+export const reopenReminder = (id) => client.post(`/reminders/${id}/reopen`).then(data);
 export const deleteReminder = (id) => client.delete(`/reminders/${id}`);
 
 export const fetchNotes = () => client.get('/notes').then(data);

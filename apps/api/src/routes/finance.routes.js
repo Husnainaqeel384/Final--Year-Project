@@ -8,7 +8,7 @@ import * as transactions from '../services/transaction.service.js';
 import { getDashboard } from '../services/dashboard.service.js';
 import { getReport, listReportMonths } from '../services/report.service.js';
 import { currentMonth } from '../utils/months.js';
-import { amount, dateOnly, idParam, month, nonNegativeAmount, requiredText } from '../utils/schemas.js';
+import { amount, dateOnly, idParam, month, nonNegativeAmount, optional, requiredText } from '../utils/schemas.js';
 
 const router = Router();
 router.use(resolveWorkspace);
@@ -109,9 +109,6 @@ const expenseBody = z.object({
   budgetId: z.number().int().positive().nullable().optional(),
 });
 
-// An empty query value (?search=) means "no filter", not an invalid value.
-const optional = (schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
-
 const expenseQuery = z.object({
   month: optional(month),
   budget: optional(z.union([z.literal('none'), z.coerce.number().int().positive()])),
@@ -158,13 +155,18 @@ const transactionBody = z.object({
   receiver: requiredText(100),
   method: requiredText(60),
   description: z.string().trim().max(255).default(''),
+  // Optional budget link: "sent" with a category becomes an expense, "received" counts as income.
+  budgetId: z.number().int().positive().nullable().optional(),
+  categoryName: z.string().trim().max(100).nullable().optional(),
 });
 
 const transactionQuery = z.object({
-  search: z.string().trim().max(100).optional(),
-  type: z.preprocess((value) => value || undefined, z.enum(['sent', 'received', 'pending']).optional()),
+  month: optional(month),
+  search: optional(z.string().trim().max(100)),
+  type: optional(z.enum(['sent', 'received', 'pending'])),
+  budget: optional(z.union([z.literal('none'), z.coerce.number().int().positive()])),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  limit: z.coerce.number().int().positive().max(100).default(10),
 });
 
 router.get('/transactions', validate({ query: transactionQuery }), async (req, res) => {

@@ -9,6 +9,8 @@ import { setOrganizations } from '../../redux/features/workspaceSlice';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Input } from '../../components/ui/Field';
 import { Button } from '../../components/ui/Button';
+import { DemoButton } from '../../components/auth/DemoButton';
+import { DEMO_MODE } from '../../config/features';
 
 function Login() {
   const dispatch = useDispatch();
@@ -55,6 +57,18 @@ function Login() {
           Sign in
         </Button>
       </form>
+      {DEMO_MODE && (
+        <>
+          <div className="text-ink-3 my-4 flex items-center gap-3 text-xs">
+            <span className="bg-line h-px flex-1" />
+            or
+            <span className="bg-line h-px flex-1" />
+          </div>
+          <DemoButton variant="secondary" className="w-full">
+            Try the demo, no sign-up needed
+          </DemoButton>
+        </>
+      )}
     </AuthLayout>
   );
 }

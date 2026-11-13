@@ -4,6 +4,7 @@ import { dateToMonth, monthToDate, shiftMonth } from '../utils/months.js';
 import { applyScope } from '../utils/scope.js';
 import { categorySpendRows } from './budget.service.js';
 import { monthSummary } from './report.service.js';
+import { presentReminder } from './reminder.service.js';
 import { presentTransaction } from './transaction.service.js';
 
 const TREND_MONTHS = 12;
@@ -94,7 +95,7 @@ export async function getDashboard(workspace, month) {
     }),
     trend,
     categories,
-    reminders: reminders.map((row) => ({ id: row.id, title: row.title, dueDate: row.due_date })),
+    reminders: reminders.map(presentReminder),
     transactions: transactions.map(presentTransaction),
   };
 }

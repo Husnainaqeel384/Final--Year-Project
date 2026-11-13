@@ -1,6 +1,6 @@
 # Budget Book
 
-Open-source budget management for individuals and teams. Plan monthly budgets, track spending, split bills, see where the month is heading, and connect it to Excel, Google Sheets, Slack and your calendar.
+Open-source budget management for individuals and teams. Plan monthly budgets, track spending, get bill reminders, see where the month is heading, and connect it to Excel, Google Sheets, Slack and your calendar.
 
 ![Budget Book dashboard](docs/screenshots/dashboard.png)
 
@@ -12,9 +12,8 @@ Open-source budget management for individuals and teams. Plan monthly budgets, t
 | **Expenses and transactions** | Fast entry, search, filters and pagination |
 | **Dashboard** | Money left to spend, 12-month income and spending trend, category ranking and a watch list of categories near their limit |
 | **Forecasting** | Projected month-end spending from your current pace, and a next-month estimate from recent months |
-| **Bill splitting** | Groups, equal or "I paid" splits accurate to the cent, settlements and history |
 | **Reports** | Month-by-month comparison, with Excel and PDF downloads |
-| **Reminders and notes** | Due dates and notes alongside your numbers |
+| **Reminders and notes** | Bills with amounts and weekly, monthly or yearly repeats. Overdue and upcoming bills show in a top-bar bell and on the dashboard. Marking one paid can record the payment in a budget. Notes sit alongside your numbers |
 | **Organizations** | Personal and shared workspaces, with owner, admin and member roles and email invitations |
 | **Currencies** | 20 currencies, switched from the top bar for you or for each organization |
 | **Administration** | User management and a shared category list |
@@ -160,6 +159,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 ## Documentation
 
 - [API reference](docs/API.md)
+- [Deployment and the public demo](docs/DEPLOYMENT.md)
 - [Contributing guide](CONTRIBUTING.md)
 
 ## License

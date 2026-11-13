@@ -90,7 +90,7 @@ export async function listBudgets(workspace, { month, year } = {}) {
 
 export async function getBudget(workspace, id) {
   const budget = await getOwnedBudget(workspace, id);
-  const [items, spendRows, recent] = await Promise.all([
+  const [items, spendRows, recent, received] = await Promise.all([
     db('budget_items').where({ budget_id: budget.id }).orderBy('category_name'),
     db('expenses')
       .where({ budget_id: budget.id })
@@ -100,6 +100,10 @@ export async function getBudget(workspace, id) {
       .where({ budget_id: budget.id })
       .orderBy([{ column: 'spent_on', order: 'desc' }, { column: 'id', order: 'desc' }])
       .limit(6),
+    // Money in from "received" transactions linked to this budget.
+    db('transactions')
+      .where({ budget_id: budget.id, type: 'received' })
+      .first(db.raw('COALESCE(SUM(amount), 0) as total'), db.raw('COUNT(*) as count')),
   ]);
   const spending = new Map(spendRows.map((row) => [row.category_name, row.total]));
   const planNames = new Set(items.map((item) => item.category_name));
@@ -110,6 +114,8 @@ export async function getBudget(workspace, id) {
     name: budget.name,
     month: dateToMonth(budget.month),
     income: budget.income,
+    incomeReceived: received.total,
+    incomeReceivedCount: received.count,
     savingsGoal: budget.savings_goal,
     planned: round(presented.reduce((sum, item) => sum + item.amount, 0)),
     spent: round(spendRows.reduce((sum, row) => sum + row.total, 0)),
@@ -120,6 +126,7 @@ export async function getBudget(workspace, id) {
       .map((row) => ({ categoryName: row.category_name, spent: row.total })),
     recentExpenses: recent.map((row) => ({
       id: row.id,
+      transactionId: row.transaction_id ?? null,
       categoryName: row.category_name,
       amount: row.amount,
       description: row.description,

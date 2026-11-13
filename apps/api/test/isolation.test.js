@@ -67,6 +67,8 @@ describe('account isolation', () => {
       ['patch', `/transactions/${ids.transaction}`, { type: 'sent', date: `${month}-01`, amount: 1, sender: 'X', receiver: 'Y', method: 'Z' }],
       ['delete', `/transactions/${ids.transaction}`],
       ['patch', `/reminders/${ids.reminder}`, { title: 'Hacked' }],
+      ['post', `/reminders/${ids.reminder}/complete`, { completedOn: `${month}-20` }],
+      ['post', `/reminders/${ids.reminder}/reopen`],
       ['delete', `/reminders/${ids.reminder}`],
       ['patch', `/notes/${ids.note}`, { body: 'Hacked' }],
       ['delete', `/notes/${ids.note}`],
@@ -86,7 +88,8 @@ describe('account isolation', () => {
     ]);
     expect(budgets.body.data).toEqual([]);
     expect(transactions.body.data.total).toBe(0);
-    expect(reminders.body.data).toEqual([]);
+    expect(reminders.body.data.items).toEqual([]);
+    expect(reminders.body.data.counts).toEqual({ open: 0, done: 0 });
     expect(notes.body.data).toEqual([]);
     expect(expenses.body.data.items).toEqual([]);
   });
@@ -230,13 +233,22 @@ describe('expense summary', () => {
   });
 
   it('shows each category once, with its total, count and limit', async () => {
-    const { body } = await owner.agent.get(`${API}/expenses/summary?month=${month}&limit=3`).expect(200);
+    const { body } = await owner.agent.get(`${API}/expenses/summary?month=${month}&limit=20`).expect(200);
     const fuel = body.data.categories.items.find((item) => item.categoryName === 'Fuel');
     expect(fuel).toMatchObject({ total: 50, count: 2, planned: 100, lastSpentOn: `${month}-09` });
     const names = body.data.categories.items.map((item) => item.categoryName);
     expect(new Set(names).size).toBe(names.length);
     expect(body.data.categories.total).toBe(13);
     expect(body.data.totals).toMatchObject({ spent: 131, count: 14, monthSpent: 131 });
+  });
+
+  it('lists the category with the latest expense first', async () => {
+    const { body } = await owner.agent.get(`${API}/expenses/summary?month=${month}&limit=20`).expect(200);
+    const names = body.data.categories.items.map((item) => item.categoryName);
+    // Day 10 is the latest date, and "Category 11" was the last one added that day.
+    expect(names[0]).toBe('Category 11');
+    // Fuel and Car wash both last spent on day 9; the Car wash expense was added after Fuel's.
+    expect(names.slice(-2)).toEqual(['Car wash', 'Fuel']);
   });
 
   it('pages through categories and expenses', async () => {
@@ -259,6 +271,178 @@ describe('expense summary', () => {
     const { body } = await stranger.agent.get(`${API}/expenses/summary?month=${month}`).expect(200);
     expect(body.data.totals.count).toBe(0);
     expect(body.data.categories.items).toEqual([]);
+  });
+});
+
+describe('transactions linked to budgets', () => {
+  let owner;
+  let stranger;
+  let budgetId;
+  const month = '2026-08';
+  const payment = (overrides = {}) => ({
+    type: 'sent',
+    date: `${month}-05`,
+    amount: 40,
+    sender: 'Me',
+    receiver: 'City Utilities',
+    method: 'Bank',
+    budgetId,
+    categoryName: 'Electricity',
+    ...overrides,
+  });
+  const budget = () => owner.agent.get(`${API}/budgets/${budgetId}`).expect(200).then((res) => res.body.data);
+
+  beforeAll(async () => {
+    owner = await createAccount();
+    stranger = await createAccount();
+    budgetId = (await owner.agent.post(`${API}/budgets`).send({ name: 'Home', month, income: 1000, savingsGoal: 0 }).expect(201)).body.data.id;
+    await owner.agent.post(`${API}/budgets/${budgetId}/items`).send({ items: [{ categoryName: 'Electricity', amount: 100 }] }).expect(201);
+  });
+
+  it('turns a sent payment into an expense and keeps it in step', async () => {
+    const { body } = await owner.agent.post(`${API}/transactions`).send(payment()).expect(201);
+    const id = body.data.id;
+    expect(body.data).toMatchObject({ budgetId, budgetName: 'Home', categoryName: 'Electricity' });
+    expect((await budget()).items[0].spent).toBe(40);
+
+    await owner.agent.patch(`${API}/transactions/${id}`).send(payment({ amount: 55 })).expect(200);
+    expect((await budget()).items[0].spent).toBe(55);
+
+    const expenses = await owner.agent.get(`${API}/expenses?month=${month}`).expect(200);
+    const mirrored = expenses.body.data.items.find((expense) => expense.transactionId === id);
+    expect(mirrored).toMatchObject({ amount: 55, description: 'Paid to City Utilities' });
+    // The mirror can only be changed through its transaction.
+    await owner.agent.delete(`${API}/expenses/${mirrored.id}`).expect(409);
+
+    await owner.agent.delete(`${API}/transactions/${id}`).expect(200);
+    expect((await budget()).items[0].spent).toBe(0);
+  });
+
+  it('counts pending only once it is sent, and received as income', async () => {
+    const pending = (await owner.agent.post(`${API}/transactions`).send(payment({ type: 'pending' })).expect(201)).body.data;
+    expect((await budget()).spent).toBe(0);
+    await owner.agent.patch(`${API}/transactions/${pending.id}`).send(payment()).expect(200);
+    expect((await budget()).spent).toBe(40);
+
+    await owner.agent.post(`${API}/transactions`).send(payment({ type: 'received', amount: 900, categoryName: null })).expect(201);
+    const detail = await budget();
+    expect(detail.incomeReceived).toBe(900);
+    expect(detail.spent).toBe(40);
+  });
+
+  it('needs a category for money out, and a budget in the same month', async () => {
+    await owner.agent.post(`${API}/transactions`).send(payment({ categoryName: null })).expect(400);
+    await owner.agent.post(`${API}/transactions`).send(payment({ date: '2026-09-01' })).expect(400);
+  });
+
+  it("refuses another account's budget", async () => {
+    await stranger.agent.post(`${API}/transactions`).send(payment()).expect(404);
+  });
+
+  it('filters by month and budget, with money in and out totals', async () => {
+    const { body } = await owner.agent.get(`${API}/transactions?month=${month}&budget=${budgetId}`).expect(200);
+    expect(body.data.totals).toMatchObject({ received: 900, sent: 40 });
+    expect(body.data.totals.net).toBe(860);
+    const sentOnly = await owner.agent.get(`${API}/transactions?month=${month}&type=sent`).expect(200);
+    expect(sentOnly.body.data.items.every((item) => item.type === 'sent')).toBe(true);
+    // Totals ignore the type filter so both figures stay visible.
+    expect(sentOnly.body.data.totals.received).toBe(900);
+  });
+});
+
+describe('reminders', () => {
+  let owner;
+  let stranger;
+  let budgetId;
+  const month = '2026-10';
+  const today = `${month}-10`;
+  const list = (query = '') =>
+    owner.agent.get(`${API}/reminders?today=${today}${query}`).expect(200).then((res) => res.body.data);
+  const add = (body) => owner.agent.post(`${API}/reminders`).send(body).expect(201).then((res) => res.body.data);
+
+  beforeAll(async () => {
+    owner = await createAccount();
+    stranger = await createAccount();
+    budgetId = (await owner.agent.post(`${API}/budgets`).send({ name: 'Home', month, income: 2000, savingsGoal: 0 }).expect(201)).body.data.id;
+    await owner.agent.post(`${API}/budgets/${budgetId}/items`).send({ items: [{ categoryName: 'Internet', amount: 50 }] }).expect(201);
+  });
+
+  it('saves bill details and sums what is overdue and coming up', async () => {
+    const internet = await add({ title: 'Internet', dueDate: `${month}-08`, amount: 45, categoryName: 'Internet', frequency: 'monthly', note: 'Fiber plan' });
+    expect(internet).toMatchObject({ amount: 45, categoryName: 'Internet', frequency: 'monthly', note: 'Fiber plan', status: 'pending' });
+    await add({ title: 'Water', dueDate: `${month}-12`, amount: 30 });
+    await add({ title: 'Passport', dueDate: '2026-12-01' });
+
+    const data = await list();
+    expect(data.items.map((item) => item.title)).toEqual(['Internet', 'Water', 'Passport']);
+    expect(data.summary.overdue).toEqual({ count: 1, amount: 45 });
+    expect(data.summary.week).toEqual({ count: 1, amount: 30 });
+    expect(data.counts).toEqual({ open: 3, done: 0 });
+    expect((await list('&search=fiber')).items.map((item) => item.title)).toEqual(['Internet']);
+  });
+
+  it('records the payment in a budget and opens next month', async () => {
+    const internet = (await list('&search=Internet')).items[0];
+    const { body } = await owner.agent
+      .post(`${API}/reminders/${internet.id}/complete`)
+      .send({ completedOn: today, payment: { amount: 47.5, paidTo: 'FiberNet', method: 'Card', budgetId, categoryName: 'Internet' } })
+      .expect(200);
+
+    expect(body.data.reminder).toMatchObject({ status: 'done', completedOn: today, paidAmount: 47.5, budgetName: 'Home' });
+    expect(body.data.next).toMatchObject({ title: 'Internet', dueDate: '2026-11-08', status: 'pending', amount: 45 });
+    expect(body.data.transaction).toMatchObject({ type: 'sent', amount: 47.5, receiver: 'FiberNet', sender: 'Test User' });
+
+    const detail = (await owner.agent.get(`${API}/budgets/${budgetId}`).expect(200)).body.data;
+    expect(detail.items.find((item) => item.categoryName === 'Internet').spent).toBe(47.5);
+
+    const data = await list();
+    expect(data.summary.paid).toEqual({ count: 1, amount: 47.5 });
+    expect((await list('&status=done')).items.map((item) => item.title)).toEqual(['Internet']);
+    await owner.agent.post(`${API}/reminders/${internet.id}/complete`).send({ completedOn: today }).expect(409);
+  });
+
+  it('undoes done without doubling the series, and keeps the payment', async () => {
+    const done = (await list('&status=done')).items[0];
+    const { body } = await owner.agent.post(`${API}/reminders/${done.id}/reopen`).expect(200);
+    expect(body.data).toMatchObject({ keptTransaction: true, reminder: { status: 'pending', completedOn: null } });
+
+    const open = await list('&search=Internet');
+    expect(open.items).toHaveLength(1);
+    const payments = (await owner.agent.get(`${API}/transactions?month=${month}`).expect(200)).body.data;
+    expect(payments.total).toBe(1);
+  });
+
+  it('just ticks off a reminder without a payment', async () => {
+    const water = (await list('&search=Water')).items[0];
+    const { body } = await owner.agent.post(`${API}/reminders/${water.id}/complete`).send({ completedOn: today }).expect(200);
+    expect(body.data).toMatchObject({ next: null, transaction: null, reminder: { status: 'done', transactionId: null } });
+  });
+
+  it('alerts only for open reminders that are overdue or due within three days', async () => {
+    const soon = await add({ title: 'Gym', dueDate: '2026-10-13', amount: 20 });
+    await add({ title: 'Far away', dueDate: '2026-10-14', amount: 99 });
+    const alerts = async () => (await owner.agent.get(`${API}/reminders/alerts?today=${today}`).expect(200)).body.data;
+
+    // Internet (reopened, due on the 8th) is overdue; Gym is due on the 13th, the last day of the window.
+    const before = await alerts();
+    expect(before.items.map((item) => item.title)).toEqual(['Internet', 'Gym']);
+    expect(before).toMatchObject({ total: 2, windowDays: 3, overdue: { count: 1, amount: 45 }, soon: { count: 1, amount: 20 } });
+
+    await owner.agent.post(`${API}/reminders/${soon.id}/complete`).send({ completedOn: today }).expect(200);
+    expect((await alerts()).items.map((item) => item.title)).toEqual(['Internet']);
+
+    const strangers = (await stranger.agent.get(`${API}/reminders/alerts?today=${today}`).expect(200)).body.data;
+    expect(strangers.items.every((item) => item.title !== 'Internet')).toBe(true);
+  });
+
+  it("rolls back when the budget is someone else's", async () => {
+    const strangerReminder = (await stranger.agent.post(`${API}/reminders`).send({ title: 'Mine', dueDate: today, frequency: 'monthly' }).expect(201)).body.data;
+    await stranger.agent
+      .post(`${API}/reminders/${strangerReminder.id}/complete`)
+      .send({ completedOn: today, payment: { amount: 10, paidTo: 'X', method: 'Card', budgetId, categoryName: 'Internet' } })
+      .expect(404);
+    const after = (await stranger.agent.get(`${API}/reminders?today=${today}`).expect(200)).body.data;
+    expect(after.counts).toEqual({ open: 1, done: 0 });
   });
 });
 

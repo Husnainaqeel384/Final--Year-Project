@@ -1,4 +1,4 @@
-import { LuTriangleAlert } from 'react-icons/lu';
+import { LuInfo, LuTriangleAlert } from 'react-icons/lu';
 import { Button } from './Button';
 
 export function PageLoader() {
@@ -56,5 +56,15 @@ export function Badge({ tone = 'neutral', children }) {
     <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${TONES[tone]}`}>
       {children}
     </span>
+  );
+}
+
+/** A short explanation of what an action will do, shown inside forms. */
+export function InfoNote({ children }) {
+  return (
+    <p className="bg-accent-soft/60 text-ink-2 flex items-start gap-2 rounded-lg px-3 py-2 text-[13px]">
+      <LuInfo className="text-accent-text mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <span>{children}</span>
+    </p>
   );
 }

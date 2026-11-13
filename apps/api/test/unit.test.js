@@ -5,6 +5,8 @@ import { shiftMonth } from '../src/utils/months.js';
 import { assertSafeWebhookUrl, isPublicAddress } from '../src/utils/safeRequest.js';
 import { buildCalendar } from '../src/utils/ics.js';
 import { neutralizeFormula } from '../src/services/integration.service.js';
+import { nextDueDate } from '../src/services/reminder.service.js';
+import { msUntilNextReset } from '../src/services/demo.service.js';
 
 describe('allocate', () => {
   it('never loses or invents a cent', () => {
@@ -85,5 +87,35 @@ describe('buildCalendar', () => {
     expect(calendar).toContain('DTSTART;VALUE=DATE:20260305');
     expect(calendar).toContain('SUMMARY:Pay\\, rent\\; now');
     expect(calendar).toContain('\r\n');
+  });
+});
+
+describe('nextDueDate', () => {
+  it('repeats weekly across month ends', () => {
+    expect(nextDueDate('2026-01-29', 'weekly', null)).toBe('2026-02-05');
+  });
+
+  it('keeps a monthly bill on its day, using the last day of shorter months', () => {
+    expect(nextDueDate('2026-01-31', 'monthly', 31)).toBe('2026-02-28');
+    expect(nextDueDate('2026-02-28', 'monthly', 31)).toBe('2026-03-31');
+    expect(nextDueDate('2026-12-15', 'monthly', 15)).toBe('2027-01-15');
+  });
+
+  it('handles a yearly bill on 29 February', () => {
+    expect(nextDueDate('2028-02-29', 'yearly', 29)).toBe('2029-02-28');
+    expect(nextDueDate('2031-02-28', 'yearly', 29)).toBe('2032-02-29');
+  });
+});
+
+describe('msUntilNextReset', () => {
+  const hours = (ms) => ms / 3600000;
+
+  it('waits until 03:00 UTC later the same day', () => {
+    expect(hours(msUntilNextReset(new Date('2026-05-10T01:00:00Z')))).toBe(2);
+  });
+
+  it('moves to the next day once 03:00 UTC has passed', () => {
+    expect(hours(msUntilNextReset(new Date('2026-05-10T03:00:00Z')))).toBe(24);
+    expect(hours(msUntilNextReset(new Date('2026-12-31T22:00:00Z')))).toBe(5);
   });
 });

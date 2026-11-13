@@ -1,11 +1,13 @@
 import { db } from '../db/knex.js';
+import { DEMO_EMAILS } from '../../seeds/demo.js';
 import { AppError, notFound } from '../utils/errors.js';
+import { PERSONAL_TABLES } from '../utils/scope.js';
 
-// Personal rows have no organization to belong to, so they go with their owner.
-const PERSONAL_TABLES = ['budgets', 'expenses', 'transactions', 'reminders', 'notes', 'webhooks'];
-
-export function listUsers() {
+export function listUsers({ demoOnly = false } = {}) {
   return db('users')
+    .modify((query) => {
+      if (demoOnly) query.whereIn('email', DEMO_EMAILS);
+    })
     .orderBy('id')
     .select('id', 'first_name as firstName', 'last_name as lastName', 'username', 'email', 'role', 'created_at as createdAt');
 }

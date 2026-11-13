@@ -47,7 +47,7 @@ function Register() {
           <Input label="First name" name="firstName" autoComplete="given-name" required maxLength={50} value={form.firstName} onChange={update} />
           <Input label="Last name" name="lastName" autoComplete="family-name" required maxLength={50} value={form.lastName} onChange={update} />
         </div>
-        <Input label="Username" name="username" autoComplete="username" required minLength={3} maxLength={30} hint="Friends use this to add you to split-bill groups." value={form.username} onChange={update} />
+        <Input label="Username" name="username" autoComplete="username" required minLength={3} maxLength={30} value={form.username} onChange={update} />
         <Input label="Email" name="email" type="email" autoComplete="email" required value={form.email} onChange={update} />
         <Input label="Password" name="password" type="password" autoComplete="new-password" required minLength={8} hint="At least 8 characters." value={form.password} onChange={update} />
         <Button type="submit" loading={loading} className="w-full">

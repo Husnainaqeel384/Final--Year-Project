@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { db } from '../src/db/knex.js';
 import { logger } from '../src/config/logger.js';
+import { PERSONAL_TABLES } from '../src/utils/scope.js';
 
 export const DEMO_PASSWORD = 'Demo@12345';
 
@@ -11,6 +12,10 @@ const DEMO_USERS = [
   { first_name: 'Jordan', last_name: 'Lee', username: 'jordanlee', email: 'jordan@budgetbook.dev', role: 'user' },
   { first_name: 'Admin', last_name: 'User', username: 'admin', email: 'admin@budgetbook.dev', role: 'admin' },
 ];
+
+export const DEMO_EMAILS = DEMO_USERS.map((user) => user.email);
+/** The account the "Try the demo" button signs in to. */
+export const DEMO_LOGIN_EMAIL = DEMO_EMAILS[0];
 
 // [category, planned, typical share of the plan that gets spent]
 const PLAN = [
@@ -143,12 +148,23 @@ async function seedWorkspace(trx, { userId, organizationId, scale, seed, name, w
   }
   await trx.batchInsert('transactions', transactions, 200);
 
+  // Repeating bills remember their day of the month, as the app does when one is created.
+  const bill = (title, days, amount, category, frequency = 'monthly') => ({
+    ...scope,
+    title,
+    due_date: addDays(days),
+    amount: amount === null ? null : money(amount * scale),
+    category_name: category,
+    frequency,
+    anchor_day: frequency === 'none' ? null : Number(addDays(days).slice(8, 10)),
+  });
   await trx('reminders').insert([
-    { ...scope, title: 'Pay electricity bill', due_date: addDays(3) },
-    { ...scope, title: 'Renew car insurance', due_date: addDays(9) },
-    { ...scope, title: 'Quarterly tax payment', due_date: addDays(16) },
-    { ...scope, title: 'Review subscriptions', due_date: addDays(24) },
-    { ...scope, title: 'Rent paid', due_date: addDays(-6), status: 'done' },
+    bill('Internet bill', -2, 45, 'Internet'),
+    bill('Electricity bill', 3, 120, 'Electricity'),
+    bill('Car insurance renewal', 9, 640, 'Auto Insurance', 'yearly'),
+    bill('Quarterly tax payment', 16, 900, 'Taxes', 'none'),
+    bill('Review subscriptions', 24, null, null, 'none'),
+    { ...bill('Rent', -6, 1400, 'Mortgage/Rent', 'none'), status: 'done', completed_on: addDays(-6) },
   ]);
 
   await trx('notes').insert([
@@ -157,46 +173,72 @@ async function seedWorkspace(trx, { userId, organizationId, scale, seed, name, w
   ]);
 }
 
-/** Safe to run repeatedly: it does nothing once the demo account exists. */
-export async function seedDemoData() {
-  const existing = await db('users').where({ email: DEMO_USERS[0].email }).first('id');
-  if (existing) return;
-
+async function insertDemoData(trx) {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
-  await db.transaction(async (trx) => {
-    const ids = {};
-    for (const user of DEMO_USERS) {
-      const [id] = await trx('users').insert({ ...user, password_hash: passwordHash });
-      ids[user.username] = id;
-    }
-    const { alexmorgan: alex, samrivera: sam, jordanlee: jordan } = ids;
+  const ids = {};
+  for (const user of DEMO_USERS) {
+    const [id] = await trx('users').insert({ ...user, password_hash: passwordHash });
+    ids[user.username] = id;
+  }
+  const { alexmorgan: alex, samrivera: sam, jordanlee: jordan } = ids;
 
-    await seedWorkspace(trx, { userId: alex, organizationId: null, scale: 1, seed: 42, name: 'Household', withTrip: true });
+  await seedWorkspace(trx, { userId: alex, organizationId: null, scale: 1, seed: 42, name: 'Household', withTrip: true });
 
-    const [organizationId] = await trx('organizations').insert({ name: 'Brightside Studio', currency: 'USD', owner_id: alex });
-    await trx('organization_members').insert([
-      { organization_id: organizationId, user_id: alex, role: 'owner' },
-      { organization_id: organizationId, user_id: sam, role: 'admin' },
-      { organization_id: organizationId, user_id: jordan, role: 'member' },
-    ]);
-    await seedWorkspace(trx, { userId: alex, organizationId, scale: 6, seed: 7, name: 'Studio operations' });
+  const [organizationId] = await trx('organizations').insert({ name: 'Brightside Studio', currency: 'USD', owner_id: alex });
+  await trx('organization_members').insert([
+    { organization_id: organizationId, user_id: alex, role: 'owner' },
+    { organization_id: organizationId, user_id: sam, role: 'admin' },
+    { organization_id: organizationId, user_id: jordan, role: 'member' },
+  ]);
+  await seedWorkspace(trx, { userId: alex, organizationId, scale: 6, seed: 7, name: 'Studio operations' });
 
-    await trx('split_contacts').insert([
-      { owner_id: alex, contact_user_id: sam },
-      { owner_id: alex, contact_user_id: jordan },
-    ]);
-    const [groupId] = await trx('split_groups').insert({ name: 'Lake house trip', created_by: alex });
-    await trx('split_group_members').insert([
-      { group_id: groupId, user_id: alex, balance: 0 },
-      { group_id: groupId, user_id: sam, balance: 142.5 },
-      { group_id: groupId, user_id: jordan, balance: 87.25 },
-    ]);
-    await trx('split_activity').insert([
-      { group_id: groupId, description: 'alexmorgan added a bill of 285.00, paid by them and split between 2 people (142.50 each)' },
-      { group_id: groupId, description: 'jordanlee paid 55.25 of their share' },
-    ]);
-  });
+  await trx('split_contacts').insert([
+    { owner_id: alex, contact_user_id: sam },
+    { owner_id: alex, contact_user_id: jordan },
+  ]);
+  const [groupId] = await trx('split_groups').insert({ name: 'Lake house trip', created_by: alex });
+  await trx('split_group_members').insert([
+    { group_id: groupId, user_id: alex, balance: 0 },
+    { group_id: groupId, user_id: sam, balance: 142.5 },
+    { group_id: groupId, user_id: jordan, balance: 87.25 },
+  ]);
+  await trx('split_activity').insert([
+    { group_id: groupId, description: 'alexmorgan added a bill of 285.00, paid by them and split between 2 people (142.50 each)' },
+    { group_id: groupId, description: 'jordanlee paid 55.25 of their share' },
+  ]);
+}
 
+/** Safe to run repeatedly: it does nothing once the demo account exists. */
+export async function seedDemoData() {
+  const existing = await db('users').where({ email: DEMO_EMAILS[0] }).first('id');
+  if (existing) return;
+
+  await db.transaction(insertDemoData);
   logger.info('Demo data added');
+}
+
+/**
+ * Puts the demo accounts back to a fresh copy, with dates moved up to today.
+ * Only rows that belong to the demo accounts are removed; anyone who signed up
+ * on the demo site keeps their data. Delete and re-insert share one transaction,
+ * so a visitor never sees the demo half-built.
+ */
+export async function resetDemoData() {
+  await db.transaction(async (trx) => {
+    const userIds = (await trx('users').whereIn('email', DEMO_EMAILS).select('id')).map((row) => row.id);
+
+    if (userIds.length) {
+      // Their team rows go with the organization; personal rows would only lose
+      // their owner (user_id is SET NULL), so they are removed explicitly.
+      await trx('organizations').whereIn('owner_id', userIds).delete();
+      for (const table of PERSONAL_TABLES) {
+        await trx(table).whereIn('user_id', userIds).whereNull('organization_id').delete();
+      }
+      await trx('users').whereIn('id', userIds).delete();
+    }
+
+    await insertDemoData(trx);
+  });
+  logger.info('Demo data reset');
 }

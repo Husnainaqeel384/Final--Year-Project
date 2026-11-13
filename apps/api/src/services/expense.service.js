@@ -1,6 +1,6 @@
 import { logger } from '../config/logger.js';
 import { db } from '../db/knex.js';
-import { notFound } from '../utils/errors.js';
+import { AppError, notFound } from '../utils/errors.js';
 import { dateToMonth, monthRange, monthToDate } from '../utils/months.js';
 import { applyScope, scopeColumns } from '../utils/scope.js';
 import { resolveExpenseBudget } from './budget.service.js';
@@ -14,6 +14,8 @@ const present = (row) => ({
   spentOn: row.spent_on,
   budgetId: row.budget_id,
   budgetName: row.budget_name ?? null,
+  // Set when the expense mirrors a "sent" transaction; it is then edited through that transaction.
+  transactionId: row.transaction_id ?? null,
 });
 
 /** Expenses with the name of the budget they count toward. */
@@ -86,8 +88,13 @@ export async function summarizeExpenses(workspace, filters, { page, limit }) {
         db.raw('SUM(e.amount) as total'),
         db.raw('COUNT(*) as entries'),
         db.raw('MAX(e.spent_on) as last_spent_on'),
+        db.raw('MAX(e.id) as last_id'),
       )
-      .orderBy([{ column: 'total', order: 'desc' }, { column: 'e.category_name' }])
+      // Most recent activity first; on the same day, the category whose expense was added last.
+      .orderBy([
+        { column: 'last_spent_on', order: 'desc' },
+        { column: 'last_id', order: 'desc' },
+      ])
       .limit(limit)
       .offset((page - 1) * limit),
     filteredExpenses(workspace, filters).countDistinct('e.category_name as total').first(),
@@ -159,6 +166,22 @@ async function notifyIfThresholdCrossed(workspace, expense) {
   }
 }
 
+/** Used when a transaction creates an expense, so it triggers the same budget alerts. */
+export async function notifyForExpense(workspace, expenseId) {
+  const expense = await findExpense(workspace, expenseId);
+  if (expense) await notifyIfThresholdCrossed(workspace, expense);
+}
+
+/** An expense mirrored from a transaction would drift out of sync if changed on its own. */
+async function getEditableExpense(workspace, id) {
+  const existing = await applyScope(db('expenses').where({ id }), workspace).first('id', 'transaction_id');
+  if (!existing) throw notFound('Expense');
+  if (existing.transaction_id) {
+    throw new AppError('This expense comes from a transaction. Change or delete the transaction instead.', 409);
+  }
+  return existing;
+}
+
 export async function createExpense(workspace, { categoryName, amount, description, spentOn, budgetId }) {
   const [id] = await db('expenses').insert({
     ...scopeColumns(workspace),
@@ -180,8 +203,7 @@ export async function createExpense(workspace, { categoryName, amount, descripti
 }
 
 export async function updateExpense(workspace, id, { categoryName, amount, description, spentOn, budgetId }) {
-  const existing = await applyScope(db('expenses').where({ id }), workspace).first('id');
-  if (!existing) throw notFound('Expense');
+  await getEditableExpense(workspace, id);
 
   await db('expenses').where({ id }).update({
     budget_id: await resolveExpenseBudget(workspace, spentOn, budgetId),
@@ -194,6 +216,6 @@ export async function updateExpense(workspace, id, { categoryName, amount, descr
 }
 
 export async function deleteExpense(workspace, id) {
-  const removed = await applyScope(db('expenses').where({ id }), workspace).delete();
-  if (!removed) throw notFound('Expense');
+  await getEditableExpense(workspace, id);
+  await db('expenses').where({ id }).delete();
 }

@@ -55,7 +55,7 @@ function CurrencyMenu() {
         className="border-line hover:bg-surface-2 flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-sm disabled:opacity-60"
       >
         <span className="text-ink-3 font-medium">{currencySymbol(currency)}</span>
-        <span className="font-medium">{currency}</span>
+        <span className="hidden font-medium sm:inline">{currency}</span>
         <LuChevronDown className="text-ink-3 size-3.5" aria-hidden="true" />
       </button>
 

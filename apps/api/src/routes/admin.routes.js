@@ -1,15 +1,19 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAdmin } from '../middlewares/auth.js';
+import { blockDemoWrites } from '../middlewares/demo.js';
+import { isDemoAccount } from '../services/demo.service.js';
 import { validate } from '../middlewares/validate.js';
 import * as admin from '../services/admin.service.js';
 import { idParam } from '../utils/schemas.js';
 
 const router = Router();
 router.use(requireAdmin);
+router.use(blockDemoWrites);
 
-router.get('/users', async (_req, res) => {
-  res.json({ success: true, data: await admin.listUsers() });
+router.get('/users', async (req, res) => {
+  // The demo admin's password is public, so it must not see who has signed up for real.
+  res.json({ success: true, data: await admin.listUsers({ demoOnly: isDemoAccount(req.user) }) });
 });
 
 router.patch(

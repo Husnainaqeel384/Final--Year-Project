@@ -42,6 +42,8 @@ services:
       DB_NAME: ${DOCKER_DB_NAME:-budget_book}
       RUN_MIGRATIONS_ON_START: 'true'
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+      # true only on a public demo site (see docs/DEPLOYMENT.md).
+      DEMO_MODE: ${DEMO_MODE:-false}
       JWT_SECRET: ${JWT_SECRET:?Run "npm run setup" first to create .env with a JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       SMTP_HOST: ${SMTP_HOST:-}
@@ -58,6 +60,7 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_SITE_URL: ${DOCKER_APP_URL:-http://localhost:8080}
+        VITE_DEMO_MODE: ${DEMO_MODE:-false}
     restart: unless-stopped
     depends_on:
       api:

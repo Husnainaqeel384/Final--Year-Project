@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { blockDemoAccount } from '../middlewares/demo.js';
 import { validate } from '../middlewares/validate.js';
 import { listOrganizationsFor } from '../services/auth.service.js';
 import * as organizations from '../services/organization.service.js';
@@ -44,6 +45,8 @@ router.delete('/:id', validate({ params: idParam }), async (req, res) => {
 
 router.post(
   '/:id/invitations',
+  // Invitations send email, and the demo must not become a way to send it to strangers.
+  blockDemoAccount,
   validate({ params: idParam, body: z.object({ email, role: assignableRole }) }),
   async (req, res) => {
     const data = await organizations.inviteMember(req.user, req.valid.params.id, req.valid.body);

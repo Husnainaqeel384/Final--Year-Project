@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
+  LuArrowLeftRight,
   LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
@@ -41,11 +42,11 @@ import { Input, Select, Textarea } from '../../components/ui/Field';
 import { CategorySelect } from '../../components/ui/CategorySelect';
 import { ConfirmDialog, Modal } from '../../components/ui/Modal';
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback';
-import { BudgetStatusLabel, Meter } from '../../components/ui/Meter';
+import { BudgetStatusLabel } from '../../components/ui/Meter';
+import { Pagination } from '../../components/ui/Pagination';
 
 const EMPTY = { categoryName: '', amount: '', description: '', spentOn: today() };
 const UNASSIGNED = 'none';
-const CATEGORIES_PER_PAGE = 10;
 const EXPENSES_PER_PAGE = 8;
 
 /** Opens the form straight away when another page links here with ?new=1 (and optionally a budget). */
@@ -62,28 +63,6 @@ function Kpi({ label, value, detail }) {
       <p className="text-ink-2 text-[13px]">{label}</p>
       <p className="mt-1 text-xl font-semibold tracking-tight">{value}</p>
       {detail && <p className="text-ink-3 mt-0.5 truncate text-xs">{detail}</p>}
-    </div>
-  );
-}
-
-function Pager({ page, total, perPage, noun, onChange }) {
-  const pages = Math.ceil(total / perPage);
-  if (pages <= 1) return null;
-  const first = (page - 1) * perPage + 1;
-  const last = Math.min(page * perPage, total);
-  return (
-    <div className="border-line flex items-center justify-between gap-3 border-t px-5 py-3 text-sm">
-      <span className="text-ink-3 tabular">
-        {first}–{last} of {total} {noun}
-      </span>
-      <div className="flex gap-2">
-        <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)}>
-          <LuChevronLeft className="size-3.5" aria-hidden="true" /> Previous
-        </Button>
-        <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => onChange(page + 1)}>
-          Next <LuChevronRight className="size-3.5" aria-hidden="true" />
-        </Button>
-      </div>
     </div>
   );
 }
@@ -139,101 +118,169 @@ function DayStrip({ month, daily, selectedDay, onSelect, currency }) {
   );
 }
 
-function ExpenseLine({ expense, currency, onEdit, onDelete }) {
+/** Percentage plus an icon and word, so the state never depends on colour or a bar. */
+function LimitUsed({ category }) {
+  if (category.planned <= 0) return <span className="text-ink-3 text-xs">No limit</span>;
+  const percent = (category.total / category.planned) * 100;
   return (
-    <li className="flex items-center gap-3 py-2.5 pr-5 pl-[4.25rem]">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm">{expense.description || <span className="text-ink-3">No description</span>}</p>
-        <p className="text-ink-3 mt-0.5 flex items-center gap-1.5 text-xs">
-          {formatDate(expense.spentOn)}
-          {expense.budgetName ? (
-            <Link to={`/app/budgets/${expense.budgetId}`} className="bg-accent-soft text-accent-text rounded px-1.5 py-px font-medium">
-              {expense.budgetName}
-            </Link>
-          ) : (
-            <span>· No budget</span>
-          )}
-        </p>
-      </div>
-      <span className="tabular shrink-0 text-sm font-medium">{formatMoney(expense.amount, currency)}</span>
-      <div className="flex shrink-0">
-        <IconButton label={`Edit ${expense.description || expense.categoryName} expense`} onClick={() => onEdit(expense)}>
-          <LuPencil className="size-4" />
-        </IconButton>
-        <IconButton label={`Delete ${expense.description || expense.categoryName} expense`} onClick={() => onDelete(expense)}>
-          <LuTrash2 className="size-4" />
-        </IconButton>
-      </div>
-    </li>
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      <span className="tabular w-10 text-right text-[13px] font-medium">{Math.round(percent)}%</span>
+      <BudgetStatusLabel percent={percent} />
+    </span>
   );
 }
 
-/** A category appears once, however many times it was used; its expenses open beneath it. */
-function CategoryRow({ category, open, currency, onToggle, onPage, onEdit, onDelete }) {
-  const expanded = open?.categoryName === category.categoryName;
-  const percent = category.planned > 0 ? (category.total / category.planned) * 100 : 0;
-  const panelId = `category-${category.categoryName.replace(/\W+/g, '-')}`;
-
+/**
+ * The expenses of one category, shown in a row spanning the whole table. Its
+ * fixed layout gives the description whatever width the other columns leave.
+ */
+function CategoryExpenses({ open, panelId, currency, onPage, onEdit, onDelete }) {
   return (
-    <li>
-      <button
-        type="button"
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        onClick={() => onToggle(category.categoryName)}
-        className="hover:bg-surface-2/50 flex w-full items-center gap-3 px-5 py-3.5 text-left"
-      >
-        <span className="bg-surface-2 text-ink-2 flex size-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold">
-          {category.categoryName.slice(0, 2).toUpperCase()}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-3">
-            <p className="truncate font-medium">{category.categoryName}</p>
-            <p className="tabular shrink-0 font-semibold">{formatMoney(category.total, currency)}</p>
+    <tr id={panelId}>
+      <td colSpan={7} className="bg-surface-2/40 p-0">
+        {open.loading && open.items.length === 0 ? (
+          <div className="space-y-2 px-5 py-3">
+            <Skeleton className="h-8" />
+            <Skeleton className="h-8" />
           </div>
-          <div className="text-ink-3 mt-0.5 flex items-center justify-between gap-3 text-xs">
-            <span className="truncate">
-              {category.count} {category.count === 1 ? 'expense' : 'expenses'} · last {formatDate(category.lastSpentOn)}
-            </span>
-            {category.planned > 0 ? (
-              <span className="tabular shrink-0">of {formatMoney(category.planned, currency)} limit</span>
-            ) : (
-              <span className="shrink-0">No limit set</span>
-            )}
-          </div>
-          {category.planned > 0 && (
-            <div className="mt-2 flex items-center gap-3">
-              <Meter percent={percent} label={`${category.categoryName} limit used`} />
-              <span className="shrink-0">
-                <BudgetStatusLabel percent={percent} />
-              </span>
-            </div>
-          )}
-        </div>
-        <LuChevronDown
-          className={`text-ink-3 size-4 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`}
-          aria-hidden="true"
-        />
-      </button>
-
-      {expanded && (
-        <div id={panelId} className="bg-surface-2/40 border-line border-t">
-          {open.loading && open.items.length === 0 ? (
-            <div className="space-y-2 py-3 pr-5 pl-[4.25rem]">
-              <Skeleton className="h-9" />
-              <Skeleton className="h-9" />
-            </div>
-          ) : (
-            <ul className="divide-line divide-y">
+        ) : (
+          <table className="w-full table-fixed text-sm">
+            <caption className="sr-only">{open.categoryName} expenses</caption>
+            <tbody className="divide-line divide-y">
               {open.items.map((expense) => (
-                <ExpenseLine key={expense.id} expense={expense} currency={currency} onEdit={onEdit} onDelete={onDelete} />
+                <tr key={expense.id}>
+                  <td className="text-ink-2 w-44 py-2.5 pr-3 pl-14 whitespace-nowrap">{formatDate(expense.spentOn)}</td>
+                  <td className="py-2.5 pr-3">
+                    <p className="truncate">{expense.description || <span className="text-ink-3">No description</span>}</p>
+                  </td>
+                  <td className="hidden w-44 truncate py-2.5 pr-3 whitespace-nowrap sm:table-cell">
+                    {expense.budgetName ? (
+                      <Link
+                        to={`/app/budgets/${expense.budgetId}`}
+                        className="bg-accent-soft text-accent-text rounded px-1.5 py-0.5 text-xs font-medium"
+                      >
+                        {expense.budgetName}
+                      </Link>
+                    ) : (
+                      <span className="text-ink-3 text-xs">No budget</span>
+                    )}
+                  </td>
+                  <td className="tabular w-32 py-2.5 pr-3 text-right font-medium whitespace-nowrap">
+                    {formatMoney(expense.amount, currency)}
+                  </td>
+                  <td className="w-24 py-1.5 pr-4 text-right whitespace-nowrap">
+                    {/* Expenses made from a transaction change with it, so they're edited there. */}
+                    {expense.transactionId ? (
+                      <Link
+                        to="/app/transactions"
+                        title="This expense comes from a transaction. Edit it there."
+                        className="text-accent-text inline-flex items-center gap-1 text-xs font-medium"
+                      >
+                        <LuArrowLeftRight className="size-3.5" aria-hidden="true" /> Transaction
+                      </Link>
+                    ) : (
+                      <>
+                        <IconButton label={`Edit ${expense.description || expense.categoryName} expense`} onClick={() => onEdit(expense)}>
+                          <LuPencil className="size-4" />
+                        </IconButton>
+                        <IconButton label={`Delete ${expense.description || expense.categoryName} expense`} onClick={() => onDelete(expense)}>
+                          <LuTrash2 className="size-4" />
+                        </IconButton>
+                      </>
+                    )}
+                  </td>
+                </tr>
               ))}
-            </ul>
-          )}
-          <Pager page={open.page} total={open.total} perPage={EXPENSES_PER_PAGE} noun="expenses" onChange={onPage} />
-        </div>
-      )}
-    </li>
+            </tbody>
+          </table>
+        )}
+        <Pagination compact page={open.page} total={open.total} perPage={EXPENSES_PER_PAGE} noun="expenses" onPageChange={onPage} />
+      </td>
+    </tr>
+  );
+}
+
+/**
+ * One row per category, however often it was used. Clicking the row opens its
+ * expenses underneath; the name is a real button so keyboards can do the same.
+ */
+function CategoryTable({ categories, open, currency, onToggle, onPage, onEdit, onDelete }) {
+  const head = 'px-5 py-3 font-medium whitespace-nowrap';
+  return (
+    <div className="relative overflow-x-auto">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr className="border-line text-ink-3 border-b text-xs">
+            <th scope="col" className={head}>Category</th>
+            <th scope="col" className={`${head} text-right`}>Expenses</th>
+            <th scope="col" className={`${head} hidden md:table-cell`}>Last spent</th>
+            <th scope="col" className={`${head} text-right`}>Spent</th>
+            <th scope="col" className={`${head} hidden text-right sm:table-cell`}>Limit</th>
+            <th scope="col" className={head}>Used</th>
+            <th scope="col" className="w-12">
+              <span className="sr-only">Open</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-line divide-y">
+          {categories.map((category) => {
+            const expanded = open?.categoryName === category.categoryName;
+            const panelId = `category-${category.categoryName.replace(/\W+/g, '-')}`;
+            return [
+              <tr
+                key={category.categoryName}
+                onClick={() => onToggle(category.categoryName)}
+                className={`cursor-pointer transition-colors ${expanded ? 'bg-surface-2/60' : 'hover:bg-surface-2/50'}`}
+              >
+                <td className="px-5 py-3">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-controls={panelId}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onToggle(category.categoryName);
+                    }}
+                    className="flex items-center gap-3 text-left"
+                  >
+                    <span className="bg-surface-2 text-ink-2 flex size-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-semibold">
+                      {category.categoryName.slice(0, 2).toUpperCase()}
+                    </span>
+                    <span className="font-medium">{category.categoryName}</span>
+                  </button>
+                </td>
+                <td className="tabular text-ink-2 px-5 py-3 text-right">{category.count}</td>
+                <td className="text-ink-2 hidden px-5 py-3 whitespace-nowrap md:table-cell">{formatDate(category.lastSpentOn)}</td>
+                <td className="tabular px-5 py-3 text-right font-semibold whitespace-nowrap">{formatMoney(category.total, currency)}</td>
+                <td className="tabular text-ink-2 hidden px-5 py-3 text-right whitespace-nowrap sm:table-cell">
+                  {category.planned > 0 ? formatMoney(category.planned, currency) : '—'}
+                </td>
+                <td className="px-5 py-3">
+                  <LimitUsed category={category} />
+                </td>
+                <td className="pr-4 text-right">
+                  <LuChevronDown
+                    className={`text-ink-3 inline size-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
+                </td>
+              </tr>,
+              expanded && (
+                <CategoryExpenses
+                  key={`${category.categoryName}-expenses`}
+                  open={open}
+                  panelId={panelId}
+                  currency={currency}
+                  onPage={onPage}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ),
+            ];
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -248,6 +295,7 @@ function Expenses() {
   const [budgetFilter, setBudgetFilter] = useState('');
   const [day, setDay] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [searchParams, setSearchParams] = useSearchParams();
   const [form, setForm] = useState(() => formFromLink(searchParams));
   const [saving, setSaving] = useState(false);
@@ -267,12 +315,12 @@ function Expenses() {
   const loadSummary = useCallback(async () => {
     try {
       dispatch(setLoading());
-      dispatch(setSummary(await fetchExpenseSummary({ ...filters, page, limit: CATEGORIES_PER_PAGE })));
+      dispatch(setSummary(await fetchExpenseSummary({ ...filters, page, limit: perPage })));
     } catch (err) {
       dispatch(setError(getErrorMessage(err)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, month, budgetFilter, search, day, page, activeId]);
+  }, [dispatch, month, budgetFilter, search, day, page, perPage, activeId]);
 
   const loadCategory = useCallback(
     async (categoryName, categoryPage = 1) => {
@@ -295,7 +343,7 @@ function Expenses() {
   // A change of filters or page collapses the open category, since its list no longer matches.
   useEffect(() => {
     dispatch(closeCategory());
-  }, [dispatch, month, budgetFilter, search, day, page, activeId]);
+  }, [dispatch, month, budgetFilter, search, day, page, perPage, activeId]);
 
   useEffect(() => {
     const loadBudgets = async () => {
@@ -433,21 +481,26 @@ function Expenses() {
   } else {
     list = (
       <>
-        <ul className="divide-line divide-y">
-          {categories.items.map((category) => (
-            <CategoryRow
-              key={category.categoryName}
-              category={category}
-              open={open}
-              currency={currency}
-              onToggle={toggleCategory}
-              onPage={(nextPage) => loadCategory(category.categoryName, nextPage)}
-              onEdit={editExpense}
-              onDelete={setPendingDelete}
-            />
-          ))}
-        </ul>
-        <Pager page={categories.page} total={categories.total} perPage={CATEGORIES_PER_PAGE} noun="categories" onChange={setPage} />
+        <CategoryTable
+          categories={categories.items}
+          open={open}
+          currency={currency}
+          onToggle={toggleCategory}
+          onPage={(nextPage) => loadCategory(open.categoryName, nextPage)}
+          onEdit={editExpense}
+          onDelete={setPendingDelete}
+        />
+        <Pagination
+          page={categories.page}
+          total={categories.total}
+          perPage={perPage}
+          noun="categories"
+          onPageChange={setPage}
+          onPerPageChange={(value) => {
+            setPerPage(value);
+            setPage(1);
+          }}
+        />
       </>
     );
   }
