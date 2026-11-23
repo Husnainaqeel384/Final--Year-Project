@@ -13,6 +13,7 @@ import { Button } from '../../components/ui/Button';
 import { EmptyState, ErrorState, PageLoader } from '../../components/ui/Feedback';
 import { Table, Td } from '../../components/ui/Table';
 import { CategoryBarChart } from '../../components/charts/Charts';
+import { MonthInsights } from '../../components/ai/MonthInsights';
 
 function Compare({ label, current, previous, currency }) {
   return (
@@ -115,6 +116,7 @@ function Reports() {
         </Card>
       ) : showReport ? (
         <div className="space-y-4">
+          <MonthInsights month={month} />
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="p-5">
               <h2 className="text-[15px] font-semibold">{formatMonth(report.month)}</h2>

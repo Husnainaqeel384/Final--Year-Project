@@ -9,7 +9,7 @@ import { setOrganizations } from '../../redux/features/workspaceSlice';
 import { Button } from '../ui/Button';
 
 /** One click into the demo account, so a visitor can judge the app before signing up. */
-export function DemoButton({ variant = 'primary', className = '', children = 'Try the live demo' }) {
+export function DemoButton({ variant = 'primary', size, className = '', children = 'Try the live demo' }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export function DemoButton({ variant = 'primary', className = '', children = 'Tr
   };
 
   return (
-    <Button variant={variant} loading={loading} onClick={start} className={className}>
+    <Button variant={variant} size={size} loading={loading} onClick={start} className={className}>
       {children}
     </Button>
   );

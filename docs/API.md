@@ -77,6 +77,7 @@ A month can hold several named budgets, for example "Household" and "Vacation". 
 | --- | --- | --- |
 | GET | `/expenses?month=` | |
 | POST | `/expenses` | `categoryName, amount, description, spentOn`, optional `budgetId` |
+| POST | `/expenses/batch` | `spentOn`, optional `budgetId`, `items: [{ categoryName, amount, description }]` (1 to 20). One receipt split by category, saved together or not at all |
 | PATCH | `/expenses/:id` | Same as POST |
 | DELETE | `/expenses/:id` | |
 | GET | `/transactions` | Query: `search, type, page, limit` |
@@ -99,16 +100,16 @@ A month can hold several named budgets, for example "Household" and "Vacation". 
 | POST | `/reminders/:id/complete` | `completedOn`, optional `payment: { amount, paidTo, method, budgetId, categoryName }` |
 | POST | `/reminders/:id/reopen` | |
 | DELETE | `/reminders/:id` | |
-| GET | `/notes` | |
-| POST | `/notes` | `body` |
-| PATCH | `/notes/:id` | `body` |
+| GET | `/notes` | Query: `search` (title and text). Pinned notes come first, then the most recently edited |
+| POST | `/notes` | `body`, optional `title, pinned` |
+| PATCH | `/notes/:id` | Any of `title, body, pinned`. Pinning alone keeps the edited date |
 | DELETE | `/notes/:id` | |
 
 `frequency` is `none`, `weekly`, `monthly` or `yearly`. Completing a repeating reminder opens the next one. A `payment` is saved as a `sent` transaction, so with a budget and category it counts as an expense there. `today` is the caller's local date, so "overdue" follows the user's calendar rather than the server's time zone.
 
 ## Bill splitting
 
-Hidden in the web app for now (`FEATURES.splitBills` in `apps/web/src/config/features.js`); the endpoints still work.
+Switched off for now. The web app hides it (`apps/web/src/config/features.js`) and the API doesn't serve these endpoints (`apps/api/src/config/features.js`); set `splitBills: true` in both to bring it back.
 
 Splits belong to people, so these endpoints ignore `X-Organization-Id`.
 
@@ -123,6 +124,30 @@ Splits belong to people, so these endpoints ignore `X-Organization-Id`.
 | DELETE | `/splits/groups/:id` | Creator only |
 | POST | `/splits/groups/:id/bills` | `amount, mode` (`equal` or `paid-by-me`) |
 | POST | `/splits/groups/:id/settle` | `amount` |
+
+## AI
+
+Each person connects their own provider key. Keys are encrypted at rest and never returned; responses show only the last four characters.
+
+| Method | Path | Body or query | Notes |
+| --- | --- | --- | --- |
+| GET | `/ai/settings` | | Providers and the saved connection, if any |
+| POST | `/ai/models` | `provider`, optional `apiKey` | Checks a key (free) and lists its models. Without `apiKey`, the saved key is used |
+| PUT | `/ai/settings` | `provider, model`, optional `apiKey` | Checks the key, then saves it. Without `apiKey`, the saved key is kept. A different provider than the saved one returns `409`: remove the saved key first |
+| DELETE | `/ai/settings` | | |
+| GET | `/ai/usage` | | Requests in the last 24 hours and 7 days, all-time total and failures, limits, and the 8 most recent requests |
+| PUT | `/ai/limits` | `daily, weekly` | Request counts, or `null` for no limit. The weekly limit can't be lower than the daily one |
+| POST | `/ai/receipts/scan` | Multipart field `file` | JPG, PNG or WebP, up to 5 MB. Returns `merchant, date, amount, currency, categoryName, readable` and `items: [{ description, amount, categoryName }]` for splitting by category. Nothing is saved |
+| GET | `/ai/insights?month=` | | The saved summary for the workspace's month, or `null` |
+| POST | `/ai/insights` | `month` | Writes a new summary from the month's report figures and saves it |
+
+`provider` is `claude`, `openai` (ChatGPT), `gemini` or `deepseek`.
+
+Every request sent to a provider is recorded and counts toward the person's limits, including ones the provider rejects. Requests stopped before sending (a file that isn't an image, a month with no budget) don't count, and checking a key never does. Limits are rolling windows (the last 24 hours and the last 7 days); over a limit, AI requests return `429` saying when the next one frees up. Separately, AI requests are limited to 30 per person every 10 minutes. Provider problems come back as `400` (bad key or model), `429` (out of credit), `422` (declined) or `502`/`503` (unreadable answer or provider down), never `401`.
+
+On a demo site (`DEMO_MODE`), the shared demo account can't save a key. A visitor sends their own with each AI request in the `X-AI-Provider`, `X-AI-Model` and `X-AI-Key` headers; it is used once and never stored or logged.
+
+Keys are encrypted with a key derived from `JWT_SECRET`. If `JWT_SECRET` changes, saved AI keys can no longer be read and people are asked to add them again.
 
 ## Organizations
 

@@ -13,7 +13,8 @@ Open-source budget management for individuals and teams. Plan monthly budgets, t
 | **Dashboard** | Money left to spend, 12-month income and spending trend, category ranking and a watch list of categories near their limit |
 | **Forecasting** | Projected month-end spending from your current pace, and a next-month estimate from recent months |
 | **Reports** | Month-by-month comparison, with Excel and PDF downloads |
-| **Reminders and notes** | Bills with amounts and weekly, monthly or yearly repeats. Overdue and upcoming bills show in a top-bar bell and on the dashboard. Marking one paid can record the payment in a budget. Notes sit alongside your numbers |
+| **AI assistant** | Scan a receipt photo into a ready-to-check expense, or split it into one expense per category, and get a plain-language summary of any month. Works with your own Claude, ChatGPT, Gemini or DeepSeek API key, with daily and weekly request limits you set |
+| **Reminders and notes** | Bills with amounts and weekly, monthly or yearly repeats. Overdue and upcoming bills show in a top-bar bell and on the dashboard. Marking one paid can record the payment in a budget. Notes with titles, search and pinning keep plans and decisions alongside your numbers |
 | **Organizations** | Personal and shared workspaces, with owner, admin and member roles and email invitations |
 | **Currencies** | 20 currencies, switched from the top bar for you or for each organization |
 | **Administration** | User management and a shared category list |
@@ -39,6 +40,7 @@ Feeds and webhooks need the app to be reachable from the internet, because the o
 | Backend | Node.js, Express 5, Knex, Zod, Pino |
 | Database | MySQL 8 |
 | Integrations | ExcelJS, PDFKit, Nodemailer |
+| AI | Anthropic SDK (Claude); OpenAI, Gemini and DeepSeek REST APIs |
 | Infrastructure | Docker Compose, nginx, GitHub Actions |
 
 ## Getting started
@@ -128,6 +130,7 @@ apps/
     migrations/         Database structure, applied automatically
     seeds/              Fictional demo data
     src/
+      ai/               AI providers (Claude, ChatGPT, Gemini, DeepSeek), key encryption, receipt and insight tasks
       config/           Validated environment and logger
       db/               Connection and startup
       middlewares/      Auth, workspace access, validation, errors
@@ -153,6 +156,7 @@ docs/                   API reference and screenshots
 - Uploads are checked by their actual contents
 - Webhooks can only reach public addresses, which prevents server-side request forgery
 - Spreadsheet exports neutralize formulas
+- AI provider keys are encrypted with AES-256-GCM, never sent back to the browser and never logged. The AI only fills in forms for the person to check; it never saves anything itself
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 

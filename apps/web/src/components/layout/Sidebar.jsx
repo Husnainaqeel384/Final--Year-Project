@@ -8,6 +8,7 @@ import {
   LuLayoutDashboard,
   LuPlug,
   LuReceipt,
+  LuSettings,
   LuSplit,
   LuStickyNote,
   LuTags,
@@ -47,6 +48,7 @@ const SECTIONS = [
     links: [
       { label: 'Organization', to: '/app/organization', icon: LuBuilding2 },
       { label: 'Integrations', to: '/app/integrations', icon: LuPlug },
+      { label: 'Settings', to: '/app/settings', icon: LuSettings },
     ],
   },
 ];

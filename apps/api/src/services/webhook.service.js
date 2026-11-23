@@ -5,6 +5,19 @@ import { AppError, notFound } from '../utils/errors.js';
 import { applyScope, scopeColumns } from '../utils/scope.js';
 import { assertSafeWebhookUrl, postJson } from '../utils/safeRequest.js';
 
+const LABELS = { slack: 'Slack', discord: 'Discord' };
+
+/**
+ * Slack and Discord each accept only their own message shape, so a Slack address
+ * saved as Discord fails every time. A known address decides the destination.
+ */
+export function providerForUrl(rawUrl) {
+  const { hostname, pathname } = new URL(rawUrl);
+  if (hostname === 'hooks.slack.com') return 'slack';
+  if (/(^|\.)discord(app)?\.com$/.test(hostname) && pathname.startsWith('/api/webhooks/')) return 'discord';
+  return null;
+}
+
 const present = (hook) => ({
   id: hook.id,
   name: hook.name,
@@ -26,6 +39,10 @@ export async function createWebhook(workspace, { name, provider, url, events }) 
     assertSafeWebhookUrl(url);
   } catch (error) {
     throw new AppError(error.message);
+  }
+  const expected = providerForUrl(url);
+  if (expected && expected !== provider) {
+    throw new AppError(`This is a ${LABELS[expected]} address, so choose ${LABELS[expected]} as the destination.`);
   }
   const [id] = await db('webhooks').insert({
     ...scopeColumns(workspace),
@@ -58,8 +75,9 @@ async function deliver(hook, event, message, data) {
   let status = 0;
   let detail = 'Could not reach the address';
   try {
-    status = await postJson(hook.url, body, headers);
-    detail = `The server answered with status ${status}`;
+    const reply = await postJson(hook.url, body, headers);
+    status = reply.status;
+    detail = `The server answered with status ${status}${reply.text ? `: ${reply.text}` : ''}`;
   } catch (error) {
     logger.warn({ webhookId: hook.id, reason: error.message }, 'Webhook delivery failed');
   }

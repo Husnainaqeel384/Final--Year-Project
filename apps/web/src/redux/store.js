@@ -16,6 +16,7 @@ import organizationReducer from './features/organizationSlice';
 import adminReducer from './features/adminSlice';
 import integrationReducer from './features/integrationSlice';
 import notificationReducer from './features/notificationSlice';
+import aiReducer from './features/aiSlice';
 
 export const store = configureStore({
   reducer: {
@@ -35,5 +36,6 @@ export const store = configureStore({
     admin: adminReducer,
     integration: integrationReducer,
     notification: notificationReducer,
+    ai: aiReducer,
   },
 });

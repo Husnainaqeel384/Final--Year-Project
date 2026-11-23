@@ -7,6 +7,7 @@ import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { db } from '../db/knex.js';
 import { AppError } from '../utils/errors.js';
+import { detectImageType } from '../utils/images.js';
 import { createOpaqueToken, hashToken } from '../utils/tokens.js';
 import { isDemoAccount } from './demo.service.js';
 import { actionEmail, sendMail } from './mail.service.js';
@@ -96,17 +97,10 @@ export async function updatePreferences(user, { currency }) {
   return db('users').where({ id: user.id }).first();
 }
 
-const IMAGE_SIGNATURES = [
-  { extension: 'jpg', matches: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
-  { extension: 'png', matches: (b) => b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) },
-  { extension: 'webp', matches: (b) => b.toString('latin1', 0, 4) === 'RIFF' && b.toString('latin1', 8, 12) === 'WEBP' },
-];
-
 export async function saveAvatar(user, file) {
   if (!file) throw new AppError('Choose an image to upload');
 
-  // The bytes decide the type, not the filename or header, both of which the client controls.
-  const type = IMAGE_SIGNATURES.find((signature) => signature.matches(file.buffer));
+  const type = detectImageType(file.buffer);
   if (!type) throw new AppError('Upload a JPG, PNG or WebP image');
 
   const name = `${randomUUID()}.${type.extension}`;

@@ -1,15 +1,17 @@
 # Budget Book
 
-> Budget Book is a free, open-source (MIT) budget management web app for individuals and organizations. It is self-hosted on MySQL and built with React, Redux Toolkit, Express and Knex.
+> Budget Book is a free, open-source (MIT) budget management web app for individuals, households and teams. It is self-hosted on MySQL and built with React, Redux Toolkit, Express and Knex. It began in March 2023 as a university team final-year project and was rebuilt in 2026.
 
 ## What it does
 
-- Monthly budgets split by category, with planned, spent and remaining amounts
-- Expense and transaction tracking with search and filters
-- Bill splitting between group members, with settlement history
-- Month-end spending forecast based on the current run rate and past months
-- Reminders and notes
+- Monthly budgets split by category, with planned, spent and remaining amounts; several named budgets per month
+- Expense and transaction tracking with search, filters and Excel or CSV import
+- Month-end spending forecast based on the current pace and past months
+- Bill reminders that repeat weekly, monthly or yearly, with alerts before they are due; paying one records it in a budget
+- Monthly reports with Excel and PDF downloads
 - Personal and organization workspaces with owner, admin and member roles
+- AI assistant: scan a receipt photo into an expense, and get a plain-language summary of a month. Works with the user's own Claude, ChatGPT (OpenAI), Gemini or DeepSeek API key, stored encrypted
+- 20 currencies
 
 ## Integrations
 
@@ -17,7 +19,12 @@
 - PDF monthly reports
 - Google Sheets live feed through IMPORTDATA
 - Calendar feed (.ics) for Google Calendar, Outlook and Apple Calendar
-- Slack, Discord and generic webhook notifications, compatible with Zapier and Make
+- Slack, Discord and signed webhook notifications, compatible with Zapier and Make
+
+## Pages
+
+- About: /about
+- Case study (how the 2023 project was rebuilt, with real figures): /case-study
 
 ## Links
 

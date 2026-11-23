@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { clearAiSession } from '../../lib/aiSession';
 
 function readStoredUser() {
   try {
@@ -29,6 +30,8 @@ const authSlice = createSlice({
       state.checked = true;
       localStorage.removeItem('user');
       localStorage.removeItem('activeOrganizationId');
+      // A demo visitor's AI key must not outlive their visit.
+      clearAiSession();
     },
   },
 });

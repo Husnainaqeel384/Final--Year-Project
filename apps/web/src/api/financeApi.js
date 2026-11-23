@@ -19,6 +19,8 @@ export const deleteBudgetItem = (id, itemId) => client.delete(`/budgets/${id}/it
 export const fetchExpenseSummary = (params) => client.get('/expenses/summary', { params }).then(data);
 export const fetchExpenses = (params) => client.get('/expenses', { params }).then(data);
 export const createExpense = (expense) => client.post('/expenses', expense).then(data);
+/** One receipt split by category: { spentOn, budgetId, items: [{ categoryName, amount, description }] }, saved together. */
+export const createExpenses = (batch) => client.post('/expenses/batch', batch).then(data);
 export const updateExpense = (id, expense) => client.patch(`/expenses/${id}`, expense).then(data);
 export const deleteExpense = (id) => client.delete(`/expenses/${id}`);
 

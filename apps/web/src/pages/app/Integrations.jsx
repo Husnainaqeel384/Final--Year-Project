@@ -53,6 +53,19 @@ const FEEDS = [
   },
 ];
 
+// Same rule as the API: Slack and Discord accept only their own message shape, so
+// a recognised address picks the destination and a Slack link can't be saved as Discord.
+function providerForUrl(value) {
+  try {
+    const { hostname, pathname } = new URL(value);
+    if (hostname === 'hooks.slack.com') return 'slack';
+    if (/(^|\.)discord(app)?\.com$/.test(hostname) && pathname.startsWith('/api/webhooks/')) return 'discord';
+  } catch {
+    // Not a complete address yet.
+  }
+  return null;
+}
+
 function SpreadsheetCard({ dataset, title }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -316,12 +329,25 @@ function Integrations() {
         {form && (
           <form onSubmit={submitWebhook} className="space-y-4">
             <Input label="Name" required maxLength={60} placeholder="Finance channel" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-            <Select label="Destination" value={form.provider} onChange={(event) => setForm({ ...form, provider: event.target.value })}>
+            <Select
+              label="Destination"
+              value={form.provider}
+              onChange={(event) => setForm({ ...form, provider: event.target.value })}
+              hint={providerForUrl(form.url) ? 'Chosen from the webhook address.' : undefined}
+            >
               <option value="slack">Slack</option>
               <option value="discord">Discord</option>
               <option value="generic">Other (Zapier, Make, custom)</option>
             </Select>
-            <Input label="Webhook URL" type="url" required pattern="https://.*" hint="Must start with https://" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} />
+            <Input
+              label="Webhook URL"
+              type="url"
+              required
+              pattern="https://.*"
+              hint="Must start with https://"
+              value={form.url}
+              onChange={(event) => setForm({ ...form, url: event.target.value, provider: providerForUrl(event.target.value) ?? form.provider })}
+            />
             <fieldset>
               <legend className="text-ink-2 mb-1.5 text-[13px] font-medium">Send these events</legend>
               <div className="space-y-1.5">

@@ -6,6 +6,7 @@ import { assertSafeWebhookUrl, isPublicAddress } from '../src/utils/safeRequest.
 import { buildCalendar } from '../src/utils/ics.js';
 import { neutralizeFormula } from '../src/services/integration.service.js';
 import { nextDueDate } from '../src/services/reminder.service.js';
+import { providerForUrl } from '../src/services/webhook.service.js';
 import { msUntilNextReset } from '../src/services/demo.service.js';
 
 describe('allocate', () => {
@@ -117,5 +118,17 @@ describe('msUntilNextReset', () => {
   it('moves to the next day once 03:00 UTC has passed', () => {
     expect(hours(msUntilNextReset(new Date('2026-05-10T03:00:00Z')))).toBe(24);
     expect(hours(msUntilNextReset(new Date('2026-12-31T22:00:00Z')))).toBe(5);
+  });
+});
+
+describe('providerForUrl', () => {
+  it('recognises Slack and Discord addresses, and nothing else', () => {
+    expect(providerForUrl('https://hooks.slack.com/services/T000/B000/xyz')).toBe('slack');
+    expect(providerForUrl('https://discord.com/api/webhooks/1/abc')).toBe('discord');
+    expect(providerForUrl('https://canary.discordapp.com/api/webhooks/1/abc')).toBe('discord');
+    expect(providerForUrl('https://hooks.zapier.com/hooks/catch/1/abc')).toBeNull();
+    // A look-alike host must not count as Discord.
+    expect(providerForUrl('https://discordXcom.example/api/webhooks/1')).toBeNull();
+    expect(providerForUrl('https://discord.com/channels/1')).toBeNull();
   });
 });

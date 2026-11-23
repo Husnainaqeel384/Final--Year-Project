@@ -1,7 +1,7 @@
 // robots.txt and sitemap.xml must contain absolute URLs, so they are generated
 // at build time from VITE_SITE_URL instead of being kept as static files.
 
-const PUBLIC_ROUTES = ['/', '/about', '/contact', '/privacy'];
+const PUBLIC_ROUTES = ['/', '/about', '/case-study', '/contact', '/privacy'];
 
 export function seoFiles(siteUrl) {
   const robots = [

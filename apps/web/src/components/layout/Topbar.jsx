@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { LuBuilding2, LuCheck, LuChevronsUpDown, LuLogOut, LuMenu, LuMoon, LuSun, LuUser } from 'react-icons/lu';
+import { LuBuilding2, LuCheck, LuChevronsUpDown, LuLogOut, LuMenu, LuMoon, LuSettings, LuSun, LuUser } from 'react-icons/lu';
 import { logout } from '../../api/authApi';
 import { clearUser } from '../../redux/features/authSlice';
 import { setActiveWorkspace } from '../../redux/features/workspaceSlice';
@@ -123,6 +123,9 @@ function UserMenu() {
           <div className="border-line my-1 border-t" />
           <Link to="/app/profile" onClick={() => setOpen(false)} className={menuItemClass}>
             <LuUser className="size-4" aria-hidden="true" /> Profile
+          </Link>
+          <Link to="/app/settings" onClick={() => setOpen(false)} className={menuItemClass}>
+            <LuSettings className="size-4" aria-hidden="true" /> Settings
           </Link>
           <button type="button" onClick={signOut} className={menuItemClass}>
             <LuLogOut className="size-4" aria-hidden="true" /> Sign out

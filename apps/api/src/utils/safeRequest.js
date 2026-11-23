@@ -62,7 +62,11 @@ export function assertSafeWebhookUrl(rawUrl) {
   return url;
 }
 
-/** POSTs JSON and resolves with the status code. Redirects are not followed. */
+/**
+ * POSTs JSON and resolves with the status and the start of the reply. Services like
+ * Slack explain a rejection in the body ("invalid_payload"), which helps the person
+ * fix their setup. Redirects are not followed.
+ */
 export function postJson(rawUrl, body, headers = {}) {
   const url = assertSafeWebhookUrl(rawUrl);
   return new Promise((resolve, reject) => {
@@ -80,8 +84,13 @@ export function postJson(rawUrl, body, headers = {}) {
         },
       },
       (response) => {
-        response.resume();
-        resolve(response.statusCode);
+        let text = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+          // Only the start is kept; a large reply is never held in memory.
+          if (text.length < 300) text += chunk;
+        });
+        response.on('end', () => resolve({ status: response.statusCode, text: text.replace(/\s+/g, ' ').trim().slice(0, 200) }));
       },
     );
     request.on('timeout', () => request.destroy(new Error('Request timed out')));

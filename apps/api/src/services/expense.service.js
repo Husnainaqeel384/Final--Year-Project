@@ -202,6 +202,41 @@ export async function createExpense(workspace, { categoryName, amount, descripti
   return present(expense);
 }
 
+/**
+ * Several expenses from one receipt, split by category. They share a date and a
+ * budget, and are saved together or not at all, so a receipt is never half recorded.
+ */
+export async function createExpenses(workspace, { spentOn, budgetId, items }) {
+  const budget = await resolveExpenseBudget(workspace, spentOn, budgetId);
+  const ids = await db.transaction(async (trx) => {
+    const created = [];
+    for (const item of items) {
+      const [id] = await trx('expenses').insert({
+        ...scopeColumns(workspace),
+        budget_id: budget,
+        category_name: item.categoryName,
+        amount: item.amount,
+        description: item.description,
+        spent_on: spentOn,
+      });
+      created.push(id);
+    }
+    return created;
+  });
+
+  const saved = [];
+  // One at a time, so each threshold check sees the expenses saved before it.
+  for (const id of ids) {
+    const expense = await findExpense(workspace, id);
+    emitEvent(workspace, 'expense.created', `New expense: ${expense.amount} in ${expense.category_name}.`, present(expense));
+    await notifyIfThresholdCrossed(workspace, expense).catch((error) => {
+      logger.error({ err: error }, 'Could not check the budget threshold');
+    });
+    saved.push(present(expense));
+  }
+  return saved;
+}
+
 export async function updateExpense(workspace, id, { categoryName, amount, description, spentOn, budgetId }) {
   await getEditableExpense(workspace, id);
 

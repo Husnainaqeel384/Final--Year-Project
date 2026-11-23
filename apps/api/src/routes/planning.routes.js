@@ -11,7 +11,13 @@ import { amount, dateOnly, idParam, optional, requiredText } from '../utils/sche
 const router = Router();
 router.use(resolveWorkspace);
 
-const presentNote = (row) => ({ id: row.id, body: row.body, updatedAt: row.updated_at });
+const presentNote = (row) => ({
+  id: row.id,
+  title: row.title ?? '',
+  body: row.body,
+  pinned: Boolean(row.pinned),
+  updatedAt: row.updated_at,
+});
 
 /* Reminders */
 const localToday = () => {
@@ -89,22 +95,41 @@ router.delete('/reminders/:id', validate({ params: idParam }), async (req, res) 
 });
 
 /* Notes */
-const noteBody = z.object({ body: requiredText(2000) });
+const noteFields = {
+  title: z.string().trim().max(120, 'Keep the title under 120 characters'),
+  body: requiredText(2000),
+  pinned: z.boolean(),
+};
+const noteBody = z.object({ ...noteFields, title: noteFields.title.optional(), pinned: noteFields.pinned.optional() });
 
-router.get('/notes', async (req, res) => {
-  const rows = await applyScope(db('notes'), req.workspace).orderBy('updated_at', 'desc');
+router.get('/notes', validate({ query: z.object({ search: optional(z.string().trim().max(100)) }) }), async (req, res) => {
+  const query = applyScope(db('notes'), req.workspace);
+  if (req.valid.query.search) {
+    const term = `%${req.valid.query.search}%`;
+    query.where((inner) => inner.where('title', 'like', term).orWhere('body', 'like', term));
+  }
+  // Pinned notes first, then the most recently edited.
+  const rows = await query.orderBy([{ column: 'pinned', order: 'desc' }, { column: 'updated_at', order: 'desc' }, { column: 'id', order: 'desc' }]);
   res.json({ success: true, data: rows.map(presentNote) });
 });
 
 router.post('/notes', validate({ body: noteBody }), async (req, res) => {
-  const [id] = await db('notes').insert({ ...scopeColumns(req.workspace), body: req.valid.body.body });
+  const { title, body, pinned } = req.valid.body;
+  const [id] = await db('notes').insert({ ...scopeColumns(req.workspace), title: title || null, body, pinned: pinned ?? false });
   res.status(201).json({ success: true, data: presentNote(await db('notes').where({ id }).first()) });
 });
 
-router.patch('/notes/:id', validate({ params: idParam, body: noteBody }), async (req, res) => {
+// Any subset of fields. Pinning alone leaves the "edited" date as it was, since the note itself didn't change.
+router.patch('/notes/:id', validate({ params: idParam, body: z.object(noteFields).partial() }), async (req, res) => {
   const scoped = () => applyScope(db('notes').where({ id: req.valid.params.id }), req.workspace);
   if (!(await scoped().first('id'))) throw notFound('Note');
-  await scoped().update({ body: req.valid.body.body, updated_at: db.fn.now() });
+  const { title, body, pinned } = req.valid.body;
+  const changes = {};
+  if (title !== undefined) changes.title = title || null;
+  if (body !== undefined) changes.body = body;
+  if (title !== undefined || body !== undefined) changes.updated_at = db.fn.now();
+  if (pinned !== undefined) changes.pinned = pinned;
+  if (Object.keys(changes).length > 0) await scoped().update(changes);
   res.json({ success: true, data: presentNote(await scoped().first()) });
 });
 

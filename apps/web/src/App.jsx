@@ -14,6 +14,7 @@ import { FEATURES } from './config/features';
 // Pages are split so visitors to the landing page do not download the whole dashboard.
 const Home = lazy(() => import('./pages/marketing/Home'));
 const About = lazy(() => import('./pages/marketing/About'));
+const CaseStudy = lazy(() => import('./pages/marketing/CaseStudy'));
 const Contact = lazy(() => import('./pages/marketing/Contact'));
 const Privacy = lazy(() => import('./pages/marketing/Privacy'));
 const NotFound = lazy(() => import('./pages/marketing/NotFound'));
@@ -35,6 +36,7 @@ const SplitGroup = lazy(() => import('./pages/app/SplitGroup'));
 const Integrations = lazy(() => import('./pages/app/Integrations'));
 const Organization = lazy(() => import('./pages/app/Organization'));
 const Profile = lazy(() => import('./pages/app/Profile'));
+const Settings = lazy(() => import('./pages/app/Settings'));
 const Users = lazy(() => import('./pages/app/Users'));
 const Categories = lazy(() => import('./pages/app/Categories'));
 
@@ -86,6 +88,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/case-study" element={<CaseStudy />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route element={<GuestOnly />}>
@@ -110,6 +113,7 @@ function App() {
             <Route path="integrations" element={<Integrations />} />
             <Route path="organization" element={<Organization />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="admin" element={<RequireAdmin />}>
               <Route path="users" element={<Users />} />
               <Route path="categories" element={<Categories />} />

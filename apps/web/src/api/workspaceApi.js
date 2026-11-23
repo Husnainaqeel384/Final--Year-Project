@@ -11,9 +11,11 @@ export const fetchReminderAlerts = (params) => client.get('/reminders/alerts', {
 export const reopenReminder = (id) => client.post(`/reminders/${id}/reopen`).then(data);
 export const deleteReminder = (id) => client.delete(`/reminders/${id}`);
 
-export const fetchNotes = () => client.get('/notes').then(data);
-export const createNote = (body) => client.post('/notes', { body }).then(data);
-export const updateNote = (id, body) => client.patch(`/notes/${id}`, { body }).then(data);
+export const fetchNotes = (params) => client.get('/notes', { params }).then(data);
+/** `note` is { title, body, pinned }. */
+export const createNote = (note) => client.post('/notes', note).then(data);
+/** Any of title, body and pinned. */
+export const updateNote = (id, changes) => client.patch(`/notes/${id}`, changes).then(data);
 export const deleteNote = (id) => client.delete(`/notes/${id}`);
 
 export const fetchContacts = () => client.get('/splits/contacts').then(data);

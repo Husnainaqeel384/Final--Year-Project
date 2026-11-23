@@ -168,8 +168,9 @@ async function seedWorkspace(trx, { userId, organizationId, scale, seed, name, w
   ]);
 
   await trx('notes').insert([
-    { ...scope, body: 'Dining out has been over budget for two months. Try a limit of two meals a week.' },
-    { ...scope, body: 'Move the annual bonus straight into the emergency fund.' },
+    { ...scope, title: 'Dining out plan', body: 'Dining out has been over budget for two months. Try a limit of two meals a week.', pinned: true },
+    { ...scope, title: 'Annual bonus', body: 'Move the annual bonus straight into the emergency fund.' },
+    { ...scope, body: 'Check whether the gym membership is still worth it before it renews.' },
   ]);
 }
 

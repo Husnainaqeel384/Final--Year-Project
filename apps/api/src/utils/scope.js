@@ -11,7 +11,7 @@ export function applyScope(query, workspace, tableAlias) {
 }
 
 // Personal rows have no organization to belong to, so they go with their owner when an account is removed.
-export const PERSONAL_TABLES = ['budgets', 'expenses', 'transactions', 'reminders', 'notes', 'webhooks'];
+export const PERSONAL_TABLES = ['budgets', 'expenses', 'transactions', 'reminders', 'notes', 'webhooks', 'ai_insights'];
 
 export const scopeColumns = (workspace) => ({
   user_id: workspace.userId,

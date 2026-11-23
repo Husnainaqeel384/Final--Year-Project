@@ -9,9 +9,10 @@ export const GITHUB_URL = 'https://github.com/Husnainaqeel384/Final--Year-Projec
 
 const NAV = [
   { label: 'Features', href: '/#features' },
-  { label: 'Integrations', href: '/#integrations' },
-  { label: 'FAQ', href: '/#faq' },
+  { label: 'AI', href: '/#ai' },
+  { label: 'Case study', href: '/case-study' },
   { label: 'About', href: '/about' },
+  { label: 'FAQ', href: '/#faq' },
 ];
 
 function MarketingHeader() {
@@ -72,6 +73,7 @@ function MarketingFooter() {
         <p>© {new Date().getFullYear()} Budget Book. MIT licensed.</p>
         <nav aria-label="Footer" className="flex flex-wrap gap-5">
           <Link to="/about" className="hover:text-ink">About</Link>
+          <Link to="/case-study" className="hover:text-ink">Case study</Link>
           <Link to="/privacy" className="hover:text-ink">Privacy</Link>
           <Link to="/contact" className="hover:text-ink">Contact</Link>
           <a href={GITHUB_URL} className="hover:text-ink" rel="noreferrer" target="_blank">GitHub</a>

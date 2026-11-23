@@ -137,6 +137,20 @@ router.post('/expenses', validate({ body: expenseBody }), async (req, res) => {
   res.status(201).json({ success: true, data: await expenses.createExpense(req.workspace, req.valid.body) });
 });
 
+// One receipt split by category: up to 20 expenses that share a date and budget, saved together.
+const expenseBatch = z.object({
+  spentOn: dateOnly,
+  budgetId: z.number().int().positive().nullable().optional(),
+  items: z
+    .array(z.object({ categoryName: requiredText(100), amount, description: z.string().trim().max(255).default('') }))
+    .min(1, 'Add at least one expense')
+    .max(20, 'A receipt can be split into at most 20 expenses'),
+});
+
+router.post('/expenses/batch', validate({ body: expenseBatch }), async (req, res) => {
+  res.status(201).json({ success: true, data: await expenses.createExpenses(req.workspace, req.valid.body) });
+});
+
 router.patch('/expenses/:id', validate({ params: idParam, body: expenseBody }), async (req, res) => {
   res.json({ success: true, data: await expenses.updateExpense(req.workspace, req.valid.params.id, req.valid.body) });
 });

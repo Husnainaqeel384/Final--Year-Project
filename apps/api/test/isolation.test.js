@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import app from '../src/app.js';
 import { migrate } from '../src/db/bootstrap.js';
 import { db } from '../src/db/knex.js';
+import { FEATURES } from '../src/config/features.js';
 
 const API = '/api/v1';
 const PASSWORD = 'Correct-horse-1';
@@ -446,7 +447,8 @@ describe('reminders', () => {
   });
 });
 
-describe('split groups', () => {
+// Runs only while bill splitting is switched on (src/config/features.js).
+describe.skipIf(!FEATURES.splitBills)('split groups', () => {
   let alice;
   let bob;
   let outsider;
@@ -572,6 +574,19 @@ describe('sessions and feeds', () => {
       .post(`${API}/integrations/webhooks`)
       .send({ name: 'Bad', provider: 'generic', url: 'https://169.254.169.254/latest', events: ['expense.created'] })
       .expect(400);
+  });
+
+  it('refuses a Slack address saved with another destination', async () => {
+    const account = await createAccount();
+    const { body } = await account.agent
+      .post(`${API}/integrations/webhooks`)
+      .send({ name: 'Wrong', provider: 'discord', url: 'https://hooks.slack.com/services/T000/B000/xyz', events: ['expense.created'] })
+      .expect(400);
+    expect(body.message).toBe('This is a Slack address, so choose Slack as the destination.');
+    await account.agent
+      .post(`${API}/integrations/webhooks`)
+      .send({ name: 'Right', provider: 'slack', url: 'https://hooks.slack.com/services/T000/B000/xyz', events: ['expense.created'] })
+      .expect(201);
   });
 
   it('rejects avatars that are not really images', async () => {

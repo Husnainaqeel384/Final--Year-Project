@@ -20,7 +20,18 @@ async function createDatabaseIfMissing() {
 
 export async function migrate() {
   await createDatabaseIfMissing();
-  const [, applied] = await db.migrate.latest();
+  let applied;
+  try {
+    [, applied] = await db.migrate.latest();
+  } catch (error) {
+    // `node --watch` restarts the API whenever a file changes, which can stop it in the middle
+    // of a migration and leave the lock set. Only one API runs in development, so a lock found
+    // at startup there is stale. Elsewhere it may be another instance, so it is never touched.
+    if (env.NODE_ENV !== 'development' || error.name !== 'MigrationLocked') throw error;
+    logger.warn('Released a migration lock left by an interrupted start');
+    await db.migrate.forceFreeMigrationsLock();
+    [, applied] = await db.migrate.latest();
+  }
   logger.info({ applied }, 'Database schema is up to date');
 }
 

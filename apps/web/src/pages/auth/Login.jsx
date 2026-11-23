@@ -9,8 +9,8 @@ import { setOrganizations } from '../../redux/features/workspaceSlice';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Input } from '../../components/ui/Field';
 import { Button } from '../../components/ui/Button';
-import { DemoButton } from '../../components/auth/DemoButton';
-import { DEMO_MODE } from '../../config/features';
+import { DemoAccountBox } from '../../components/auth/DemoAccountBox';
+import { DEMO_ACCOUNT, DEMO_MODE } from '../../config/features';
 
 function Login() {
   const dispatch = useDispatch();
@@ -45,6 +45,16 @@ function Login() {
         </>
       }
     >
+      {DEMO_MODE && (
+        <>
+          <DemoAccountBox onFill={() => setForm({ ...DEMO_ACCOUNT })} />
+          <div className="text-ink-3 my-5 flex items-center gap-3 text-xs">
+            <span className="bg-line h-px flex-1" />
+            or sign in with your account
+            <span className="bg-line h-px flex-1" />
+          </div>
+        </>
+      )}
       <form onSubmit={submit} className="space-y-4">
         <Input label="Email" name="email" type="email" autoComplete="email" required value={form.email} onChange={update} />
         <Input label="Password" name="password" type="password" autoComplete="current-password" required value={form.password} onChange={update} />
@@ -57,18 +67,6 @@ function Login() {
           Sign in
         </Button>
       </form>
-      {DEMO_MODE && (
-        <>
-          <div className="text-ink-3 my-4 flex items-center gap-3 text-xs">
-            <span className="bg-line h-px flex-1" />
-            or
-            <span className="bg-line h-px flex-1" />
-          </div>
-          <DemoButton variant="secondary" className="w-full">
-            Try the demo, no sign-up needed
-          </DemoButton>
-        </>
-      )}
     </AuthLayout>
   );
 }

@@ -6,8 +6,10 @@ import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import { z } from 'zod';
 import { env } from './config/env.js';
+import { FEATURES } from './config/features.js';
 import { logger } from './config/logger.js';
 import { db } from './db/knex.js';
+import aiRoutes from './ai/ai.routes.js';
 import { requireAuth } from './middlewares/auth.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { apiLimiter, feedLimiter } from './middlewares/rateLimit.js';
@@ -34,7 +36,17 @@ app.get('/health', async (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' } }));
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging: { ignore: (req) => req.url === '/health' },
+    // One short line per request. Full headers made real problems hard to spot and added nothing.
+    serializers: {
+      req: (req) => ({ id: req.id, method: req.method, url: req.url }),
+      res: (res) => ({ statusCode: res.statusCode }),
+    },
+  }),
+);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
 app.use(cors({ origin: env.APP_URL, credentials: true }));
 app.use(compression());
@@ -60,9 +72,10 @@ api.use(apiLimiter);
 api.use('/auth', authRoutes);
 api.use('/categories', requireAuth, categoryRoutes);
 api.use('/organizations', requireAuth, organizationRoutes);
-api.use('/splits', requireAuth, splitRoutes);
+if (FEATURES.splitBills) api.use('/splits', requireAuth, splitRoutes);
 api.use('/admin', requireAuth, adminRoutes);
 api.use('/integrations', requireAuth, integrationRoutes);
+api.use('/ai', requireAuth, aiRoutes);
 api.use('/', requireAuth, financeRoutes);
 api.use('/', requireAuth, planningRoutes);
 app.use('/api/v1', api);

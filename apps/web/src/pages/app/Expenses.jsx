@@ -17,6 +17,7 @@ import {
 } from 'react-icons/lu';
 import {
   createExpense,
+  createExpenses,
   deleteExpense,
   fetchBudgets,
   fetchExpenseSummary,
@@ -41,7 +42,11 @@ import { Button, IconButton } from '../../components/ui/Button';
 import { Input, Select, Textarea } from '../../components/ui/Field';
 import { CategorySelect } from '../../components/ui/CategorySelect';
 import { ConfirmDialog, Modal } from '../../components/ui/Modal';
-import { EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback';
+import { EmptyState, ErrorState, InfoNote, Skeleton } from '../../components/ui/Feedback';
+import { ScanReceiptButton } from '../../components/ai/ScanReceiptButton';
+import { ReceiptSplitEditor } from '../../components/ai/ReceiptSplitEditor';
+import { Segmented } from '../../components/ui/Segmented';
+import { describeGroup, splitByCategory } from '../../lib/receiptSplit';
 import { BudgetStatusLabel } from '../../components/ui/Meter';
 import { Pagination } from '../../components/ui/Pagination';
 
@@ -284,6 +289,18 @@ function CategoryTable({ categories, open, currency, onToggle, onPage, onEdit, o
   );
 }
 
+/** Says what the AI filled in and what it couldn't, so nothing is saved unchecked. */
+function ScanNote({ scan, currency }) {
+  const missing = [!scan.amount && 'amount', !scan.date && 'date', !scan.categoryName && 'category'].filter(Boolean);
+  return (
+    <InfoNote>
+      Filled in by AI from your receipt. Check each field before saving.
+      {missing.length > 0 && ` It couldn't read the ${missing.join(' or ')}, so please add ${missing.length === 1 ? 'it' : 'them'}.`}
+      {scan.currency && scan.currency !== currency && ` The receipt is in ${scan.currency} and this workspace uses ${currency}; amounts are not converted.`}
+    </InfoNote>
+  );
+}
+
 function Expenses() {
   const dispatch = useDispatch();
   const { summary, open, loading, error } = useSelector((state) => state.expense);
@@ -400,9 +417,38 @@ function Expenses() {
     if (searchParams.has('new')) setSearchParams({}, { replace: true });
   };
 
+  // One receipt saved as one expense per category, all together or not at all.
+  const submitSplit = async () => {
+    const { groups, uncategorised } = splitByCategory(form.splitItems, form.scan.amount, { spread: form.spread });
+    if (uncategorised > 0) return toast.error('Choose a category for every ticked line, or untick it.');
+    if (groups.length === 0) return toast.error('Tick at least one line to save.');
+    if (groups.some((group) => group.amount <= 0)) return toast.error("Each category's total must be more than zero.");
+    try {
+      setSaving(true);
+      const saved = await createExpenses({
+        spentOn: form.spentOn,
+        budgetId: selectedBudget(form) ? Number(selectedBudget(form)) : null,
+        items: groups.map((group) => ({
+          categoryName: group.categoryName,
+          amount: group.amount,
+          description: describeGroup(form.scan.merchant, group.descriptions),
+        })),
+      });
+      toast.success(`Saved ${saved.length} ${saved.length === 1 ? 'expense' : 'expenses'} from the receipt.`);
+      closeForm();
+      refresh();
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+    return undefined;
+  };
+
   // "Save and add another" keeps the date and budget, so several receipts go in quickly.
   const submit = async (event) => {
     event.preventDefault();
+    if (form.mode === 'split') return submitSplit();
     const again = event.nativeEvent.submitter?.value === 'again';
     const payload = {
       categoryName: form.categoryName.trim(),
@@ -443,6 +489,20 @@ function Expenses() {
     );
 
   const newExpense = () => setForm({ ...EMPTY, spentOn: month === currentMonth() ? today() : `${month}-01` });
+  // A scanned receipt opens the normal form, so the person checks every field before it is saved.
+  const openScanned = (scan) =>
+    setForm({
+      ...EMPTY,
+      amount: scan.amount ? String(scan.amount) : '',
+      spentOn: scan.date ?? today(),
+      categoryName: scan.categoryName ?? '',
+      description: scan.merchant ?? '',
+      scan,
+      // Line items, for saving the receipt as one expense per category instead.
+      mode: 'one',
+      spread: true,
+      splitItems: (scan.items ?? []).map((item, index) => ({ ...item, id: index, include: true })),
+    });
   const editExpense = (expense) => setForm({ ...expense, budgetId: expense.budgetId ? String(expense.budgetId) : '' });
 
   const isThisMonth = month === currentMonth();
@@ -512,6 +572,7 @@ function Expenses() {
         <Button variant="secondary" onClick={exportExcel}>
           <LuDownload className="size-4" aria-hidden="true" /> Export
         </Button>
+        <ScanReceiptButton onScanned={openScanned} />
         <Button onClick={newExpense}>
           <LuPlus className="size-4" aria-hidden="true" /> Add expense
         </Button>
@@ -619,24 +680,40 @@ function Expenses() {
       <Modal
         open={Boolean(form)}
         size="lg"
-        title={form?.id ? 'Edit expense' : 'Add expense'}
-        description={form?.id ? undefined : "It counts against the category's limit in the budget you choose."}
+        title={form?.id ? 'Edit expense' : form?.scan ? 'Check the scanned expense' : 'Add expense'}
+        description={form?.id || form?.scan ? undefined : "It counts against the category's limit in the budget you choose."}
         onClose={closeForm}
       >
         {form && (
           <form onSubmit={submit} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Amount"
-                type="number"
-                min="0.01"
-                step="0.01"
-                required
-                autoFocus
-                placeholder="0.00"
-                value={form.amount}
-                onChange={(event) => setForm({ ...form, amount: event.target.value })}
+            {form.scan && <ScanNote scan={form.scan} currency={currency} />}
+            {/* A receipt with several lines can become one expense per category instead. */}
+            {form.scan && form.splitItems.length >= 2 && (
+              <Segmented
+                legend="Save as"
+                name="save-as"
+                value={form.mode}
+                onChange={(mode) => setForm({ ...form, mode })}
+                options={[
+                  { value: 'one', label: 'One expense' },
+                  { value: 'split', label: 'Split by category' },
+                ]}
               />
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {form.mode !== 'split' && (
+                <Input
+                  label="Amount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  autoFocus
+                  placeholder="0.00"
+                  value={form.amount}
+                  onChange={(event) => setForm({ ...form, amount: event.target.value })}
+                />
+              )}
               <Input
                 label="Date"
                 type="date"
@@ -644,7 +721,9 @@ function Expenses() {
                 value={form.spentOn}
                 onChange={(event) => event.target.value && changeDate(event.target.value)}
               />
-              <CategorySelect value={form.categoryName} onChange={(categoryName) => setForm({ ...form, categoryName })} />
+              {form.mode !== 'split' && (
+                <CategorySelect value={form.categoryName} onChange={(categoryName) => setForm({ ...form, categoryName })} />
+              )}
               <Select
                 label="Budget"
                 value={selectedBudget(form)}
@@ -659,25 +738,36 @@ function Expenses() {
                 <option value="">No budget</option>
               </Select>
             </div>
-            <Textarea
-              label="Description (optional)"
-              rows={2}
-              maxLength={255}
-              placeholder="e.g. Weekly shop"
-              value={form.description}
-              onChange={(event) => setForm({ ...form, description: event.target.value })}
-            />
+            {form.mode === 'split' ? (
+              <ReceiptSplitEditor
+                items={form.splitItems}
+                total={form.scan.amount}
+                spread={form.spread}
+                currency={currency}
+                onItemsChange={(splitItems) => setForm({ ...form, splitItems })}
+                onSpreadChange={(spread) => setForm({ ...form, spread })}
+              />
+            ) : (
+              <Textarea
+                label="Description (optional)"
+                rows={2}
+                maxLength={255}
+                placeholder="e.g. Weekly shop"
+                value={form.description}
+                onChange={(event) => setForm({ ...form, description: event.target.value })}
+              />
+            )}
             <div className="border-line flex flex-wrap justify-end gap-2 border-t pt-4">
               <Button variant="secondary" onClick={closeForm}>
                 Cancel
               </Button>
-              {!form.id && (
+              {!form.id && form.mode !== 'split' && (
                 <Button type="submit" variant="secondary" name="intent" value="again" disabled={saving}>
                   Save and add another
                 </Button>
               )}
               <Button type="submit" loading={saving}>
-                Save
+                {form.mode === 'split' ? 'Save expenses' : 'Save'}
               </Button>
             </div>
           </form>

@@ -6,6 +6,8 @@ import { getErrorMessage } from '../../api/client';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Input } from '../../components/ui/Field';
 import { Button } from '../../components/ui/Button';
+import { DemoButton } from '../../components/auth/DemoButton';
+import { DEMO_MODE } from '../../config/features';
 
 const EMPTY = { firstName: '', lastName: '', username: '', email: '', password: '' };
 
@@ -42,6 +44,14 @@ function Register() {
         </>
       }
     >
+      {DEMO_MODE && (
+        <div className="border-line bg-surface-2/60 mb-5 flex items-center gap-3 rounded-xl border p-3">
+          <p className="text-ink-2 flex-1 text-[13px]">Just looking? Explore a ready-made account first. No sign-up needed.</p>
+          <DemoButton variant="secondary" size="sm">
+            Try the demo
+          </DemoButton>
+        </div>
+      )}
       <form onSubmit={submit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Input label="First name" name="firstName" autoComplete="given-name" required maxLength={50} value={form.firstName} onChange={update} />

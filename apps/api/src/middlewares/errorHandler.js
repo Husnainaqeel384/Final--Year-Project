@@ -24,8 +24,9 @@ export function errorHandler(err, req, res, _next) {
     message = 'The request could not be read';
   }
 
-  // Details of unexpected failures go to the log, never to the client.
-  if (status >= 500) (req.log ?? logger).error({ err }, 'Unhandled error');
+  // Details of unexpected failures go to the log, never to the client. An AppError was
+  // raised on purpose with a message for the person, and is logged where it happened.
+  if (status >= 500 && !(err instanceof AppError)) (req.log ?? logger).error({ err }, 'Unhandled error');
 
   res.status(status).json({ success: false, message });
 }

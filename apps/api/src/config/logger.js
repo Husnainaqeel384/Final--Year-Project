@@ -8,9 +8,12 @@ export const logger = pino({
     paths: [
       'req.headers.authorization',
       'req.headers.cookie',
+      // A demo visitor's own AI key travels in this header for the length of their visit.
+      'req.headers["x-ai-key"]',
       'res.headers["set-cookie"]',
       '*.password',
       '*.token',
+      '*.apiKey',
     ],
     censor: '[redacted]',
   },
